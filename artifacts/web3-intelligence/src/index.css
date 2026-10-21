@@ -844,3 +844,81 @@ tbody tr:hover { background:rgba(45,68,95,.23); }
 @media(prefers-reduced-motion:reduce) {
   .capability:hover,.landing-cta:hover,.hero-carousel-controls>button:hover { transform:none; }
 }
+
+/* Final readability and navigation pass across the landing and terminal views. */
+.landing-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  max-width: none;
+  min-height: 78px;
+  padding-inline: clamp(18px, 5.5vw, 82px);
+  background: rgba(10, 16, 26, .92);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 1px rgba(255, 255, 255, .04);
+}
+.landing-nav-links a,
+.landing-login,
+.landing-cta { font-size: 14px; }
+.hero-copy>p,
+.landing-intro>p,
+.landing-final>div:last-child>p { font-size: 16px; line-height: 1.75; }
+.hero-proof { font-size: 12px; }
+.hero-eyebrow,
+.landing-section-index { font-size: 12px; }
+.landing-ticker { font-size: 12px; }
+.hero-slide-caption p { font-size: 15px; }
+.hero-slide-evidence>div { font-size: 12px; }
+.hero-slide-evidence small { font-size: 11px; }
+.capability-number,
+.capability-link { font-size: 12px; }
+.capability-art { font-size: 10px; }
+.connection-label { font-size: 10px; }
+.capability p { font-size: 15px; line-height: 1.7; }
+.principle-grid h3 { font-size: 17px; }
+.principle-grid p { font-size: 14px; line-height: 1.7; }
+.landing-footer-rich nav a { font-size: 13px; }
+.unavailable-state { font-size: 11px; }
+.unavailable-name small { font-size: 13px; }
+.page-description { font-size: 16px; line-height: 1.7; }
+.section-kicker,
+.history-meta,
+.chart-legend,
+.data-source,
+.result-label,
+.answer-meta { font-size: 12px; }
+.metric-foot { font-size: 12px; }
+.scope-copy { font-size: 13px; line-height: 1.65; }
+.error-state { font-size: 14px; }
+
+@media(max-width:760px) {
+  .landing-nav { min-height: 66px; padding-inline: 17px; }
+  .landing-nav-links a,
+  .landing-login,
+  .landing-cta { font-size: 14px; }
+  .hero-copy>p { font-size: 16px; }
+  .hero-proof { font-size: 11px; }
+  .hero-eyebrow,
+  .landing-section-index { font-size: 11px; }
+  .landing-ticker { font-size: 11px; }
+  .landing-intro>p,
+  .landing-final>div:last-child>p { font-size: 15px; }
+  .capability p { font-size: 15px; }
+  .unavailable-name { font-size: 14px; }
+  .unavailable-name small { font-size: 12px; }
+  .unavailable-state { font-size: 10px; }
+  .page-description { font-size: 15px; }
+  .metric-label { font-size: 12px; }
+  .metric-foot { font-size: 11px; }
+  .section-kicker,
+  .history-meta,
+  .chart-legend,
+  .data-source,
+  .result-label,
+  .answer-meta { font-size: 11px; }
+  .scope-copy { font-size: 13px; }
+}
+
+@media(max-width:450px) {
+  .landing-nav { padding-inline: 12px; }
+}
