@@ -133,7 +133,7 @@ Do not use the force-push command for routine setup. Production schema changes s
 After signing up and verifying the intended primary email in the development Clerk instance, grant the first admin role with:
 
 ```sh
-pnpm --filter @workspace/scripts run promote-admin -- admin@example.com
+pnpm --filter @workspace/scripts run promote-admin admin@example.com
 ```
 
 This command uses the server-side Clerk secret to resolve the verified account and grants the role in the development database. It does not create a password or account. The user signs in with their own Clerk credentials. Development and production accounts are separate; do not use a shared/default password.

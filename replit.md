@@ -12,7 +12,7 @@ Web3 Intelligence is a read-only blockchain research workspace for market data, 
 - `pnpm run build` — typecheck and build all packages.
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — apply schema changes to the development database only
-- `pnpm --filter @workspace/scripts run promote-admin -- <verified-email>` — grant first admin role to an existing, verified development Clerk account
+- `pnpm --filter @workspace/scripts run promote-admin <verified-email>` — grant first admin role to an existing, verified development Clerk account
 - Public market, intelligence, and one-off wallet lookup endpoints run without account authentication. Watchlists and admin routes require `DATABASE_URL` and configured Clerk server keys.
 - Clerk is provisioned for this workspace; development and production have separate tenants and accounts. Account routes return an explicit unavailable response if authentication configuration is missing. Do not bypass the account check or create shared/default passwords.
 - The signup form uses Clerk-managed development credentials in preview. Keep the environment indicator honest; the production Clerk instance is separate and is selected by Replit's Publish flow.

@@ -11,23 +11,10 @@ type ClerkUser = {
 };
 
 async function promoteAdmin(): Promise<void> {
-  const identity = process.argv[2]?.trim();
-  if (identity && /^0x[a-fA-F0-9]{40}$/.test(identity)) {
-    const walletUserId = `wallet:${identity.toLowerCase()}`;
-    await db
-      .insert(usersTable)
-      .values({ clerkUserId: walletUserId, role: "admin", status: "active" })
-      .onConflictDoUpdate({
-        target: usersTable.clerkUserId,
-        set: { role: "admin", status: "active", updatedAt: new Date() },
-      });
-    process.stdout.write("Administrator access granted to that EVM wallet account.\n");
-    return;
-  }
-
+  const identity = process.argv.slice(2).find((argument) => argument !== "--")?.trim();
   const email = identity?.toLowerCase();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    throw new Error("Provide an existing verified account email or EVM wallet address.");
+    throw new Error("Provide an existing verified Clerk account email.");
   }
 
   const secretKey = process.env.CLERK_SECRET_KEY;
