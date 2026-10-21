@@ -165,6 +165,58 @@ async function readSolanaBalance(address: string): Promise<string> {
   return formatBaseUnits(BigInt(lamports), 9);
 }
 
+async function readTronBalance(address: string): Promise<string> {
+  const response = await fetch("https://api.trongrid.io/wallet/getaccount", {
+    method: "POST",
+    headers: { accept: "application/json", "content-type": "application/json" },
+    body: JSON.stringify({ address, visible: true }),
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!response.ok) {
+    throw new Error(`TRON provider returned HTTP ${response.status}`);
+  }
+
+  const body = await response.text();
+  const payload = JSON.parse(body) as { Error?: string };
+  // TronGrid encodes this integer as a JSON number. Read the original decimal
+  // text so large SUN balances are not rounded by JavaScript's number parser.
+  const balance = body.match(/"balance"\s*:\s*(\d+)(?=\s*[,}])/);
+  if (!balance?.[1]) {
+    throw new Error(payload.Error ?? "TRON provider returned no native balance");
+  }
+  return formatBaseUnits(BigInt(balance[1]), 6);
+}
+
+async function readTonBalance(address: string): Promise<string> {
+  const data = (await fetchJson(
+    `https://toncenter.com/api/v2/getAddressBalance?address=${encodeURIComponent(address)}`,
+  )) as { ok?: boolean; result?: string; error?: { message?: string } };
+  if (data.ok !== true || !data.result || !/^\d+$/.test(data.result)) {
+    throw new Error(data.error?.message ?? "TON provider returned an invalid balance");
+  }
+  return formatBaseUnits(BigInt(data.result), 9);
+}
+
+async function readSuiBalance(address: string): Promise<string> {
+  const data = (await fetchJson("https://graphql.mainnet.sui.io/graphql", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      query:
+        "query ($address: SuiAddress!) { address(address: $address) { balance(coinType: \"0x2::sui::SUI\") { totalBalance } } }",
+      variables: { address },
+    }),
+  })) as {
+    data?: { address?: { balance?: { totalBalance?: string | null } | null } | null };
+    errors?: { message?: string }[];
+  };
+  const balance = data.data?.address?.balance?.totalBalance;
+  if (data.errors?.length || !balance || !/^\d+$/.test(balance)) {
+    throw new Error(data.errors?.[0]?.message ?? "Sui provider returned no native balance");
+  }
+  return formatBaseUnits(BigInt(balance), 9);
+}
+
 function makeResult(
   network: WalletNetwork,
   address: string,
@@ -207,30 +259,31 @@ router.post("/wallet/scan", async (req, res): Promise<void> => {
     return;
   }
 
-  const details = networkDetails[network];
-  if (network === "tron" || network === "ton" || network === "sui") {
-    res.json(
-      ScanWalletResponse.parse(
-        makeResult(
-          network,
-          address,
-          "unsupported",
-          null,
-          null,
-          "Address format is valid, but a balance provider is not connected for this network yet.",
-        ),
-      ),
-    );
-    return;
-  }
-
   try {
     const balance =
       network === "bitcoin"
         ? await readBitcoinBalance(address)
         : network === "solana"
           ? await readSolanaBalance(address)
-          : await readEvmBalance(details.rpc!, address);
+          : network === "tron"
+            ? await readTronBalance(address)
+            : network === "ton"
+              ? await readTonBalance(address)
+              : network === "sui"
+                ? await readSuiBalance(address)
+                : await readEvmBalance(networkDetails[network].rpc!, address);
+    const source =
+      network === "bitcoin"
+        ? "mempool.space"
+        : network === "solana"
+          ? "Solana Mainnet RPC"
+          : network === "tron"
+            ? "TronGrid"
+            : network === "ton"
+              ? "TON Center"
+              : network === "sui"
+                ? "Sui Mainnet GraphQL"
+                : "PublicNode RPC";
     res.json(
       ScanWalletResponse.parse(
         makeResult(
@@ -238,11 +291,7 @@ router.post("/wallet/scan", async (req, res): Promise<void> => {
           address,
           "ok",
           balance,
-          network === "bitcoin"
-            ? "mempool.space"
-            : network === "solana"
-              ? "Solana Mainnet RPC"
-              : "PublicNode RPC",
+          source,
           "Read-only native-token balance. Token and NFT holdings are not included.",
         ),
       ),
