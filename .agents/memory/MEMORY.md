@@ -1,0 +1,1 @@
+- [Sui public data API](sui-public-api.md) — Mainnet full-node JSON-RPC balance methods are disabled; use GraphQL or a provider that supports current data APIs.
