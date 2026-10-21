@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './adminProviderStatus';
 export * from './adminUser';
 export * from './adminUserRole';
 export * from './adminUserStatus';
@@ -16,6 +17,8 @@ export * from './adminWalletActivity';
 export * from './adminWalletActivityActivityType';
 export * from './adminWalletActivityDirection';
 export * from './adminWalletWatch';
+export * from './adminWalletWatchInput';
+export * from './adminWalletWatchUpdate';
 export * from './apiError';
 export * from './currentUser';
 export * from './currentUserRole';
@@ -36,6 +39,7 @@ export * from './marketHistoryResponse';
 export * from './marketOverview';
 export * from './questionInput';
 export * from './questionResponse';
+export * from './updateAdminWalletWatchParams';
 export * from './walletNetwork';
 export * from './walletScanInput';
 export * from './walletScanResult';

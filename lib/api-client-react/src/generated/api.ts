@@ -20,10 +20,13 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AdminProviderStatus,
   AdminUser,
   AdminUserUpdate,
   AdminWalletActivity,
   AdminWalletWatch,
+  AdminWalletWatchInput,
+  AdminWalletWatchUpdate,
   ApiError,
   CurrentUser,
   DeleteAdminActivityParams,
@@ -39,6 +42,7 @@ import type {
   MarketOverview,
   QuestionInput,
   QuestionResponse,
+  UpdateAdminWalletWatchParams,
   WalletScanInput,
   WalletScanResult,
   WalletWatch,
@@ -915,7 +919,7 @@ export const getGetWalletWatchActivityUrl = (params: GetWalletWatchActivityParam
 }
 
 /**
- * Public RPC mode tracks ERC-20 and ERC-721 transfer logs on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent Solana token/native balance changes. It does not reliably classify swaps or staking.
+ * Public RPC mode tracks ERC-20, ERC-721, and ERC-1155 transfer logs on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent Solana token/native balance changes. Paired token movements can be labeled as possible trades, but this is not a protocol-confirmed buy/sell classification. Staking and complete historical activity are not reliably identified.
  * @summary Refresh and list recent public transfer activity for a watched wallet
  */
 export const getWalletWatchActivity = async (params: GetWalletWatchActivityParams, options?: Parameters<typeof customFetch>[1]): Promise<WalletWatchActivityResponse> => {
@@ -1138,6 +1142,190 @@ export function useListAdminWalletWatches<TData = Awaited<ReturnType<typeof list
 
 
 
+export const getCreateAdminWalletWatchUrl = () => {
+
+
+
+
+  return `/api/admin/wallets`
+}
+
+/**
+ * @summary Add a public wallet watch to an application account
+ */
+export const createAdminWalletWatch = async (adminWalletWatchInput: AdminWalletWatchInput, options?: Parameters<typeof customFetch>[1]): Promise<AdminWalletWatch> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AdminWalletWatch>(getCreateAdminWalletWatchUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(adminWalletWatchInput)
+  }
+);}
+
+
+
+
+
+export const getCreateAdminWalletWatchMutationKey = () => ['createAdminWalletWatch'] as const;
+
+export const getCreateAdminWalletWatchMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAdminWalletWatch>>, TError,CreateAdminWalletWatchMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAdminWalletWatch>>, TError,CreateAdminWalletWatchMutationVariables, TContext> => {
+
+const mutationKey = getCreateAdminWalletWatchMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAdminWalletWatch>>, CreateAdminWalletWatchMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAdminWalletWatch(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAdminWalletWatchMutationResult = NonNullable<Awaited<ReturnType<typeof createAdminWalletWatch>>>
+    export type CreateAdminWalletWatchMutationBody = BodyType<AdminWalletWatchInput>
+    export type CreateAdminWalletWatchMutationError = ErrorType<ApiError>
+    export type CreateAdminWalletWatchMutationVariables = {data: BodyType<AdminWalletWatchInput>}
+
+    /**
+ * @summary Add a public wallet watch to an application account
+ */
+export const useCreateAdminWalletWatch = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAdminWalletWatch>>, TError,CreateAdminWalletWatchMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAdminWalletWatch>>,
+        TError,
+        CreateAdminWalletWatchMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateAdminWalletWatchMutationOptions(options));
+    }
+
+export const getUpdateAdminWalletWatchUrl = (params: UpdateAdminWalletWatchParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/wallets?${stringifiedParams}` : `/api/admin/wallets`
+}
+
+/**
+ * @summary Update an account wallet watch label or alert setting
+ */
+export const updateAdminWalletWatch = async (adminWalletWatchUpdate: AdminWalletWatchUpdate,
+    params: UpdateAdminWalletWatchParams, options?: Parameters<typeof customFetch>[1]): Promise<AdminWalletWatch> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AdminWalletWatch>(getUpdateAdminWalletWatchUrl(params),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(adminWalletWatchUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateAdminWalletWatchMutationKey = () => ['updateAdminWalletWatch'] as const;
+
+export const getUpdateAdminWalletWatchMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminWalletWatch>>, TError,UpdateAdminWalletWatchMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAdminWalletWatch>>, TError,UpdateAdminWalletWatchMutationVariables, TContext> => {
+
+const mutationKey = getUpdateAdminWalletWatchMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAdminWalletWatch>>, UpdateAdminWalletWatchMutationVariables> = (props) => {
+          const {data,params} = props ?? {};
+
+          return  updateAdminWalletWatch(data,params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAdminWalletWatchMutationResult = NonNullable<Awaited<ReturnType<typeof updateAdminWalletWatch>>>
+    export type UpdateAdminWalletWatchMutationBody = BodyType<AdminWalletWatchUpdate>
+    export type UpdateAdminWalletWatchMutationError = ErrorType<ApiError>
+    export type UpdateAdminWalletWatchMutationVariables = {data: BodyType<AdminWalletWatchUpdate>;params: UpdateAdminWalletWatchParams}
+
+    /**
+ * @summary Update an account wallet watch label or alert setting
+ */
+export const useUpdateAdminWalletWatch = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminWalletWatch>>, TError,UpdateAdminWalletWatchMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateAdminWalletWatch>>,
+        TError,
+        UpdateAdminWalletWatchMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateAdminWalletWatchMutationOptions(options));
+    }
+
 export const getDeleteAdminWalletWatchUrl = (params: DeleteAdminWalletWatchParams,) => {
   const normalizedParams = new URLSearchParams();
 
@@ -1218,6 +1406,84 @@ export const useDeleteAdminWalletWatch = <TError = ErrorType<ApiError>,
       > => {
       return useMutation(getDeleteAdminWalletWatchMutationOptions(options));
     }
+
+export const getGetAdminProviderStatusUrl = () => {
+
+
+
+
+  return `/api/admin/providers`
+}
+
+/**
+ * Returns configuration status only. Secret values are never returned or changed through the application.
+ * @summary Check whether required server-side providers are configured
+ */
+export const getAdminProviderStatus = async ( options?: Parameters<typeof customFetch>[1]): Promise<AdminProviderStatus[]> => {
+
+  return customFetch<AdminProviderStatus[]>(getGetAdminProviderStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminProviderStatusQueryKey = () => {
+    return [
+    `/api/admin/providers`
+    ] as const;
+    }
+
+
+export const getGetAdminProviderStatusQueryOptions = <TData = Awaited<ReturnType<typeof getAdminProviderStatus>>, TError = ErrorType<ApiError>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminProviderStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminProviderStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminProviderStatus>>> = ({ signal }) => getAdminProviderStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminProviderStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminProviderStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminProviderStatus>>>
+export type GetAdminProviderStatusQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Check whether required server-side providers are configured
+ */
+
+export function useGetAdminProviderStatus<TData = Awaited<ReturnType<typeof getAdminProviderStatus>>, TError = ErrorType<ApiError>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminProviderStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminProviderStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getListAdminActivityUrl = (params?: ListAdminActivityParams,) => {
   const normalizedParams = new URLSearchParams();

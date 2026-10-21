@@ -277,6 +277,41 @@ export interface AdminWalletWatch {
   createdAt: string;
 }
 
+export interface AdminWalletWatchInput {
+  /**
+     * @minLength 1
+     * @maxLength 160
+     */
+  clerkUserId: string;
+  network: WalletWatchNetwork;
+  /**
+     * @minLength 1
+     * @maxLength 128
+     */
+  address: string;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  label: string;
+  alertsEnabled: boolean;
+}
+
+export interface AdminWalletWatchUpdate {
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  label?: string;
+  alertsEnabled?: boolean;
+}
+
+export interface AdminProviderStatus {
+  provider: string;
+  configured: boolean;
+  secretValuesVisible: boolean;
+}
+
 export type AdminWalletActivityActivityType = typeof AdminWalletActivityActivityType[keyof typeof AdminWalletActivityActivityType];
 
 
@@ -380,6 +415,13 @@ watchId: number;
  * @maximum 100
  */
 limit?: number;
+};
+
+export type UpdateAdminWalletWatchParams = {
+/**
+ * @minimum 1
+ */
+watchId: number;
 };
 
 export type DeleteAdminWalletWatchParams = {

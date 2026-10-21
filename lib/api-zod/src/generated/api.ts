@@ -214,7 +214,7 @@ export const UpdateWalletWatchResponse = zod.object({
 
 
 /**
- * Public RPC mode tracks ERC-20 and ERC-721 transfer logs on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent Solana token/native balance changes. It does not reliably classify swaps or staking.
+ * Public RPC mode tracks ERC-20, ERC-721, and ERC-1155 transfer logs on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent Solana token/native balance changes. Paired token movements can be labeled as possible trades, but this is not a protocol-confirmed buy/sell classification. Staking and complete historical activity are not reliably identified.
  * @summary Refresh and list recent public transfer activity for a watched wallet
  */
 
@@ -277,6 +277,68 @@ export const ListAdminWalletWatchesResponse = zod.array(ListAdminWalletWatchesRe
 
 
 /**
+ * @summary Add a public wallet watch to an application account
+ */
+export const createAdminWalletWatchBodyClerkUserIdMax = 160;
+
+export const createAdminWalletWatchBodyAddressMax = 128;
+
+export const createAdminWalletWatchBodyLabelMax = 80;
+
+
+
+export const CreateAdminWalletWatchBody = zod.object({
+  "clerkUserId": zod.string().min(1).max(createAdminWalletWatchBodyClerkUserIdMax),
+  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'base', 'arbitrum', 'solana']),
+  "address": zod.string().min(1).max(createAdminWalletWatchBodyAddressMax),
+  "label": zod.string().min(1).max(createAdminWalletWatchBodyLabelMax),
+  "alertsEnabled": zod.boolean()
+})
+
+export const CreateAdminWalletWatchResponse = zod.object({
+  "id": zod.number().int(),
+  "clerkUserId": zod.string(),
+  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'base', 'arbitrum', 'solana']),
+  "address": zod.string(),
+  "label": zod.string(),
+  "alertsEnabled": zod.boolean(),
+  "lastCheckedAt": zod.coerce.date().nullable(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update an account wallet watch label or alert setting
+ */
+
+
+
+export const UpdateAdminWalletWatchQueryParams = zod.object({
+  "watchId": zod.coerce.number().int().min(1)
+})
+
+export const updateAdminWalletWatchBodyLabelMax = 80;
+
+
+
+export const UpdateAdminWalletWatchBody = zod.object({
+  "label": zod.string().min(1).max(updateAdminWalletWatchBodyLabelMax).optional(),
+  "alertsEnabled": zod.boolean().optional()
+})
+
+export const UpdateAdminWalletWatchResponse = zod.object({
+  "id": zod.number().int(),
+  "clerkUserId": zod.string(),
+  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'base', 'arbitrum', 'solana']),
+  "address": zod.string(),
+  "label": zod.string(),
+  "alertsEnabled": zod.boolean(),
+  "lastCheckedAt": zod.coerce.date().nullable(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
  * @summary Remove a wallet watch from any account
  */
 
@@ -287,6 +349,18 @@ export const DeleteAdminWalletWatchQueryParams = zod.object({
 })
 
 export const DeleteAdminWalletWatchResponse = zod.void()
+
+
+/**
+ * Returns configuration status only. Secret values are never returned or changed through the application.
+ * @summary Check whether required server-side providers are configured
+ */
+export const GetAdminProviderStatusResponseItem = zod.object({
+  "provider": zod.string(),
+  "configured": zod.boolean(),
+  "secretValuesVisible": zod.boolean()
+})
+export const GetAdminProviderStatusResponse = zod.array(GetAdminProviderStatusResponseItem)
 
 
 /**

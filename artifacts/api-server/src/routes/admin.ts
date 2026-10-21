@@ -1,11 +1,18 @@
 import { Router, type IRouter } from "express";
 import { and, desc, eq } from "drizzle-orm";
 import {
+  CreateAdminWalletWatchBody,
+  CreateAdminWalletWatchResponse,
   DeleteAdminActivityQueryParams,
+  DeleteAdminWalletWatchQueryParams,
+  GetAdminProviderStatusResponse,
   ListAdminActivityQueryParams,
   ListAdminActivityResponse,
   ListAdminUsersResponse,
   ListAdminWalletWatchesResponse,
+  UpdateAdminWalletWatchBody,
+  UpdateAdminWalletWatchQueryParams,
+  UpdateAdminWalletWatchResponse,
   UpdateAdminUserBody,
   UpdateAdminUserParams,
   UpdateAdminUserResponse,
@@ -18,6 +25,7 @@ import {
   type User,
 } from "@workspace/db";
 import { requireActiveUser, requireAdmin } from "../middlewares/authorization";
+import { isValidWatchAddress } from "./wallet-watch";
 
 const router: IRouter = Router();
 router.use(requireActiveUser, requireAdmin);
@@ -78,6 +86,104 @@ router.get("/admin/wallets", async (_req, res): Promise<void> => {
   res.json(ListAdminWalletWatchesResponse.parse(watches));
 });
 
+router.post("/admin/wallets", async (req, res): Promise<void> => {
+  const parsed = CreateAdminWalletWatchBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const input = parsed.data;
+  const address = input.network === "solana" ? input.address.trim() : input.address.trim().toLowerCase();
+  const label = input.label.trim();
+  if (!label || !isValidWatchAddress(input.network, address)) {
+    res.status(400).json({ error: "Provide a valid label and an address for the selected network." });
+    return;
+  }
+  const [owner] = await db.select({
+    clerkUserId: usersTable.clerkUserId,
+    status: usersTable.status,
+  }).from(usersTable)
+    .where(eq(usersTable.clerkUserId, input.clerkUserId))
+    .limit(1);
+  if (!owner) {
+    res.status(400).json({ error: "The selected account does not exist." });
+    return;
+  }
+  if (owner.status !== "active") {
+    res.status(400).json({ error: "Wallet watches cannot be added to a suspended account." });
+    return;
+  }
+  try {
+    const [watch] = await db.insert(walletWatchesTable).values({
+      clerkUserId: owner.clerkUserId,
+      network: input.network,
+      address,
+      label,
+      alertsEnabled: input.alertsEnabled,
+    }).returning();
+    res.status(201).json(CreateAdminWalletWatchResponse.parse(watch));
+  } catch (error) {
+    if ((error as { code?: string }).code === "23505") {
+      res.status(409).json({ error: "This address is already watched by that account on this network." });
+      return;
+    }
+    req.log.error({ err: error }, "Could not create admin wallet watch");
+    res.status(503).json({ error: "The wallet watch could not be saved." });
+  }
+});
+
+router.patch("/admin/wallets", async (req, res): Promise<void> => {
+  const query = UpdateAdminWalletWatchQueryParams.safeParse(req.query);
+  const body = UpdateAdminWalletWatchBody.safeParse(req.body);
+  if (!query.success || !body.success) {
+    res.status(400).json({ error: query.error?.message ?? body.error?.message ?? "Invalid wallet watch update." });
+    return;
+  }
+  const update = { ...body.data };
+  if (update.label !== undefined) {
+    update.label = update.label.trim();
+    if (!update.label) {
+      res.status(400).json({ error: "The wallet label cannot be empty." });
+      return;
+    }
+  }
+  const [watch] = await db.update(walletWatchesTable)
+    .set(update)
+    .where(eq(walletWatchesTable.id, query.data.watchId))
+    .returning();
+  if (!watch) {
+    res.status(404).json({ error: "Wallet watch was not found." });
+    return;
+  }
+  res.json(UpdateAdminWalletWatchResponse.parse(watch));
+});
+
+router.get("/admin/providers", async (_req, res): Promise<void> => {
+  const status = [
+    {
+      provider: "PostgreSQL database",
+      configured: Boolean(process.env.DATABASE_URL),
+      secretValuesVisible: false,
+    },
+    {
+      provider: "Clerk authentication",
+      configured: Boolean(process.env.CLERK_SECRET_KEY),
+      secretValuesVisible: false,
+    },
+    {
+      provider: "Groq AI research",
+      configured: Boolean(process.env.GROQ_API_KEY),
+      secretValuesVisible: false,
+    },
+    {
+      provider: "Public blockchain RPC",
+      configured: true,
+      secretValuesVisible: false,
+    },
+  ];
+  res.json(GetAdminProviderStatusResponse.parse(status));
+});
+
 router.get("/admin/activity", async (req, res): Promise<void> => {
   const query = ListAdminActivityQueryParams.safeParse(req.query);
   if (!query.success) {
@@ -125,13 +231,13 @@ router.delete("/admin/activity", async (req, res): Promise<void> => {
 });
 
 router.delete("/admin/wallets", async (req, res): Promise<void> => {
-  const watchId = Number(req.query.watchId);
-  if (!Number.isSafeInteger(watchId) || watchId < 1) {
-    res.status(400).json({ error: "A valid wallet watch ID is required." });
+  const query = DeleteAdminWalletWatchQueryParams.safeParse(req.query);
+  if (!query.success) {
+    res.status(400).json({ error: query.error.message });
     return;
   }
   const deleted = await db.delete(walletWatchesTable)
-    .where(and(eq(walletWatchesTable.id, watchId)))
+    .where(and(eq(walletWatchesTable.id, query.data.watchId)))
     .returning({ id: walletWatchesTable.id });
   if (!deleted.length) {
     res.status(404).json({ error: "Wallet watch was not found." });

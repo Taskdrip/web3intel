@@ -41,8 +41,9 @@ Web3 Intelligence is a read-only blockchain research workspace for market data, 
 - The API verifies account requests server-side with Clerk; public research endpoints remain unauthenticated.
 - Application roles and account status live in PostgreSQL, separate from identity-provider profile data.
 - Market and wallet data are read-only provider responses; unavailable sources are shown as unavailable rather than replaced with invented values.
-- Public RPC watch coverage is limited: Ethereum, Polygon, Avalanche, Base, and Arbitrum track ERC-20/ERC-721 transfer events; Solana tracks recent token/native balance changes. Watch detail pages poll once a minute while open; browser notifications require user permission and an open page. It does not classify swaps or staking, decode ERC-1155 events, or provide complete historical activity. No API keys are needed for this keyless mode.
+- Public RPC watch coverage is limited: Ethereum, Polygon, Avalanche, Base, and Arbitrum track ERC-20/ERC-721/ERC-1155 transfer events; Solana tracks recent token/native balance changes. Watch detail pages poll once a minute while open; browser notifications require user permission and an open page. Paired token movements may be labeled as possible trades, but buys/sells are not protocol-confirmed; staking and complete historical activity are not reliably identified. No API keys are needed for this keyless mode.
 - Admin APIs manage application accounts, wallet watches, and saved activity observations, not arbitrary SQL or direct database administration. Admins can remove saved app records but cannot change on-chain transactions. Provider credentials stay in Replit Secrets and are never returned by the app.
+- The admin UI can add watches for active accounts and update watch labels/alert preferences. Provider status reveals only whether server-side configuration exists; it never exposes or edits secret values. Use workspace Secrets to add or rotate credentials.
 - New API endpoints are defined in OpenAPI before generating shared client and validation code.
 
 ## Product

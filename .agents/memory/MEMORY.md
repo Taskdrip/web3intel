@@ -1,3 +1,4 @@
 - [Sui public data API](sui-public-api.md) — Mainnet full-node JSON-RPC balance methods are disabled; use GraphQL or a provider that supports current data APIs.
 - [Web3 design handoffs](web3-design-handoffs.md) — Preserve the user's explicit dark-first palette in every visual design brief; generic "premium" direction is not specific enough.
 - [Wallet access boundaries](wallet-access-boundaries.md) — Keep user-owned wallet keys external; initial app connections are read-only and limited to EVM/Solana.
+- [ERC-1155 event signatures](erc1155-event-signatures.md) — Verify event topic hashes against an authoritative source; a single wrong hex digit silently drops transfers.

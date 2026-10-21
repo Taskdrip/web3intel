@@ -265,7 +265,7 @@ paths:
       operationId: getWalletWatchActivity
       tags: [wallet]
       summary: Refresh and list recent public transfer activity for a watched wallet
-      description: Public RPC mode tracks ERC-20 and ERC-721 transfer logs on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent Solana token/native balance changes. It does not reliably classify swaps or staking.
+      description: Public RPC mode tracks ERC-20, ERC-721, and ERC-1155 transfer logs on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent Solana token/native balance changes. Paired token movements can be labeled as possible trades, but this is not a protocol-confirmed buy/sell classification. Staking and complete historical activity are not reliably identified.
       parameters:
         - name: watchId
           in: query
@@ -334,6 +334,71 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+    post:
+      operationId: createAdminWalletWatch
+      tags: [auth]
+      summary: Add a public wallet watch to an application account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminWalletWatchInput"
+      responses:
+        "201":
+          description: Wallet watch created for the selected account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminWalletWatch"
+        "400":
+          description: Address, network, label, or account is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: This address is already watched by that account on this network
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    patch:
+      operationId: updateAdminWalletWatch
+      tags: [auth]
+      summary: Update an account wallet watch label or alert setting
+      parameters:
+        - name: watchId
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminWalletWatchUpdate"
+      responses:
+        "200":
+          description: Updated wallet watch
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminWalletWatch"
+        "400":
+          description: Invalid wallet watch update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Wallet watch was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
     delete:
       operationId: deleteAdminWalletWatch
       tags: [auth]
@@ -350,6 +415,27 @@ paths:
           description: Wallet watch removed
         "404":
           description: Wallet watch was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /admin/providers:
+    get:
+      operationId: getAdminProviderStatus
+      tags: [auth]
+      summary: Check whether required server-side providers are configured
+      description: Returns configuration status only. Secret values are never returned or changed through the application.
+      responses:
+        "200":
+          description: Safe provider configuration status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminProviderStatus"
+        "403":
+          description: Administrator access is required
           content:
             application/json:
               schema:
@@ -803,6 +889,46 @@ components:
           type: string
           format: date-time
       required: [id, clerkUserId, network, address, label, alertsEnabled, lastCheckedAt, createdAt]
+    AdminWalletWatchInput:
+      type: object
+      properties:
+        clerkUserId:
+          type: string
+          minLength: 1
+          maxLength: 160
+        network:
+          $ref: "#/components/schemas/WalletWatchNetwork"
+        address:
+          type: string
+          minLength: 1
+          maxLength: 128
+        label:
+          type: string
+          minLength: 1
+          maxLength: 80
+        alertsEnabled:
+          type: boolean
+      required: [clerkUserId, network, address, label, alertsEnabled]
+    AdminWalletWatchUpdate:
+      type: object
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 80
+        alertsEnabled:
+          type: boolean
+      minProperties: 1
+    AdminProviderStatus:
+      type: object
+      properties:
+        provider:
+          type: string
+        configured:
+          type: boolean
+        secretValuesVisible:
+          type: boolean
+      required: [provider, configured, secretValuesVisible]
     AdminWalletActivity:
       type: object
       properties:

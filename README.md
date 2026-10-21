@@ -8,13 +8,13 @@ Web3 Intelligence is a read-only research terminal for provider-sourced cryptocu
 - Market overview, searchable/sortable listings, and provider-supplied historical price data.
 - Public native-balance lookups for Bitcoin, Ethereum, Solana, Polygon, Tron, Avalanche, TON, and Sui.
 - Signed-in wallet watchlists with per-wallet activity pages, one-minute polling while a detail page is open, and optional browser alerts for new saved activity.
-- Public ERC-20 and ERC-721 transfer monitoring on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent native/SPL token balance changes on Solana.
+- Public ERC-20, ERC-721, and ERC-1155 transfer monitoring on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent native/SPL token balance changes on Solana.
 - Role-gated admin views for application accounts, tracked wallets, and recent saved activity records.
 - Groq-backed market Q&A using the current top-100 CoinGecko snapshot, with the model, source, timestamp, scope, and disclaimer returned to the client.
 - Clerk sign-in foundation and a protected dashboard route.
 - Explicit unavailable/error states when providers do not return data.
 
-The wallet scanner reads native balances only. Watchlists store public addresses and alert preferences. Watch pages poll only while open; browser alerts require user permission and an open page. Public RPC tracking records ERC-20 and standard ERC-721 transfer logs on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent native/SPL balance changes on Solana. It does not reliably classify buys/sells, decode ERC-1155 transfers or staking, or provide complete historical coverage. A transfer is not necessarily a trade. It does not connect to wallets, request signatures, store keys, or initiate transactions. AI answers do not include wallet histories, whale activity, or unconnected blockchain feeds.
+The wallet scanner reads native balances only. Watchlists store public addresses and alert preferences. Watch pages poll only while open; browser alerts require user permission and an open page. Public RPC tracking records ERC-20, ERC-721, and ERC-1155 transfer logs on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent native/SPL balance changes on Solana. Paired token movements may be labeled as possible trades, but this is an inference, not a protocol-confirmed buy/sell classification. Staking and complete historical coverage are not reliably identified. A transfer is not necessarily a trade. It does not connect to wallets, request signatures, store keys, or initiate transactions. AI answers do not include wallet histories, whale activity, or unconnected blockchain feeds.
 
 ## Stack
 
