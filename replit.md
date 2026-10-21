@@ -12,9 +12,11 @@ Web3 Intelligence is a read-only blockchain research workspace for market data, 
 - `pnpm run build` — typecheck and build all packages.
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — apply schema changes to the development database only
+- `pnpm --filter @workspace/scripts run promote-admin -- <verified-email>` — grant first admin role to an existing, verified development Clerk account
 - Public market, intelligence, and one-off wallet lookup endpoints run without account authentication. Watchlists and admin routes require `DATABASE_URL` and configured Clerk server keys.
-- Clerk is provisioned for this workspace; development and production have separate tenants. Account routes return an explicit unavailable response if authentication configuration is missing. Do not bypass the account check.
-- `GROQ_API_KEY` is required for AI answers; `GROQ_MODEL` is optional. Without the key, the AI endpoint returns an explicit unavailable response.
+- Clerk is provisioned for this workspace; development and production have separate tenants and accounts. Account routes return an explicit unavailable response if authentication configuration is missing. Do not bypass the account check or create shared/default passwords.
+- The signup form uses Clerk-managed development credentials in preview. Keep the environment indicator honest; the production Clerk instance is separate and is selected by Replit's Publish flow.
+- `GROQ_API_KEY` is required for AI answers; it is not currently configured. `GROQ_MODEL` is optional. Without the key, the AI endpoint returns an explicit unavailable response.
 - An environment-variable-name-only template is in `.env.example`.
 
 ## Stack
@@ -41,6 +43,7 @@ Web3 Intelligence is a read-only blockchain research workspace for market data, 
 - The API verifies account requests server-side with Clerk; public research endpoints remain unauthenticated.
 - Application roles and account status live in PostgreSQL, separate from identity-provider profile data.
 - Market and wallet data are read-only provider responses; unavailable sources are shown as unavailable rather than replaced with invented values.
+- News uses live public RSS feeds from CoinDesk, Cointelegraph, and Decrypt. Network status uses public endpoints for Bitcoin, five EVM chains, and Solana. Feed and network failures are reported per provider.
 - Public RPC watch coverage is limited: Ethereum, Polygon, Avalanche, Base, and Arbitrum track ERC-20/ERC-721/ERC-1155 transfer events; Solana tracks recent token/native balance changes. Watch detail pages poll once a minute while open; browser notifications require user permission and an open page. Paired token movements may be labeled as possible trades, but buys/sells are not protocol-confirmed; staking and complete historical activity are not reliably identified. No API keys are needed for this keyless mode.
 - Admin APIs manage application accounts, wallet watches, and saved activity observations, not arbitrary SQL or direct database administration. Admins can remove saved app records but cannot change on-chain transactions. Provider credentials stay in Replit Secrets and are never returned by the app.
 - The admin UI can add watches for active accounts and update watch labels/alert preferences. Provider status reveals only whether server-side configuration exists; it never exposes or edits secret values. Use workspace Secrets to add or rotate credentials.
@@ -51,6 +54,7 @@ Web3 Intelligence is a read-only blockchain research workspace for market data, 
 - Market overview, sortable/searchable cryptocurrency listings, and historical price charts.
 - Public, read-only native-balance checks for supported wallet networks.
 - Signed-in wallet watches with public RPC polling, ERC-20/ERC-721 observations on five EVM networks, recent token/native balance changes on Solana, per-wallet alert settings, and optional browser notifications.
+- Public news feed and blockchain status snapshots include sources and retrieval timestamps. The `/whales` route is an authenticated alias for the signed-in user's own wallet watchlist.
 - Admin-only account, watch, and saved-activity management using database-backed application roles.
 - AI market research grounded in the current market snapshot, with a clear scope and disclaimer.
 - Sign-in foundation and database-backed application user roles.
@@ -67,6 +71,7 @@ Web3 Intelligence is a read-only blockchain research workspace for market data, 
 - Managed artifact workflows supply `PORT` and `BASE_PATH`; start them through Replit's workflow controls.
 - Apply schema changes with the development `push` command only.
 - Wallet watch tables must be applied to the development database with `pnpm --filter @workspace/db run push` before using watchlists.
+- Initial admin promotion requires a user to sign up first and verify their primary email in the development Clerk instance; use the `promote-admin` script rather than a public bootstrap route.
 - AI responses require `GROQ_API_KEY`; the API returns an unavailable state when it is missing.
 
 ## Pointers

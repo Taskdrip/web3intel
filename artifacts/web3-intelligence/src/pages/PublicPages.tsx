@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
-  ArrowRight, Blocks, ChevronDown, CircleAlert,
-  FileText, LockKeyhole, ShieldCheck, Waves,
+  Activity, ArrowRight, Blocks, ChevronDown, CircleAlert,
+  Clock3, Database, ExternalLink, FileText, LoaderCircle, LockKeyhole,
+  Newspaper, RefreshCw, ShieldCheck, Waves,
 } from 'lucide-react';
+import {
+  getGetBlockchainStatusQueryKey,
+  getGetLatestNewsQueryKey,
+} from '@workspace/api-client-react';
+import { useGetBlockchainStatus, useGetLatestNews } from '@workspace/api-client-react';
 import evidenceBackground from '../../attached_assets/generated_images/section-evidence.png';
 import heroAi from '../../attached_assets/generated_images/hero-ai.png';
 import heroMarkets from '../../attached_assets/generated_images/hero-markets.png';
@@ -284,6 +290,125 @@ export function PublicInfoPage() {
       <div className="public-footer-brand"><Brand /><span>Public data. Clear context.</span></div>
       <nav className="public-footer-links" aria-label="Product pages">{publicLinks.map(([href, label]) => <Link key={href} href={href} data-testid={`link-public-footer-${href.slice(1)}`}>{label}</Link>)}</nav>
       <nav className="public-footer-links legal-links" aria-label="Policies">{legalLinks.map(([href, label]) => <Link key={href} href={href} data-testid={`link-policy-footer-${href.slice(1)}`}>{label}</Link>)}</nav>
+      <div className="public-footer-bottom"><span>Provider provenance stays visible where available.</span><span>© {new Date().getFullYear()} Web3 Intelligence</span></div>
+    </footer>
+  </div>;
+}
+
+function displayTimestamp(value?: string | null) {
+  if (!value) return 'Publication time unavailable';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? 'Publication time unavailable'
+    : date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+export function NewsPage() {
+  const news = useGetLatestNews({
+    query: { queryKey: getGetLatestNewsQueryKey(), refetchInterval: 180_000, staleTime: 120_000, refetchOnWindowFocus: true },
+  });
+  const providers = news.data?.providers ?? [];
+
+  return <div className="public-site">
+    <PublicHeader />
+    <main className="public-content">
+      <section className="public-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(8,15,24,.96) 0%, rgba(8,15,24,.84) 53%, rgba(8,15,24,.44) 100%), url("${heroAi}")` }}>
+        <div className="public-hero-copy">
+          <div className="public-eyebrow">NEWS / PUBLIC RSS SOURCES</div>
+          <h1>Recent crypto and Web3 reporting.</h1>
+          <p>Headlines are pulled from established publication feeds. Each story links to its publisher; no generated headlines or sentiment scores are mixed in.</p>
+          {news.data && <div className="news-updated"><Clock3 size={14} /> Updated {displayTimestamp(news.data.updatedAt)}</div>}
+        </div>
+      </section>
+      <section className="live-data-section">
+        <div className="live-data-head">
+          <div><div className="public-eyebrow">SOURCE STATUS</div><h2>Publication feeds</h2></div>
+          {news.isFetching && <span className="live-refresh"><RefreshCw size={13} className="spin-icon" /> Refreshing</span>}
+        </div>
+        <div className="news-provider-list">
+          {news.isLoading ? <div className="live-data-loading"><LoaderCircle className="spin-icon" /> Checking publication feeds…</div> :
+            providers.map((provider) => <div className="news-provider" key={provider.provider}>
+              <span className={`provider-status-dot ${provider.status === 'available' ? 'configured' : ''}`} />
+              <strong>{provider.provider}</strong>
+              <span className={provider.status === 'available' ? 'provider-status-label configured' : 'provider-status-label'}>
+                {provider.status === 'available' ? `${provider.articleCount} stories` : 'Temporarily unavailable'}
+              </span>
+            </div>)}
+        </div>
+        {news.isError ? <div className="live-data-error" role="alert">
+          <CircleAlert size={18} /><span>News providers could not be reached right now.</span>
+          <button type="button" className="public-cta" onClick={() => news.refetch()} data-testid="button-retry-news">Retry</button>
+        </div> : news.isLoading ? <div className="news-card-grid" aria-hidden="true">
+          {[0, 1, 2, 3].map((item) => <div className="news-skeleton" key={item}><span /><i /><i /></div>)}
+        </div> : !news.data?.items.length ? <div className="live-data-empty" data-testid="empty-news-feed">
+          <Newspaper size={21} /><strong>No stories were returned</strong>
+          <p>All configured feeds may be rate-limited or temporarily unavailable. Feed status is shown above; no sample headlines are substituted.</p>
+        </div> : <div className="news-card-grid">
+          {news.data.items.map((item) => <article className="news-card" key={`${item.source}:${item.url}`}>
+            <div className="news-card-meta"><span>{item.source}</span><time>{displayTimestamp(item.publishedAt)}</time></div>
+            <h3><a href={item.url} target="_blank" rel="noopener noreferrer">{item.title}<ExternalLink size={14} /></a></h3>
+            {item.summary && <p>{item.summary}</p>}
+            <a className="news-read-link" href={item.url} target="_blank" rel="noopener noreferrer">Read at {item.source} <ArrowRight size={14} /></a>
+          </article>)}
+        </div>}
+        <p className="live-data-disclaimer"><Database size={14} /> Source: {news.data?.source ?? 'Public publication feeds'}. Publication availability and timestamps can vary. Headlines are not financial advice.</p>
+      </section>
+    </main>
+    <footer className="public-footer">
+      <div className="public-footer-brand"><Brand /><span>Public data. Clear context.</span></div>
+      <nav className="public-footer-links" aria-label="Product pages">{publicLinks.map(([href, label]) => <Link key={href} href={href}>{label}</Link>)}</nav>
+      <nav className="public-footer-links legal-links" aria-label="Policies">{legalLinks.map(([href, label]) => <Link key={href} href={href}>{label}</Link>)}</nav>
+      <div className="public-footer-bottom"><span>Provider provenance stays visible where available.</span><span>© {new Date().getFullYear()} Web3 Intelligence</span></div>
+    </footer>
+  </div>;
+}
+
+export function BlockchainPage() {
+  const status = useGetBlockchainStatus({
+    query: { queryKey: getGetBlockchainStatusQueryKey(), refetchInterval: 60_000, staleTime: 45_000, refetchOnWindowFocus: true },
+  });
+  const networks = status.data?.networks ?? [];
+
+  return <div className="public-site">
+    <PublicHeader />
+    <main className="public-content">
+      <section className="public-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(8,15,24,.96) 0%, rgba(8,15,24,.84) 53%, rgba(8,15,24,.44) 100%), url("${heroMarkets}")` }}>
+        <div className="public-hero-copy">
+          <div className="public-eyebrow">BLOCKCHAIN / LIVE PUBLIC STATUS</div>
+          <h1>Network data, from public providers.</h1>
+          <p>Latest reported block heights and slots are checked directly against public endpoints. These snapshots are not a complete measure of network health.</p>
+          {status.data && <div className="news-updated"><Clock3 size={14} /> Checked {displayTimestamp(status.data.updatedAt)}</div>}
+        </div>
+      </section>
+      <section className="live-data-section">
+        <div className="live-data-head">
+          <div><div className="public-eyebrow">NETWORK SNAPSHOT</div><h2>Current provider responses</h2></div>
+          {status.isFetching && <span className="live-refresh"><RefreshCw size={13} className="spin-icon" /> Refreshing</span>}
+        </div>
+        {status.isError ? <div className="live-data-error" role="alert">
+          <CircleAlert size={18} /><span>Network status providers could not be reached right now.</span>
+          <button type="button" className="public-cta" onClick={() => status.refetch()} data-testid="button-retry-blockchain">Retry</button>
+        </div> : status.isLoading ? <div className="network-status-grid" aria-hidden="true">
+          {[0, 1, 2, 3].map((item) => <div className="network-status-card network-skeleton" key={item}><span /><i /><i /></div>)}
+        </div> : <div className="network-status-grid">
+          {networks.map((network) => <article className="network-status-card" key={network.network} data-testid={`card-network-${network.network}`}>
+            <div className="network-status-title"><span className="network-status-mark">{network.name.slice(0, 2).toUpperCase()}</span><div><strong>{network.name}</strong><small>{network.source}</small></div><span className={`network-status-pill ${network.status}`}>{network.status === 'available' ? 'Live' : 'Unavailable'}</span></div>
+            <div className="network-status-metrics">
+              <div><span>{network.family === 'solana' ? 'LATEST SLOT' : 'LATEST BLOCK'}</span><strong>{network.latestHeight ? Number(network.latestHeight).toLocaleString() : '—'}</strong></div>
+              {network.gasPriceGwei !== null && <div><span>GAS PRICE</span><strong>{network.gasPriceGwei.toFixed(2)} Gwei</strong></div>}
+              {network.epoch !== null && <div><span>EPOCH</span><strong>{network.epoch}</strong></div>}
+              {network.blockTime && <div><span>BLOCK TIME</span><strong>{displayTimestamp(network.blockTime)}</strong></div>}
+              {network.error && <p className="network-status-error">{network.error}</p>}
+            </div>
+          </article>)}
+        </div>}
+        <p className="live-data-disclaimer"><Activity size={14} /> Source: {status.data?.source ?? 'Public blockchain endpoints'}. Values are provider snapshots, not a guarantee of uptime, finality, or complete chain coverage.</p>
+      </section>
+    </main>
+    <footer className="public-footer">
+      <div className="public-footer-brand"><Brand /><span>Public data. Clear context.</span></div>
+      <nav className="public-footer-links" aria-label="Product pages">{publicLinks.map(([href, label]) => <Link key={href} href={href}>{label}</Link>)}</nav>
+      <nav className="public-footer-links legal-links" aria-label="Policies">{legalLinks.map(([href, label]) => <Link key={href} href={href}>{label}</Link>)}</nav>
       <div className="public-footer-bottom"><span>Provider provenance stays visible where available.</span><span>© {new Date().getFullYear()} Web3 Intelligence</span></div>
     </footer>
   </div>;

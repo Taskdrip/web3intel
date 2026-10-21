@@ -28,6 +28,7 @@ import type {
   AdminWalletWatchInput,
   AdminWalletWatchUpdate,
   ApiError,
+  BlockchainStatusResponse,
   CurrentUser,
   DeleteAdminActivityParams,
   DeleteAdminWalletWatchParams,
@@ -40,6 +41,7 @@ import type {
   MarketCoinsResponse,
   MarketHistoryResponse,
   MarketOverview,
+  NewsFeedResponse,
   QuestionInput,
   QuestionResponse,
   UpdateAdminWalletWatchParams,
@@ -467,6 +469,162 @@ export function useGetMarketHistory<TData = Awaited<ReturnType<typeof getMarketH
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetMarketHistoryQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetLatestNewsUrl = () => {
+
+
+
+
+  return `/api/news/latest`
+}
+
+/**
+ * Returns recent items and per-feed availability from public RSS sources. Headlines are not investment advice.
+ * @summary Get recent cryptocurrency and Web3 headlines
+ */
+export const getLatestNews = async ( options?: Parameters<typeof customFetch>[1]): Promise<NewsFeedResponse> => {
+
+  return customFetch<NewsFeedResponse>(getGetLatestNewsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLatestNewsQueryKey = () => {
+    return [
+    `/api/news/latest`
+    ] as const;
+    }
+
+
+export const getGetLatestNewsQueryOptions = <TData = Awaited<ReturnType<typeof getLatestNews>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLatestNews>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLatestNewsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLatestNews>>> = ({ signal }) => getLatestNews({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLatestNews>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLatestNewsQueryResult = NonNullable<Awaited<ReturnType<typeof getLatestNews>>>
+export type GetLatestNewsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get recent cryptocurrency and Web3 headlines
+ */
+
+export function useGetLatestNews<TData = Awaited<ReturnType<typeof getLatestNews>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLatestNews>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLatestNewsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetBlockchainStatusUrl = () => {
+
+
+
+
+  return `/api/blockchain/status`
+}
+
+/**
+ * Reads current public block heights, Solana slot, and EVM gas estimates. Providers may be rate-limited.
+ * @summary Get the latest public network status snapshots
+ */
+export const getBlockchainStatus = async ( options?: Parameters<typeof customFetch>[1]): Promise<BlockchainStatusResponse> => {
+
+  return customFetch<BlockchainStatusResponse>(getGetBlockchainStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBlockchainStatusQueryKey = () => {
+    return [
+    `/api/blockchain/status`
+    ] as const;
+    }
+
+
+export const getGetBlockchainStatusQueryOptions = <TData = Awaited<ReturnType<typeof getBlockchainStatus>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBlockchainStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBlockchainStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBlockchainStatus>>> = ({ signal }) => getBlockchainStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBlockchainStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetBlockchainStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getBlockchainStatus>>>
+export type GetBlockchainStatusQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get the latest public network status snapshots
+ */
+
+export function useGetBlockchainStatus<TData = Awaited<ReturnType<typeof getBlockchainStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBlockchainStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetBlockchainStatusQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

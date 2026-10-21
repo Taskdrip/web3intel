@@ -348,7 +348,9 @@ async function pollSolana(watch: typeof walletWatchesTable.$inferSelect) {
     if (item.signature === watch.lastCursor) break;
     newSignatures.push(item);
   }
-  const toProcess = newSignatures.slice(0, 8);
+  // RPC signatures arrive newest-first. Process the oldest unseen batch first
+  // so a busy wallet can catch up without jumping its cursor over transactions.
+  const toProcess = newSignatures.slice(-8);
   for (const item of toProcess) {
     const tx = await rpc<{
       transaction?: { message?: { accountKeys?: Array<string | { pubkey: string }> } };
@@ -431,7 +433,7 @@ async function pollSolana(watch: typeof walletWatchesTable.$inferSelect) {
   }
   await db.update(walletWatchesTable)
     .set({
-      lastCursor: signatures[0]?.signature ?? watch.lastCursor,
+      lastCursor: toProcess[0]?.signature ?? watch.lastCursor,
       lastCheckedAt: new Date(),
     })
     .where(eq(walletWatchesTable.id, watch.id));

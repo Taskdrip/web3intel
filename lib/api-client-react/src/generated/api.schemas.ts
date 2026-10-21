@@ -81,6 +81,91 @@ export interface MarketHistoryResponse {
   source: string;
 }
 
+export interface NewsArticle {
+  title: string;
+  url: string;
+  source: string;
+  /** @nullable */
+  publishedAt: string | null;
+  summary: string;
+}
+
+export type NewsProviderStatusStatus = typeof NewsProviderStatusStatus[keyof typeof NewsProviderStatusStatus];
+
+
+export const NewsProviderStatusStatus = {
+  available: 'available',
+  unavailable: 'unavailable',
+} as const;
+
+export interface NewsProviderStatus {
+  provider: string;
+  status: NewsProviderStatusStatus;
+  articleCount: number;
+}
+
+export interface NewsFeedResponse {
+  items: NewsArticle[];
+  providers: NewsProviderStatus[];
+  updatedAt: string;
+  source: string;
+}
+
+export type BlockchainNetworkStatusNetwork = typeof BlockchainNetworkStatusNetwork[keyof typeof BlockchainNetworkStatusNetwork];
+
+
+export const BlockchainNetworkStatusNetwork = {
+  bitcoin: 'bitcoin',
+  ethereum: 'ethereum',
+  polygon: 'polygon',
+  avalanche: 'avalanche',
+  base: 'base',
+  arbitrum: 'arbitrum',
+  solana: 'solana',
+} as const;
+
+export type BlockchainNetworkStatusFamily = typeof BlockchainNetworkStatusFamily[keyof typeof BlockchainNetworkStatusFamily];
+
+
+export const BlockchainNetworkStatusFamily = {
+  bitcoin: 'bitcoin',
+  evm: 'evm',
+  solana: 'solana',
+} as const;
+
+export type BlockchainNetworkStatusStatus = typeof BlockchainNetworkStatusStatus[keyof typeof BlockchainNetworkStatusStatus];
+
+
+export const BlockchainNetworkStatusStatus = {
+  available: 'available',
+  unavailable: 'unavailable',
+} as const;
+
+export interface BlockchainNetworkStatus {
+  network: BlockchainNetworkStatusNetwork;
+  name: string;
+  family: BlockchainNetworkStatusFamily;
+  status: BlockchainNetworkStatusStatus;
+  /** @nullable */
+  latestHeight: string | null;
+  /** @nullable */
+  blockTime: string | null;
+  /** @nullable */
+  gasPriceGwei: number | null;
+  /** @nullable */
+  epoch: string | null;
+  source: string;
+  checkedAt: string;
+  /** @nullable */
+  error: string | null;
+}
+
+export interface BlockchainStatusResponse {
+  networks: BlockchainNetworkStatus[];
+  updatedAt: string;
+  source: string;
+}
+
 export type WalletNetwork = typeof WalletNetwork[keyof typeof WalletNetwork];
 
 

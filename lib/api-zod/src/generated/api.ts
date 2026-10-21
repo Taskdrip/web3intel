@@ -100,6 +100,51 @@ export const GetMarketHistoryResponse = zod.object({
 
 
 /**
+ * Returns recent items and per-feed availability from public RSS sources. Headlines are not investment advice.
+ * @summary Get recent cryptocurrency and Web3 headlines
+ */
+export const GetLatestNewsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "title": zod.string(),
+  "url": zod.string().url(),
+  "source": zod.string(),
+  "publishedAt": zod.coerce.date().nullable(),
+  "summary": zod.string()
+})),
+  "providers": zod.array(zod.object({
+  "provider": zod.string(),
+  "status": zod.enum(['available', 'unavailable']),
+  "articleCount": zod.number().int()
+})),
+  "updatedAt": zod.coerce.date(),
+  "source": zod.string()
+})
+
+
+/**
+ * Reads current public block heights, Solana slot, and EVM gas estimates. Providers may be rate-limited.
+ * @summary Get the latest public network status snapshots
+ */
+export const GetBlockchainStatusResponse = zod.object({
+  "networks": zod.array(zod.object({
+  "network": zod.enum(['bitcoin', 'ethereum', 'polygon', 'avalanche', 'base', 'arbitrum', 'solana']),
+  "name": zod.string(),
+  "family": zod.enum(['bitcoin', 'evm', 'solana']),
+  "status": zod.enum(['available', 'unavailable']),
+  "latestHeight": zod.string().nullable(),
+  "blockTime": zod.coerce.date().nullable(),
+  "gasPriceGwei": zod.number().nullable(),
+  "epoch": zod.string().nullable(),
+  "source": zod.string(),
+  "checkedAt": zod.coerce.date(),
+  "error": zod.string().nullable()
+})),
+  "updatedAt": zod.coerce.date(),
+  "source": zod.string()
+})
+
+
+/**
  * Read-only lookup. Never accepts or requests private keys, seed phrases, signatures, or transactions.
  * @summary Read public native-token balance for a wallet
  */

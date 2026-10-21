@@ -1,20 +1,22 @@
 # Web3 Intelligence
 
-Web3 Intelligence is a read-only research terminal for provider-sourced cryptocurrency market data, public native-token balance lookups, and AI analysis grounded in the current market snapshot.
+Web3 Intelligence is a read-only research terminal for provider-sourced cryptocurrency market data, public wallet activity, live network snapshots, recent crypto news, and AI analysis grounded in the current market snapshot.
 
 ## Current capabilities
 
 - Public landing page with live market context from CoinGecko.
 - Market overview, searchable/sortable listings, and provider-supplied historical price data.
+- Latest crypto and Web3 headlines from CoinDesk, Cointelegraph, and Decrypt public RSS feeds.
+- Public block-height, Solana slot, and EVM gas snapshots for Bitcoin, Ethereum, Polygon, Avalanche, Base, Arbitrum, and Solana.
 - Public native-balance lookups for Bitcoin, Ethereum, Solana, Polygon, Tron, Avalanche, TON, and Sui.
 - Signed-in wallet watchlists with per-wallet activity pages, one-minute polling while a detail page is open, and optional browser alerts for new saved activity.
 - Public ERC-20, ERC-721, and ERC-1155 transfer monitoring on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent native/SPL token balance changes on Solana.
-- Role-gated admin views for application accounts, tracked wallets, and recent saved activity records.
+- Role-gated admin views for application accounts, tracked wallets, recent saved activity records, and provider configuration status.
 - Groq-backed market Q&A using the current top-100 CoinGecko snapshot, with the model, source, timestamp, scope, and disclaimer returned to the client.
-- Clerk sign-in foundation and a protected dashboard route.
+- Clerk sign-in and a protected workspace; first-admin access is granted only to an existing account with a verified primary email.
 - Explicit unavailable/error states when providers do not return data.
 
-The wallet scanner reads native balances only. Watchlists store public addresses and alert preferences. Watch pages poll only while open; browser alerts require user permission and an open page. Public RPC tracking records ERC-20, ERC-721, and ERC-1155 transfer logs on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent native/SPL balance changes on Solana. Paired token movements may be labeled as possible trades, but this is an inference, not a protocol-confirmed buy/sell classification. Staking and complete historical coverage are not reliably identified. A transfer is not necessarily a trade. It does not connect to wallets, request signatures, store keys, or initiate transactions. AI answers do not include wallet histories, whale activity, or unconnected blockchain feeds.
+The wallet scanner reads native balances only. Watchlists store public addresses and alert preferences. Watch pages poll once per minute while open; browser alerts require user permission and an open page. Public RPC tracking records ERC-20, ERC-721, and ERC-1155 transfer logs on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent native/SPL balance changes on Solana. Paired token movements may be labeled as possible trades, but this is an inference, not a protocol-confirmed buy/sell classification. Staking and complete historical coverage are not reliably identified. A transfer is not necessarily a trade. It does not connect to wallets, request signatures, store keys, or initiate transactions. AI answers do not include wallet histories or blockchain events.
 
 ## Stack
 
@@ -53,13 +55,15 @@ Use Replit Secrets for credentials. Never commit secret values or place them in 
 | `GROQ_API_KEY` | Server-side Groq requests for AI research |
 | `GROQ_MODEL` | Optional model override; when omitted, the API discovers an available supported model |
 
-Clerk is provisioned for this workspace. The Groq key is stored in Replit Secrets. `.env.example` lists variable names only; do not copy credentials into that file. Public data providers do not require application secrets in the current implementation, but their free endpoints can be rate-limited.
+Clerk is provisioned for this workspace. `GROQ_API_KEY` is not configured by default, so AI answers remain unavailable until an operator adds it to Replit Secrets. `.env.example` lists variable names only; do not copy credentials into that file. Current public market, news, and network endpoints do not require application API keys, but providers may rate-limit requests.
 
 ## Data sources and boundaries
 
 | Feature | Provider |
 | --- | --- |
 | Market overview, listings, and history | CoinGecko API; successful market responses are cached in memory for 60 seconds |
+| Recent crypto/Web3 articles | CoinDesk, Cointelegraph, and Decrypt public RSS feeds |
+| Public block and network snapshots | PublicNode, mempool.space, and Solana Mainnet RPC |
 | Bitcoin native balance | mempool.space |
 | Ethereum, Polygon, and Avalanche native balances | PublicNode JSON-RPC |
 | Solana native balance | Solana Mainnet RPC |
@@ -80,6 +84,8 @@ All endpoints are served beneath `/api`.
 | `GET` | `/api/market/overview` | Global market metrics |
 | `GET` | `/api/market/coins?limit=100` | Market listings, up to 100 |
 | `GET` | `/api/market/history?coinId=bitcoin&days=7` | Historical prices |
+| `GET` | `/api/news/latest` | Recent publication headlines and per-feed status |
+| `GET` | `/api/blockchain/status` | Public block-height, slot, and gas snapshots |
 | `POST` | `/api/wallet/scan` | Public native-balance lookup |
 | `POST` | `/api/intelligence/ask` | Snapshot-grounded market question |
 | `GET` | `/api/auth/me` | Current signed-in account; requires authentication and database access |
@@ -124,6 +130,14 @@ pnpm --filter @workspace/db run push
 
 Do not use the force-push command for routine setup. Production schema changes should follow Replit's Publish flow; do not run manual production DDL from this guide.
 
+After signing up and verifying the intended primary email in the development Clerk instance, grant the first admin role with:
+
+```sh
+pnpm --filter @workspace/scripts run promote-admin -- admin@example.com
+```
+
+This command uses the server-side Clerk secret to resolve the verified account and grants the role in the development database. It does not create a password or account. The user signs in with their own Clerk credentials. Development and production accounts are separate; do not use a shared/default password.
+
 ## Checks and code generation
 
 Run the full workspace TypeScript check:
@@ -149,6 +163,6 @@ The web and API each have Replit artifact configuration under their `.replit-art
 - The scanner is public-address-only and read-only; no signing or transactions are implemented.
 - Market data and wallet results are not financial advice.
 - Do not infer wallet ownership or label addresses as individuals or institutions without evidence.
-- This repository is a foundation, not the full product specification. Whale rankings/monitoring, token and NFT discovery, watchlists and alerts, verified airdrops, news aggregation, forensic case management, marketplace/checkout, subscriptions, internal messaging, and a full admin control center are not implemented yet.
+- The wallet monitor is a recent public-event feed, not a complete portfolio indexer. It does not reliably identify staking or protocol-confirmed buys/sells. Verified airdrop listings, forensic case intake, marketplace/checkout, subscriptions, and a full database administration console are not connected.
 
 See `replit.md` for workspace-specific operating notes and architecture decisions.

@@ -20,7 +20,7 @@ import heroMarkets from '../attached_assets/generated_images/hero-markets.png';
 import heroWallet from '../attached_assets/generated_images/hero-wallet.png';
 import heroAi from '../attached_assets/generated_images/hero-ai.png';
 import evidenceBackground from '../attached_assets/generated_images/section-evidence.png';
-import { PublicInfoPage } from './pages/PublicPages';
+import { BlockchainPage, NewsPage, PublicInfoPage } from './pages/PublicPages';
 import { AdminPage, WatchlistDetailPage, WatchlistPage } from './pages/WatchlistPages';
 import './index.css';
 
@@ -229,6 +229,7 @@ function Header({ activePath }: { activePath: string }) {
         <Route path="/ai-intelligence" component={IntelligencePage} />
         <Route path="/watchlist" component={WatchlistPage} />
         <Route path="/watchlist/:watchId" component={WatchlistDetailPage} />
+        <Route path="/whales" component={WatchlistPage} />
         <Route path="/admin" component={AdminPage} />
         <Route component={NotFound} />
       </Switch>
@@ -600,12 +601,12 @@ function RoutedApp() {
     <Route path="/ai-intelligence" component={AppShell} />
     <Route path="/watchlist/:watchId" component={SignedInAppShell} />
     <Route path="/watchlist" component={SignedInAppShell} />
+    <Route path="/whales" component={SignedInAppShell} />
     <Route path="/admin" component={SignedInAppShell} />
     <Route path="/about" component={PublicInfoPage} />
-    <Route path="/blockchain" component={PublicInfoPage} />
-    <Route path="/whales" component={PublicInfoPage} />
+    <Route path="/blockchain" component={BlockchainPage} />
     <Route path="/airdrops" component={PublicInfoPage} />
-    <Route path="/news" component={PublicInfoPage} />
+    <Route path="/news" component={NewsPage} />
     <Route path="/forensics/request" component={PublicInfoPage} />
     <Route path="/forensics" component={PublicInfoPage} />
     <Route path="/recovery" component={PublicInfoPage} />
@@ -721,7 +722,7 @@ function LandingPage() {
       <section className="landing-unavailable" aria-labelledby="unavailable-heading">
         <div className="unavailable-intro"><div className="landing-section-index">SCOPE, NOT PROMISES / 02</div><h2 id="unavailable-heading">Some things are<br /><span>not connected.</span></h2><p>These areas are intentionally labeled unavailable. No sample feeds, fabricated listings, or implied actions stand in for an integration.</p></div>
         <div className="unavailable-list">
-          {[['/blockchain', 'Blockchain telemetry', 'No chain health or block feed'], ['/whales', 'Whale monitoring', 'No tracked-wallet dataset'], ['/airdrops', 'Airdrop campaigns', 'No campaign or eligibility index'], ['/news', 'News and sentiment', 'No publication feed'], ['/forensics', 'Forensics and recovery', 'No case intake or recovery service'], ['/pricing', 'Plans and billing', 'No subscription or checkout']].map(([href, label, detail], index) => <Link key={href} href={href} className="unavailable-row" data-testid={`link-unavailable-${href.slice(1)}`}><span className="unavailable-index">{String(index + 1).padStart(2, '0')}</span><span className="unavailable-name">{label}<small>{detail}</small></span><span className="unavailable-state"><span />NOT CONNECTED</span><ArrowRight className="unavailable-arrow" /></Link>)}
+          {[['/airdrops', 'Airdrop campaigns', 'No verified campaign or eligibility provider'], ['/forensics', 'Forensics and recovery', 'No case intake or recovery service'], ['/shop', 'Marketplace', 'No verified catalog or checkout'], ['/pricing', 'Plans and billing', 'No subscription or payment provider'], ['/contact', 'Support requests', 'No support inbox is connected']].map(([href, label, detail], index) => <Link key={href} href={href} className="unavailable-row" data-testid={`link-unavailable-${href.slice(1)}`}><span className="unavailable-index">{String(index + 1).padStart(2, '0')}</span><span className="unavailable-name">{label}<small>{detail}</small></span><span className="unavailable-state"><span />NOT CONNECTED</span><ArrowRight className="unavailable-arrow" /></Link>)}
         </div>
       </section>
       <section className="landing-principles" style={{ backgroundImage: `linear-gradient(105deg,rgba(13,22,34,.97),rgba(15,23,39,.94)),url("${evidenceBackground}")` }}><div className="landing-section-index">BUILT ON BOUNDARIES / 03</div><h2>Trust starts with<br /><span>what we don’t claim.</span></h2><div className="principle-grid"><div><span>01</span><h3>Sources stay visible</h3><p>Provider labels and update times travel with the data.</p></div><div><span>02</span><h3>Public means public</h3><p>Optional injected access reveals a public address only. No private keys, signatures, or transactions.</p></div><div><span>03</span><h3>Interpretation is labeled</h3><p>AI context is distinguished from verified market facts.</p></div></div></section>
