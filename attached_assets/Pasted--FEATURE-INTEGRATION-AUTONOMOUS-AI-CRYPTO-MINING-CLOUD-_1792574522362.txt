@@ -1,0 +1,799 @@
+# FEATURE INTEGRATION: AUTONOMOUS AI CRYPTO MINING & CLOUD COMPUTATIONAL ENGINE
+
+## PROJECT NAME
+
+**AI Autonomous Mining Intelligence Engine**
+
+Integrate a sophisticated cryptocurrency mining management and optimization system into our existing blockchain intelligence web application.
+
+Act as a senior blockchain infrastructure engineer, cybersecurity architect, cryptocurrency mining specialist, AI engineer, Rust developer and full-stack SaaS architect.
+
+Your responsibility is to develop an advanced, modular mining engine that can discover compatible mining opportunities, connect authorized computational resources, manage mining operations, monitor rewards, optimize profitability and automatically select the most suitable mining algorithm for available hardware.
+
+This must be a genuine mining management system, not a simulated mining dashboard.
+
+The system should support open-source mining technologies, ASIC hardware, GPU hardware, authorized cloud computational infrastructure, mining pools and Stratum mining protocols.
+
+The system must be integrated into our existing user accounts and admin dashboard.
+
+## 1. MAIN OBJECTIVE
+
+Develop an intelligent mining engine capable of:
+
+1. Discovering mineable cryptocurrencies and supported mining algorithms.
+2. Evaluating current mining profitability.
+3. Connecting authorized mining hardware.
+4. Connecting permitted cloud computational resources.
+5. Managing multiple mining workers.
+6. Automatically selecting the most appropriate mining algorithm.
+7. Monitoring mining hashrates.
+8. Connecting to compatible mining pools.
+9. Monitoring accepted and rejected shares.
+10. Tracking mining rewards.
+11. Monitoring operational costs.
+12. Calculating estimated net profitability.
+13. Switching between eligible mining opportunities based on configurable rules.
+14. Sending mining earnings to user-configured payout addresses.
+15. Providing detailed mining performance analytics.
+
+The system must prioritize legitimate, transparent and user-authorized computational resources.
+
+Never attempt to bypass cloud-provider restrictions, free-tier limits or acceptable-use policies.
+
+## 2. NEW APPLICATION NAVIGATION
+
+Add a new main navigation item:
+
+**Mining Intelligence**
+
+Create the following routes:
+
+- /mining
+- /mining/dashboard
+- /mining/algorithms
+- /mining/coins
+- /mining/profitability
+- /mining/hardware
+- /mining/cloud-resources
+- /mining/pools
+- /mining/workers
+- /mining/earnings
+- /mining/history
+- /mining/settings
+- /mining/security
+
+Admin routes:
+
+- /admin/mining
+- /admin/mining/coins
+- /admin/mining/algorithms
+- /admin/mining/workers
+- /admin/mining/resources
+- /admin/mining/pools
+- /admin/mining/earnings
+- /admin/mining/users
+- /admin/mining/security
+- /admin/mining/settings
+
+Protect all authenticated and administrative routes.
+
+## 3. PREMIUM MINING DASHBOARD
+
+Create an exceptionally polished mining intelligence dashboard.
+
+The dashboard should resemble an institutional mining operations control center.
+
+Use our existing dark fintech design system.
+
+Display the following:
+
+- Mining engine status.
+- Total active mining workers.
+- Connected ASIC devices.
+- Connected GPU devices.
+- Authorized cloud instances.
+- Total active hashrate.
+- Accepted shares.
+- Rejected shares.
+- Estimated daily earnings.
+- Estimated monthly earnings.
+- Actual confirmed earnings.
+- Operational expenditure.
+- Estimated net profit.
+- Mining efficiency.
+- Network difficulty.
+- Pool connection status.
+
+Add interactive performance charts.
+
+Chart categories:
+
+- Hashrate over time.
+- Mining rewards over time.
+- Daily earnings.
+- Mining expenditure.
+- Mining profitability.
+- Worker performance.
+- Accepted versus rejected shares.
+- Algorithm performance.
+
+Provide time filters:
+
+1H, 24H, 7D, 30D, 90D and ALL.
+
+Clearly distinguish estimated earnings from actual pool-reported payouts and confirmed blockchain transactions.
+
+Never present simulated mining performance as actual mining activity.
+
+## 4. INTELLIGENT CRYPTOCURRENCY DISCOVERY ENGINE
+
+Create a dynamic cryptocurrency discovery and ranking system.
+
+Initially support these mining candidates:
+
+- Bitcoin (BTC) – SHA-256.
+- Litecoin (LTC) – Scrypt.
+- Dogecoin (DOGE) – Scrypt.
+- Kaspa (KAS) – kHeavyHash.
+- Zcash (ZEC) – Equihash.
+
+Additionally support configurable CPU/GPU mining algorithms such as:
+
+- RandomX.
+- KawPow.
+- Autolykos.
+- Other legally supported and technically compatible proof-of-work algorithms.
+
+Do not permanently assume these five are the most profitable.
+
+Build a dynamic mining opportunity ranking engine.
+
+Retrieve information from reputable data providers and mining pools.
+
+For each supported coin, retrieve:
+
+- Current price.
+- Mining algorithm.
+- Network hashrate.
+- Network difficulty.
+- Block reward.
+- Block time.
+- Estimated daily network issuance.
+- Pool fees.
+- Supported hardware.
+- Estimated earnings per hashrate unit.
+- Current mining profitability.
+- Data source.
+- Last updated time.
+
+Display the best mining opportunities based on actual data.
+
+Allow users to filter by:
+
+- ASIC.
+- GPU.
+- CPU.
+- Cloud computational resources.
+- Mining algorithm.
+- Minimum estimated daily profitability.
+- Supported mining pool.
+
+## 5. AI AUTONOMOUS MINING OPTIMIZER
+
+This is the central intelligence component.
+
+Integrate Groq AI with a dedicated mining profitability calculation engine.
+
+The AI should analyze:
+
+- Cryptocurrency prices.
+- Mining difficulty.
+- Network hashrate.
+- Block rewards.
+- Pool fees.
+- Available computational resources.
+- Hardware efficiency.
+- Electricity prices.
+- Cloud instance costs.
+- Historical mining performance.
+- Accepted and rejected shares.
+
+Build an optimization engine that recommends which mining operation should receive the available resources.
+
+Example:
+
+A user connects an ASIC miner.
+
+The engine identifies its supported algorithms.
+
+It evaluates compatible mining opportunities.
+
+It compares estimated mining rewards against pool fees and operational expenditure.
+
+It recommends the most economically suitable opportunity.
+
+Where the user has enabled autonomous switching, the system can switch between preapproved compatible mining configurations.
+
+### AI capabilities
+
+- Daily mining recommendations.
+- Algorithm optimization.
+- Profitability forecasting.
+- Hardware performance analysis.
+- Mining anomaly detection.
+- Unusual hashrate detection.
+- Worker failure detection.
+- Pool latency analysis.
+- Operational cost analysis.
+- Mining efficiency recommendations.
+
+Important: Groq AI must never invent mining rewards, hashrates or profitability figures.
+
+All numerical financial calculations must be performed by deterministic backend calculation services using verified inputs.
+
+AI should explain the results and make recommendations.
+
+## 6. ADVANCED PROFITABILITY CALCULATOR
+
+Develop a sophisticated profitability calculator.
+
+Allow users to input:
+
+- Cryptocurrency.
+- Mining algorithm.
+- Hardware model.
+- Hashrate.
+- Power consumption.
+- Electricity cost per kWh.
+- Pool fee.
+- Hardware acquisition cost.
+- Cloud computational cost.
+- Network difficulty.
+- Current cryptocurrency price.
+
+Calculate:
+
+- Estimated coins per day.
+- Estimated USD revenue.
+- Electricity cost.
+- Cloud infrastructure cost.
+- Pool fees.
+- Other configurable operating costs.
+- Estimated daily net profit.
+- Estimated monthly net profit.
+- Break-even electricity cost.
+- Estimated ROI.
+- Hardware payback period.
+
+Use algorithm-specific reward models.
+
+For pooled mining, distinguish probabilistic earnings estimates from pool-reported actual earnings.
+
+Display best-case, base-case and conservative scenarios.
+
+Show an explicit warning whenever estimated net profitability is negative.
+
+Do not recommend mining an algorithm merely because its gross revenue is high.
+
+## 7. NICEHASH INTEGRATION
+
+Integrate NiceHash as an optional mining marketplace and mining statistics provider.
+
+Reference:
+
+https://www.nicehash.com/my/mining/stats
+
+API documentation:
+
+https://www.nicehash.com/docs/rest/
+
+Implement the appropriate public API endpoints for:
+
+- Mining algorithms.
+- Mining markets.
+- Supported currencies.
+- Supported networks.
+- Public fee information.
+
+For users who connect their own authorized NiceHash accounts, support appropriate private API integrations.
+
+Where supported, retrieve:
+
+- Rig statistics.
+- Active workers.
+- Mining algorithm statistics.
+- Unpaid balances.
+- Daily earnings.
+- Historical mining performance.
+- Rig status.
+
+Implement secure API credential storage.
+
+Never scrape user account pages or request NiceHash login passwords.
+
+Use read-only API permissions wherever possible.
+
+Do not execute purchases or paid hashpower orders without explicit user authorization.
+
+## 8. STRATUM V2 INTEGRATION
+
+Integrate the open-source Stratum V2 technology.
+
+Official documentation:
+
+https://stratumprotocol.org/
+
+GitHub:
+
+https://github.com/stratum-mining/stratum
+
+Study the official reference implementation and protocol specification before implementation.
+
+Use the Stratum V2 libraries and compatible applications as the foundation for supported Bitcoin mining integrations.
+
+Develop a modular Stratum connection manager.
+
+Features:
+
+- Pool endpoint configuration.
+- Connection authentication.
+- Worker identification.
+- Mining channel management.
+- Job monitoring.
+- Share submission monitoring.
+- Connection health.
+- Latency monitoring.
+- Automatic reconnection.
+- Error logging.
+- Worker-level statistics.
+
+Implement appropriate secure communication and authentication based on the protocol.
+
+Build compatibility adapters for Stratum V1 pools where necessary.
+
+Do not assume Stratum V2 is supported by every mining pool or cryptocurrency.
+
+Use protocol-specific adapters for other mining algorithms and networks.
+
+## 9. OPEN-SOURCE MINING SOFTWARE MANAGEMENT
+
+Create a mining software registry.
+
+Support compatible, legitimate open-source mining clients based on algorithm and hardware.
+
+Evaluate projects such as:
+
+- Bitcoin Core for node and solo-mining infrastructure, not as a competitive ASIC mining client.
+- Official Stratum V2 reference applications.
+- CGMiner-compatible implementations.
+- BFGMiner.
+- XMRig.
+- SRBMiner-MULTI.
+- Other maintained, appropriately licensed miners.
+
+Do not blindly download or execute mining binaries.
+
+For every miner:
+
+- Record its source repository.
+- Check the license.
+- Pin an approved version.
+- Verify checksums and signatures where available.
+- Perform dependency and vulnerability scanning.
+- Run within an isolated execution environment.
+- Restrict filesystem access.
+- Restrict network access to approved pool endpoints.
+- Monitor CPU, GPU and memory usage.
+- Record execution logs.
+- Support controlled termination.
+
+Only allow administrators to approve new mining software.
+
+Do not install mining software on the Replit application server itself.
+
+The Replit application should function as the mining management control plane, while actual mining occurs on separately authorized hardware or computational workers.
+
+## 10. CLOUD COMPUTATIONAL RESOURCE MANAGER
+
+Create a dedicated Cloud Mining Resources module.
+
+The objective is to connect legitimate computational resources and help users understand their actual mining potential.
+
+Support modular cloud-provider adapters.
+
+Potential providers include:
+
+- Oracle Cloud Infrastructure.
+- AWS.
+- Google Cloud.
+- Microsoft Azure.
+- Other providers offering explicitly authorized compute workloads.
+
+Allow users to register eligible resources through supported provider integrations.
+
+Resource discovery should identify:
+
+- Available CPU cores.
+- Available RAM.
+- GPU availability.
+- GPU model.
+- Computational capability.
+- Hourly instance price.
+- Storage requirements.
+- Network performance.
+- Provider region.
+- Resource availability.
+- Provider restrictions.
+
+### Free compute discovery
+
+Create a special section called:
+
+**Free Compute Opportunities**
+
+Display cloud resources that are genuinely free or available through legitimate free credits and programs.
+
+For every resource, display:
+
+- Provider.
+- Free-tier eligibility.
+- Available computing resources.
+- Usage limits.
+- Expiry period.
+- Supported workload types.
+- Mining-policy compatibility.
+- Estimated computational capacity.
+- Official provider documentation.
+
+Never assume that a free cloud instance permits cryptocurrency mining.
+
+Only activate mining where the provider explicitly permits the workload.
+
+If a provider prohibits cryptocurrency mining, disable mining execution on that provider while still allowing permitted benchmarking or educational experiments.
+
+Do not bypass CPU quotas, account restrictions, instance limits or provider monitoring.
+
+### Resource modes
+
+1. Free eligible resources.
+2. Paid cloud instances.
+3. User-owned servers.
+4. ASIC hardware.
+5. GPU mining rigs.
+
+Implement resource-level budget limits and shutdown controls.
+
+## 11. AUTONOMOUS MINING ORCHESTRATOR
+
+Build an intelligent orchestration engine.
+
+The engine should continuously monitor approved mining workers.
+
+Its responsibilities:
+
+- Identify available resources.
+- Evaluate compatible algorithms.
+- Retrieve profitability information.
+- Check configured operating budgets.
+- Recommend mining configurations.
+- Start approved workloads.
+- Monitor performance.
+- Detect failed workers.
+- Restart recoverable workloads.
+- Pause unprofitable workloads.
+- Switch to an approved alternative where economically justified.
+- Record all actions.
+
+### Autopilot configuration
+
+Allow users to configure:
+
+- Maximum daily spending.
+- Maximum monthly spending.
+- Maximum electricity cost.
+- Minimum expected net profitability.
+- Maximum CPU utilization.
+- Maximum GPU utilization.
+- Maximum device temperature.
+- Approved mining algorithms.
+- Approved mining pools.
+- Approved cloud resources.
+- Preferred payout cryptocurrency.
+
+Include a master emergency STOP button.
+
+All mining execution must require explicit authorization.
+
+Autonomous actions must stay within user-approved budgets and hardware limits.
+
+Never run hidden mining processes.
+
+Never use a visitor's browser or device resources for mining without explicit, informed opt-in.
+
+## 12. MINING REWARDS AND PAYOUT MANAGEMENT
+
+Build a dedicated earnings management module.
+
+Display:
+
+- Estimated earnings.
+- Confirmed pool earnings.
+- Unpaid balances.
+- Paid rewards.
+- Mining payout history.
+- Payout transaction hashes.
+- Payout addresses.
+- Payout networks.
+
+Support user-configured payout addresses for supported cryptocurrencies.
+
+The platform must never secretly change a user's payout address.
+
+Require additional confirmation when a payout address is changed.
+
+Implement payout notifications and transaction verification.
+
+Distinguish pending pool balances from actual on-chain payments.
+
+Never fabricate or guarantee daily mining rewards.
+
+## 13. CYBERSECURITY AND THREAT DETECTION
+
+Make security a core feature of the mining platform.
+
+Create a mining security monitoring engine.
+
+Monitor:
+
+- Unauthorized worker creation.
+- Unknown mining processes.
+- Suspicious pool endpoints.
+- Unexpected mining software changes.
+- Unauthorized configuration changes.
+- Abnormal hashrate changes.
+- Unexpected resource consumption.
+- Suspicious outbound connections.
+- API credential misuse.
+- Privilege escalation attempts.
+- Failed authentication attempts.
+
+Create alerts for unusual activity.
+
+Implement:
+
+- Worker authentication.
+- Per-resource access controls.
+- Secure credential storage.
+- Encrypted connections.
+- Least-privilege permissions.
+- Network allowlisting.
+- Execution sandboxing.
+- Signed software verification.
+- Dependency vulnerability scanning.
+- Centralized audit logs.
+- Administrative MFA.
+
+Create an emergency control that can stop all managed mining workers.
+
+Do not provide stealth, persistence or evasion capabilities.
+
+## 14. ADMIN MINING CONTROL CENTER
+
+Administrators must have comprehensive control over the mining infrastructure.
+
+Dashboard statistics:
+
+- Total mining users.
+- Active miners.
+- Connected workers.
+- Total hashrate.
+- Supported algorithms.
+- Active mining pools.
+- Total reported rewards.
+- Pending payout records.
+- Estimated platform revenue.
+- Resource expenditure.
+- Cloud provider status.
+- Security incidents.
+
+Administrative functionality:
+
+- Add mining algorithms.
+- Enable or disable supported coins.
+- Manage mining pools.
+- Approve mining software.
+- Manage provider integrations.
+- Monitor workers.
+- View user mining activity.
+- Manage resource limits.
+- Configure platform fees where applicable.
+- Review security alerts.
+- Manage payout settings.
+- Suspend unauthorized mining activity.
+- Configure platform-wide operational limits.
+
+Every sensitive administrative action must be logged.
+
+## 15. DATABASE EXTENSIONS
+
+Extend our existing PostgreSQL database.
+
+Create appropriate tables for:
+
+- Mining algorithms.
+- Mineable cryptocurrencies.
+- Mining pools.
+- Mining software registry.
+- Hardware devices.
+- Mining workers.
+- Worker performance.
+- Cloud providers.
+- Cloud resources.
+- Resource permissions.
+- Mining configurations.
+- Mining sessions.
+- Mining jobs.
+- Share submissions.
+- Mining rewards.
+- Earnings history.
+- Mining expenditures.
+- Profitability calculations.
+- Autopilot configurations.
+- Mining alerts.
+- Payout addresses.
+- Payout transactions.
+- Mining security incidents.
+- Mining audit logs.
+
+Use database migrations and appropriate indexes.
+
+Maintain relationships with the existing user accounts.
+
+Users must only access their own mining configurations, workers, earnings and connected resources.
+
+## 16. GROQ AI MINING ASSISTANT
+
+Create an AI mining assistant powered by Groq.
+
+Users should be able to ask:
+
+- What is the most profitable algorithm for my hardware?
+- Which cryptocurrency should I mine today?
+- Why has my mining profitability decreased?
+- How much did I spend mining this month?
+- Which workers are underperforming?
+- Is my mining operation profitable?
+- Which cloud resources are suitable for mining?
+- Compare SHA-256 and Scrypt mining.
+- Analyze my last seven days of mining performance.
+
+AI responses must use actual platform mining records and current data provider information.
+
+Show calculation inputs and sources.
+
+Never allow AI to independently authorize purchases, spend money, deploy cloud instances or change payout addresses.
+
+Such actions require explicit user approval.
+
+## 17. MINING SUBSCRIPTION AND MONETIZATION
+
+Integrate the feature into our existing subscription infrastructure.
+
+Create configurable plans:
+
+**Mining Explorer**
+- Mining profitability calculator.
+- Supported algorithm discovery.
+- Limited hardware benchmarking.
+- Basic mining statistics.
+
+**Mining Pro**
+- Multiple worker monitoring.
+- Advanced profitability analysis.
+- Mining alerts.
+- Autopilot recommendations.
+- Historical earnings reports.
+
+**Mining Enterprise**
+- Multiple mining farms.
+- Advanced resource management.
+- Team access.
+- Extended analytics.
+- API access.
+- Advanced security monitoring.
+
+Allow the administrator to configure plan prices, quotas and restrictions.
+
+Clearly separate subscription fees from actual mining operational costs.
+
+## 18. TECHNICAL ARCHITECTURE
+
+Use our existing application's architecture and database.
+
+Suggested technologies:
+
+- Next.js.
+- React.
+- TypeScript.
+- Node.js.
+- PostgreSQL.
+- Prisma.
+- Redis.
+- WebSockets.
+- Rust for performance-sensitive Stratum and mining-worker components.
+- Groq API.
+- Docker for isolated worker deployments.
+- Prometheus-compatible monitoring.
+- Grafana-compatible performance visualization.
+
+Use modular services.
+
+The mining management dashboard must not directly execute mining processes.
+
+Implement a separate worker-agent architecture.
+
+### Worker-agent architecture
+
+Each authorized worker should:
+
+1. Authenticate with the mining control plane.
+2. Report its hardware capabilities.
+3. Receive an approved mining configuration.
+4. Connect to the designated mining pool.
+5. Report hashrate and share statistics.
+6. Report health information.
+7. Send execution logs.
+8. Accept authorized start, pause and stop commands.
+9. Respect resource and budget limits.
+10. Shut down safely when authorization is revoked.
+
+Worker agents should use short-lived credentials and authenticated communication.
+
+Do not expose mining pool credentials or cloud provider secrets to the frontend.
+
+## 19. TESTING AND ACCEPTANCE CRITERIA
+
+Test the following:
+
+- Mining algorithm discovery.
+- Profitability calculations.
+- Hardware compatibility.
+- NiceHash API connectivity.
+- Stratum connection management.
+- Worker registration.
+- Worker authentication.
+- Worker monitoring.
+- Resource management.
+- Autopilot configuration.
+- Emergency shutdown.
+- Earnings reporting.
+- Payout verification.
+- Security monitoring.
+- Subscription restrictions.
+- User access isolation.
+
+Include a clearly labelled simulation mode for testing mining workflows without actual mining.
+
+Simulation data must never be confused with actual mining results.
+
+Before launch, test the worker agent on a dedicated authorized machine and verify that its resource consumption, network connections and shutdown controls operate correctly.
+
+## 20. FINAL DEVELOPMENT INSTRUCTIONS
+
+Integrate this module into our existing crypto intelligence application without rebuilding existing functionality.
+
+Reuse the existing authentication, user profiles, admin permissions, notifications, subscription system and database.
+
+Do not break existing blockchain tracking, wallet scanner, airdrop discovery, Groq AI or marketplace features.
+
+Build the mining dashboard first, then implement the profitability engine, provider adapters, worker architecture and autonomous orchestration.
+
+Do not claim mining is operational until an actual authorized worker has successfully connected to a compatible mining pool and submitted valid shares.
+
+Never use Replit's application hosting resources as hidden mining infrastructure.
+
+Never use unauthorized cloud resources.
+
+Never promise guaranteed daily cryptocurrency generation.
+
+The final system must be a premium, transparent, secure and genuinely functional autonomous mining management platform.
