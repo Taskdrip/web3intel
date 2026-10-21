@@ -406,7 +406,6 @@ tbody tr { transition:background .18s; cursor:pointer; } tbody tr:hover { backgr
   .auth-context-copy p { font-size:11px;margin:0; }
   .auth-footnote { display:none; }
   .auth-card-wrap { padding:18px 15px 34px;align-items:flex-start; }
-  .auth-card-wrap .cl-rootBox { width:100%; }
 }
 
 /* Readability pass: keep the terminal dense, but never tiny. */
