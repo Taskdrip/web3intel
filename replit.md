@@ -51,6 +51,7 @@ Web3 Intelligence is a read-only blockchain research workspace for market data, 
 
 ## User preferences
 
+- Use a dark-first midnight, charcoal, and navy interface with electric blue/cyan accents and subtle violet; keep typography comfortably readable without excessive neon, clutter, or oversized text.
 - Keep blockchain integrations read-only unless explicitly requested otherwise.
 - Never request or store private keys, seed phrases, passwords, or wallet signatures.
 - Do not substitute fake market, wallet, or airdrop data when a provider is unavailable.
