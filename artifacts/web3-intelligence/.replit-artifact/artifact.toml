@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Web3 Intelligence"
+description = "A blockchain intelligence workspace for crypto market monitoring, public wallet analysis, whale activity, airdrop discovery, news, and grounded AI research."
+version = "1.0.0"
+id = "artifacts/web3-intelligence"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21136
+
+[services.development]
+run = "pnpm --filter @workspace/web3-intelligence run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/web3-intelligence", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/web3-intelligence/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21136"
+BASE_PATH = "/"
