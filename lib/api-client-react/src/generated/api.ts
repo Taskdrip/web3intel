@@ -45,6 +45,12 @@ import type {
   QuestionInput,
   QuestionResponse,
   UpdateAdminWalletWatchParams,
+  WalletAuthChallenge,
+  WalletAuthChallengeInput,
+  WalletAuthLogoutResponse,
+  WalletAuthSession,
+  WalletAuthVerifyInput,
+  WalletAuthVerifyResponse,
   WalletScanInput,
   WalletScanResult,
   WalletWatch,
@@ -79,6 +85,333 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getCreateWalletAuthChallengeUrl = () => {
+
+
+
+
+  return `/api/wallet-auth/challenge`
+}
+
+/**
+ * @summary Create a one-time wallet sign-in message
+ */
+export const createWalletAuthChallenge = async (walletAuthChallengeInput: WalletAuthChallengeInput, options?: Parameters<typeof customFetch>[1]): Promise<WalletAuthChallenge> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<WalletAuthChallenge>(getCreateWalletAuthChallengeUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(walletAuthChallengeInput)
+  }
+);}
+
+
+
+
+
+export const getCreateWalletAuthChallengeMutationKey = () => ['createWalletAuthChallenge'] as const;
+
+export const getCreateWalletAuthChallengeMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createWalletAuthChallenge>>, TError,CreateWalletAuthChallengeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createWalletAuthChallenge>>, TError,CreateWalletAuthChallengeMutationVariables, TContext> => {
+
+const mutationKey = getCreateWalletAuthChallengeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createWalletAuthChallenge>>, CreateWalletAuthChallengeMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createWalletAuthChallenge(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateWalletAuthChallengeMutationResult = NonNullable<Awaited<ReturnType<typeof createWalletAuthChallenge>>>
+    export type CreateWalletAuthChallengeMutationBody = BodyType<WalletAuthChallengeInput>
+    export type CreateWalletAuthChallengeMutationError = ErrorType<ApiError>
+    export type CreateWalletAuthChallengeMutationVariables = {data: BodyType<WalletAuthChallengeInput>}
+
+    /**
+ * @summary Create a one-time wallet sign-in message
+ */
+export const useCreateWalletAuthChallenge = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createWalletAuthChallenge>>, TError,CreateWalletAuthChallengeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createWalletAuthChallenge>>,
+        TError,
+        CreateWalletAuthChallengeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateWalletAuthChallengeMutationOptions(options));
+    }
+
+export const getVerifyWalletAuthUrl = () => {
+
+
+
+
+  return `/api/wallet-auth/verify`
+}
+
+/**
+ * @summary Verify a wallet signature and start a wallet session
+ */
+export const verifyWalletAuth = async (walletAuthVerifyInput: WalletAuthVerifyInput, options?: Parameters<typeof customFetch>[1]): Promise<WalletAuthVerifyResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<WalletAuthVerifyResponse>(getVerifyWalletAuthUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(walletAuthVerifyInput)
+  }
+);}
+
+
+
+
+
+export const getVerifyWalletAuthMutationKey = () => ['verifyWalletAuth'] as const;
+
+export const getVerifyWalletAuthMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyWalletAuth>>, TError,VerifyWalletAuthMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyWalletAuth>>, TError,VerifyWalletAuthMutationVariables, TContext> => {
+
+const mutationKey = getVerifyWalletAuthMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyWalletAuth>>, VerifyWalletAuthMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  verifyWalletAuth(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifyWalletAuthMutationResult = NonNullable<Awaited<ReturnType<typeof verifyWalletAuth>>>
+    export type VerifyWalletAuthMutationBody = BodyType<WalletAuthVerifyInput>
+    export type VerifyWalletAuthMutationError = ErrorType<ApiError>
+    export type VerifyWalletAuthMutationVariables = {data: BodyType<WalletAuthVerifyInput>}
+
+    /**
+ * @summary Verify a wallet signature and start a wallet session
+ */
+export const useVerifyWalletAuth = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyWalletAuth>>, TError,VerifyWalletAuthMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof verifyWalletAuth>>,
+        TError,
+        VerifyWalletAuthMutationVariables,
+        TContext
+      > => {
+      return useMutation(getVerifyWalletAuthMutationOptions(options));
+    }
+
+export const getGetWalletAuthSessionUrl = () => {
+
+
+
+
+  return `/api/wallet-auth/session`
+}
+
+/**
+ * @summary Check the current browser wallet session
+ */
+export const getWalletAuthSession = async ( options?: Parameters<typeof customFetch>[1]): Promise<WalletAuthSession> => {
+
+  return customFetch<WalletAuthSession>(getGetWalletAuthSessionUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetWalletAuthSessionQueryKey = () => {
+    return [
+    `/api/wallet-auth/session`
+    ] as const;
+    }
+
+
+export const getGetWalletAuthSessionQueryOptions = <TData = Awaited<ReturnType<typeof getWalletAuthSession>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWalletAuthSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetWalletAuthSessionQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getWalletAuthSession>>> = ({ signal }) => getWalletAuthSession({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getWalletAuthSession>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetWalletAuthSessionQueryResult = NonNullable<Awaited<ReturnType<typeof getWalletAuthSession>>>
+export type GetWalletAuthSessionQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Check the current browser wallet session
+ */
+
+export function useGetWalletAuthSession<TData = Awaited<ReturnType<typeof getWalletAuthSession>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWalletAuthSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetWalletAuthSessionQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getLogoutWalletAuthUrl = () => {
+
+
+
+
+  return `/api/wallet-auth/logout`
+}
+
+/**
+ * @summary End the current wallet session
+ */
+export const logoutWalletAuth = async ( options?: Parameters<typeof customFetch>[1]): Promise<WalletAuthLogoutResponse> => {
+
+  return customFetch<WalletAuthLogoutResponse>(getLogoutWalletAuthUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getLogoutWalletAuthMutationKey = () => ['logoutWalletAuth'] as const;
+
+export const getLogoutWalletAuthMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof logoutWalletAuth>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof logoutWalletAuth>>, TError,void, TContext> => {
+
+const mutationKey = getLogoutWalletAuthMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof logoutWalletAuth>>, void> = () => {
+
+
+          return  logoutWalletAuth(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LogoutWalletAuthMutationResult = NonNullable<Awaited<ReturnType<typeof logoutWalletAuth>>>
+
+    export type LogoutWalletAuthMutationError = ErrorType<unknown>
+
+
+    /**
+ * @summary End the current wallet session
+ */
+export const useLogoutWalletAuth = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof logoutWalletAuth>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof logoutWalletAuth>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getLogoutWalletAuthMutationOptions(options));
+    }
 
 export const getGetCurrentUserUrl = () => {
 

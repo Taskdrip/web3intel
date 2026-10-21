@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ClerkProvider, Show, SignIn, SignUp, useClerk } from '@clerk/react';
+import { ClerkProvider, SignIn, SignUp, useAuth, useClerk } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
-import { Link, Redirect, Route, Router as WouterRouter, Switch, useLocation } from 'wouter';
+import { Link, Route, Router as WouterRouter, Switch, useLocation } from 'wouter';
 import {
   Activity, ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, Blocks, Bot,
   ChevronRight, CircleAlert, Clock3, Database, ExternalLink, Eye,
@@ -22,6 +22,7 @@ import heroAi from '../attached_assets/generated_images/hero-ai.png';
 import evidenceBackground from '../attached_assets/generated_images/section-evidence.png';
 import { BlockchainPage, NewsPage, PublicInfoPage } from './pages/PublicPages';
 import { AdminPage, WatchlistDetailPage, WatchlistPage } from './pages/WatchlistPages';
+import { WalletAuthProvider, WalletLoginPanel, WalletSignInLink, useWalletAuth } from './components/wallet-auth';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -193,6 +194,13 @@ function ErrorPanel({ message, retry }: { message: string; retry: () => void }) 
 
 function Header({ activePath }: { activePath: string }) {
   const { signOut } = useClerk();
+  const { isSignedIn } = useAuth();
+  const walletAuth = useWalletAuth();
+  const authenticated = Boolean(isSignedIn || walletAuth.session.authenticated);
+  const handleSignOut = async () => {
+    if (walletAuth.session.authenticated) await walletAuth.signOut();
+    if (isSignedIn) await signOut({ redirectUrl: basePath || '/' });
+  };
   const current = routes.find((item) => item.path === activePath);
   return <>
     <aside className="sidebar">
@@ -214,13 +222,13 @@ function Header({ activePath }: { activePath: string }) {
     <main className="main-area">
       <header className="topbar">
         <div className="crumb"><span>INTELLIGENCE</span><ChevronRight size={12} /><strong>{current?.label.toUpperCase() ?? 'OVERVIEW'}</strong></div>
-        <div className="top-meta"><span className="live-pill">PUBLIC DATA</span><span>READ-ONLY TERMINAL</span><Show when="signed-in"><button className="terminal-signout" type="button" onClick={() => signOut({ redirectUrl: basePath || '/' })} data-testid="button-sign-out">Sign out</button></Show><Show when="signed-out"><Link href="/sign-in" className="terminal-signout" data-testid="link-shell-sign-in">Sign in</Link></Show></div>
+        <div className="top-meta"><span className="live-pill">PUBLIC DATA</span><span>READ-ONLY TERMINAL</span>{authenticated ? <button className="terminal-signout" type="button" onClick={() => void handleSignOut()} data-testid="button-sign-out">Sign out</button> : <><Link href="/sign-in" className="terminal-signout" data-testid="link-shell-sign-in">Sign in</Link><WalletSignInLink className="terminal-signout wallet-header-link" /></>}</div>
       </header>
       <div className="mobile-head">
         <Link href="/" className="brand" data-testid="link-mobile-brand-home">
           <span className="brand-mark"><Waves size={15} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span>
         </Link>
-        <div className="mobile-meta"><span className="live-pill">PUBLIC DATA</span><Show when="signed-in"><button className="terminal-signout" type="button" onClick={() => signOut({ redirectUrl: basePath || '/' })} data-testid="button-mobile-sign-out">Sign out</button></Show><Show when="signed-out"><Link href="/sign-in" className="terminal-signout" data-testid="link-mobile-sign-in">Sign in</Link></Show></div>
+        <div className="mobile-meta"><span className="live-pill">PUBLIC DATA</span>{authenticated ? <button className="terminal-signout" type="button" onClick={() => void handleSignOut()} data-testid="button-mobile-sign-out">Sign out</button> : <><Link href="/sign-in" className="terminal-signout" data-testid="link-mobile-sign-in">Sign in</Link><WalletSignInLink className="terminal-signout wallet-header-link" /></>}</div>
       </div>
       <Switch>
         <Route path="/dashboard" component={OverviewPage} />
@@ -630,11 +638,25 @@ function AppShell() {
 }
 
 function SignedInAppShell() {
-  return <><Show when="signed-in"><AppShell /></Show><Show when="signed-out"><Redirect to="/sign-in" /></Show></>;
+  return <AuthenticatedRoute redirectTo="/sign-in"><AppShell /></AuthenticatedRoute>;
 }
 
 function DashboardGate() {
-  return <><Show when="signed-in"><AppShell /></Show><Show when="signed-out"><Redirect to="/" /></Show></>;
+  return <AuthenticatedRoute redirectTo="/"><AppShell /></AuthenticatedRoute>;
+}
+
+function AuthenticatedRoute({ children, redirectTo }: { children: ReactNode; redirectTo: string }) {
+  const { isLoaded, isSignedIn } = useAuth();
+  const walletAuth = useWalletAuth();
+  const [, setLocation] = useLocation();
+  const authenticated = Boolean(isSignedIn || walletAuth.session.authenticated);
+  useEffect(() => {
+    if (isLoaded && !walletAuth.isLoading && !authenticated) setLocation(redirectTo);
+  }, [isLoaded, walletAuth.isLoading, authenticated, redirectTo, setLocation]);
+  if (!isLoaded || walletAuth.isLoading) {
+    return <div className="content"><div className="panel session-loading" role="status">Checking secure session…</div></div>;
+  }
+  return authenticated ? <>{children}</> : null;
 }
 
 function HomeRedirect() {
@@ -679,9 +701,9 @@ function LandingPage() {
     <header className="landing-nav">
       <Link href="/" className="brand landing-brand" data-testid="link-landing-brand"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link>
       <nav className="landing-nav-links" aria-label="Public pages"><Link href="/about" data-testid="link-landing-about">About</Link><Link href="/blockchain" data-testid="link-landing-blockchain">Blockchain</Link><Link href="/markets" data-testid="link-landing-markets">Markets</Link><Link href="/wallet-scanner" data-testid="link-landing-wallet">Wallet scanner</Link><Link href="/ai-intelligence" data-testid="link-landing-ai">AI intelligence</Link></nav>
-      <div className="landing-auth"><Link href="/sign-in" className="landing-login" data-testid="link-landing-sign-in">Sign in</Link><Link href="/sign-up" className="landing-cta" data-testid="link-landing-sign-up">Create account <ArrowRight size={15} /></Link></div>
+      <div className="landing-auth"><WalletSignInLink className="landing-login landing-wallet-login" /><Link href="/sign-in" className="landing-login" data-testid="link-landing-sign-in">Sign in</Link><Link href="/sign-up" className="landing-cta" data-testid="link-landing-sign-up">Create account <ArrowRight size={15} /></Link></div>
       <button className="landing-menu-button" type="button" aria-label={landingMenuOpen ? 'Close site navigation' : 'Open site navigation'} aria-expanded={landingMenuOpen} onClick={() => setLandingMenuOpen(!landingMenuOpen)} data-testid="button-landing-menu">{landingMenuOpen ? <X /> : <Menu />}</button>
-      {landingMenuOpen && <nav className="landing-mobile-menu" aria-label="Mobile site navigation">{landingMenuItems.map(([href, label]) => <Link key={href} href={href} onClick={() => setLandingMenuOpen(false)} data-testid={`link-landing-menu-${href.slice(1)}`}>{label}</Link>)}</nav>}
+      {landingMenuOpen && <nav className="landing-mobile-menu" aria-label="Mobile site navigation">{landingMenuItems.map(([href, label]) => <Link key={href} href={href} onClick={() => setLandingMenuOpen(false)} data-testid={`link-landing-menu-${href.slice(1)}`}>{label}</Link>)}<Link href="/sign-in" onClick={() => setLandingMenuOpen(false)} data-testid="link-landing-menu-wallet">Wallet sign-in</Link></nav>}
     </header>
     <main>
       <section className="landing-hero">
@@ -733,11 +755,11 @@ function LandingPage() {
 }
 
 function SignInPage() {
-  return <div className="auth-page"><div className="auth-context"><Link href="/" className="brand" data-testid="link-auth-home"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link><div className="auth-context-copy"><div className="hero-eyebrow">PRIVATE WORKSPACE / SECURE ACCESS</div><h1>Your market<br />view, <em>in focus.</em></h1><p>Sign in to return to your intelligence workspace. Public research pages remain open to everyone.</p></div><span className="auth-footnote">SESSION PROTECTED BY CLERK AUTH</span></div><div className="auth-card-wrap"><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} /></div></div>;
+  return <div className="auth-page"><div className="auth-context"><Link href="/" className="brand" data-testid="link-auth-home"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link><div className="auth-context-copy"><div className="hero-eyebrow">PRIVATE WORKSPACE / SECURE ACCESS</div><h1>Your market<br />view, <em>in focus.</em></h1><p>Sign in to return to your intelligence workspace. Public research pages remain open to everyone.</p></div><span className="auth-footnote">EMAIL, SOCIAL, OR EVM WALLET · SIGNATURE USED FOR LOGIN ONLY</span></div><div className="auth-card-wrap"><div className="auth-options"><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} /><div className="auth-or"><span>OR SIGN IN WITH A WALLET</span></div><WalletLoginPanel /><p className="auth-account-note">Wallet and email/social sign-ins currently create separate app accounts.</p></div></div></div>;
 }
 
 function SignUpPage() {
-  return <div className="auth-page"><div className="auth-context"><Link href="/" className="brand" data-testid="link-auth-home"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link><div className="auth-context-copy"><div className="hero-eyebrow">RESEARCH WITH CONTEXT</div><h1>Make room for<br /><em>better signals.</em></h1><p>Create an account to open your personal view of the public Web3 intelligence terminal.</p></div><span className="auth-footnote">PRIVATE BY DEFAULT · EVIDENCE ALWAYS VISIBLE</span></div><div className="auth-card-wrap"><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} /></div></div>;
+  return <div className="auth-page"><div className="auth-context"><Link href="/" className="brand" data-testid="link-auth-home"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link><div className="auth-context-copy"><div className="hero-eyebrow">RESEARCH WITH CONTEXT</div><h1>Make room for<br /><em>better signals.</em></h1><p>Create an account to open your personal view of the public Web3 intelligence terminal.</p></div><span className="auth-footnote">PRIVATE BY DEFAULT · EVIDENCE ALWAYS VISIBLE</span></div><div className="auth-card-wrap"><div className="auth-options"><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} /><div className="auth-or"><span>OR CREATE AN ACCOUNT WITH A WALLET</span></div><WalletLoginPanel /><p className="auth-account-note">A wallet account is created when you sign its first login message. No email is collected.</p></div></div></div>;
 }
 
 function ClerkCacheInvalidator() {
@@ -754,7 +776,7 @@ function ClerkCacheInvalidator() {
 function ClerkRouter() {
   const [, setLocation] = useLocation();
   return <ClerkProvider publishableKey={clerkPubKey} proxyUrl={clerkProxyUrl} appearance={clerkAppearance} signInUrl={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} localization={{ signIn: { start: { title: 'Welcome back', subtitle: 'Sign in to your intelligence workspace' } }, signUp: { start: { title: 'Create your account', subtitle: 'A clearer view starts here' } } }} routerPush={(to) => setLocation(stripBase(to))} routerReplace={(to) => setLocation(stripBase(to), { replace: true })}>
-    <QueryClientProvider client={queryClient}><ClerkCacheInvalidator /><RoutedApp /></QueryClientProvider>
+    <QueryClientProvider client={queryClient}><WalletAuthProvider><ClerkCacheInvalidator /><RoutedApp /></WalletAuthProvider></QueryClientProvider>
   </ClerkProvider>;
 }
 

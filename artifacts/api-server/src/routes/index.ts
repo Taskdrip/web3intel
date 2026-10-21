@@ -8,9 +8,11 @@ import walletRouter from "./wallet";
 import intelligenceRouter from "./intelligence";
 import walletWatchRouter from "./wallet-watch";
 import adminRouter from "./admin";
+import walletAuthRouter from "./wallet-auth";
 
 const router: IRouter = Router();
 
+router.use(walletAuthRouter);
 router.use(authRouter);
 router.use(healthRouter);
 router.use(marketRouter);

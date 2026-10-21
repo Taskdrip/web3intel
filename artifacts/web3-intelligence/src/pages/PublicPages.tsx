@@ -10,6 +10,7 @@ import {
   getGetLatestNewsQueryKey,
 } from '@workspace/api-client-react';
 import { useGetBlockchainStatus, useGetLatestNews } from '@workspace/api-client-react';
+import { WalletSignInLink } from '../components/wallet-auth';
 import evidenceBackground from '../../attached_assets/generated_images/section-evidence.png';
 import heroAi from '../../attached_assets/generated_images/hero-ai.png';
 import heroMarkets from '../../attached_assets/generated_images/hero-markets.png';
@@ -38,7 +39,7 @@ const pageContent: Record<string, {
     image: evidenceBackground,
     sections: [
       { title: 'Attribution stays attached', body: 'Market views show the source and the provider update time when those fields are available. Missing data stays missing; the interface does not estimate a replacement.' },
-      { title: 'Read-only means read-only', body: 'The wallet scanner always supports manual public-address lookup and optionally accepts an injected EVM or Solana wallet to reveal a public address and active chain. It never requests signatures or initiates transactions.' },
+      { title: 'Read-only means read-only', body: 'The wallet scanner uses manual public-address lookup or an injected wallet address and never initiates transactions. Wallet sign-in uses a separate, one-time message signature to prove account ownership; it never asks for transaction approval.' },
       { title: 'AI is bounded by its snapshot', body: 'Market questions use the snapshot available to the API. The assistant is not presented as a live chain indexer or an investment adviser.' },
     ],
   },
@@ -147,7 +148,7 @@ const pageContent: Record<string, {
     sections: [
       { title: 'Public research', body: 'The public markets, wallet lookup, and snapshot-grounded intelligence pages expose the features currently connected to the API.' },
       { title: 'No billing actions', body: 'No purchase, upgrade, cancellation, or payment buttons are shown because those actions are not implemented.' },
-      { title: 'Account access', body: 'Clerk sign-in and sign-up are available for account access. Authentication does not imply a paid plan or subscription.' },
+      { title: 'Account access', body: 'Email/social sign-in and EVM wallet sign-in are available for account access. Authentication does not imply a paid plan or subscription.' },
     ],
   },
   '/contact': {
@@ -158,17 +159,17 @@ const pageContent: Record<string, {
     status: 'Support submissions are not enabled',
     sections: [
       { title: 'Research questions', body: 'For questions about the connected public market snapshot, use AI intelligence. Its answers show the model, source, timestamp, and scope returned by the API.' },
-      { title: 'Account access', body: 'Use the sign-in or sign-up route for Clerk-managed account access. Do not send passwords or authentication codes to anyone.' },
+      { title: 'Account access', body: 'Use the sign-in or sign-up route for email/social or EVM wallet access. Wallet sign-in asks only for a one-time message signature; never share passwords, private keys, or authentication codes.' },
       { title: 'Provider issue', body: 'If a data source is unavailable, the relevant market or wallet page provides an on-screen status and retry action where supported.' },
     ],
   },
   '/privacy-policy': {
     eyebrow: 'POLICY / PRIVACY',
     title: 'Privacy, with scope stated plainly.',
-    intro: 'This summary describes the visible product behavior and is not a substitute for a jurisdiction-specific legal review. Account authentication is provided by Clerk.',
+    intro: 'This summary describes the visible product behavior and is not a substitute for a jurisdiction-specific legal review. Email/social account authentication is provided by Clerk; EVM wallet authentication is provided by the application.',
     image: evidenceBackground,
     sections: [
-      { title: 'Account information', body: 'Sign-in and sign-up are handled through the configured Clerk integration. The product uses account access for its protected workspace; authentication credentials are not entered into market or wallet tools.' },
+      { title: 'Account information', body: 'Email/social sign-in is handled by Clerk. EVM wallet sign-in verifies a one-time signed message and stores the wallet address as the account identifier. Wallet and email/social sign-ins currently create separate app accounts.' },
       { title: 'Public address lookups', body: 'A wallet scan sends the network and public address you submit to the application API and its configured provider. A public address can still be sensitive when linked to an identity.' },
       { title: 'Questions and market data', body: 'Questions submitted to AI intelligence and requests for market data are sent to the configured application API. The answer includes its data source and snapshot timestamp when provided.' },
       { title: 'Choices and retention', body: 'This interface does not provide a privacy-request workflow or publish provider retention settings. Avoid entering personal information into questions; consult the service operator for verified retention and request procedures.' },
@@ -189,10 +190,10 @@ const pageContent: Record<string, {
   '/cookie-policy': {
     eyebrow: 'POLICY / COOKIES',
     title: 'Browser storage and session context.',
-    intro: 'Authentication is provided by Clerk and may use browser storage or cookies needed to maintain a session. This page does not claim an exhaustive inventory of vendor cookies.',
+    intro: 'Email/social authentication is provided by Clerk. EVM wallet sign-in uses an HttpOnly session cookie. This page does not claim an exhaustive inventory of vendor cookies.',
     image: heroAi,
     sections: [
-      { title: 'Authentication', body: 'Clerk manages the sign-in and sign-up experience. Session technologies may be required for authentication, account security, and callback routing.' },
+      { title: 'Authentication', body: 'Clerk manages email/social sign-in. Wallet sign-in uses a one-time EIP-4361 message signature and a secure, HttpOnly session cookie. The message does not approve a transaction.' },
       { title: 'Application preferences', body: 'The interface may use browser-side state for temporary interactions such as the current carousel slide or form inputs. Do not use this terminal to store wallet secrets.' },
       { title: 'Manage browser data', body: 'Browser controls can clear site data or block cookies, but doing so may interrupt authentication. Current vendor cookie durations and optional-cookie controls are not exposed by this frontend.' },
     ],
@@ -205,7 +206,7 @@ const pageContent: Record<string, {
     sections: [
       { title: 'Data may be delayed or incomplete', body: 'Provider snapshots can be stale, unavailable, inconsistent, or affected by methodology. Check the displayed source and timestamp and independently verify critical information.' },
       { title: 'No investment advice', body: 'Market metrics and AI-generated explanations are general information, not individualized advice, a forecast, or a promise of performance.' },
-      { title: 'Wallet and transaction risk', body: 'Blockchain transactions may be irreversible. This scanner does not initiate transactions, but third-party explorers and recovery services may expose users to phishing or fraud.' },
+      { title: 'Wallet and transaction risk', body: 'Blockchain transactions may be irreversible. Wallet login signs only a one-time authentication message and does not initiate transactions. Third-party explorers and recovery services may expose users to phishing or fraud.' },
       { title: 'Independent judgment', body: 'Consider your objectives, financial circumstances, and risk tolerance, and consult an appropriately qualified professional where needed.' },
     ],
   },
@@ -215,8 +216,8 @@ const pageContent: Record<string, {
     intro: 'The public wallet scanner is deliberately limited to public address lookups. Do not provide credentials or approve transactions to use this product.',
     image: evidenceBackground,
     sections: [
-      { title: 'Never requested', body: 'The interface must not ask for a seed phrase, private key, wallet password, or transaction signature for public native-balance lookup.' },
-      { title: 'Authentication', body: 'Account authentication uses the existing Clerk integration. Keep credentials and verification codes private, and use the official sign-in route.' },
+      { title: 'Never requested', body: 'The interface never asks for a seed phrase, private key, wallet password, or transaction approval. The public balance scanner does not require a signature.' },
+      { title: 'Authentication', body: 'Email/social sign-in uses Clerk. EVM wallet sign-in requests a one-time EIP-4361 message signature only. Keep credentials and verification codes private, and use the official sign-in route.' },
       { title: 'Unavailable reporting channel', body: 'A security report intake or vulnerability disclosure workflow is not connected in this frontend. Do not include secrets in public communications.' },
       { title: 'Verify before acting', body: 'Inspect provider source details and independently verify explorer links. A displayed public balance is not proof of ownership, transaction safety, or recoverability.' },
     ],
@@ -242,10 +243,11 @@ function PublicHeader() {
           {[...publicLinks.slice(5), ...legalLinks].map(([href, label]) => <Link key={href} href={href} onClick={() => setOpen(false)} data-testid={`link-public-menu-${href.slice(1)}`}>{label}</Link>)}
           <Link href="/sign-in" onClick={() => setOpen(false)} data-testid="link-public-menu-sign-in">Sign in</Link>
           <Link href="/sign-up" onClick={() => setOpen(false)} data-testid="link-public-menu-sign-up">Create account</Link>
+          <Link href="/sign-in" onClick={() => setOpen(false)} data-testid="link-public-menu-wallet-sign-in">Wallet sign-in</Link>
         </div>}
       </div>
     </nav>
-    <div className="public-auth"><Link href="/sign-in" data-testid="link-public-sign-in">Sign in</Link><Link className="public-join" href="/sign-up" data-testid="link-public-sign-up">Create account <ArrowRight size={15} /></Link></div>
+    <div className="public-auth"><WalletSignInLink className="public-wallet-sign-in" /><Link href="/sign-in" data-testid="link-public-sign-in">Sign in</Link><Link className="public-join" href="/sign-up" data-testid="link-public-sign-up">Create account <ArrowRight size={15} /></Link></div>
     <button className="public-menu-toggle" type="button" aria-label={open ? 'Close navigation' : 'Open navigation'} aria-expanded={open} onClick={() => setOpen(!open)} data-testid="button-public-menu"><span /><span /></button>
   </header>;
 }

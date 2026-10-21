@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import cookieParser from "cookie-parser";
 import { clerkMiddleware } from "@clerk/express";
 import { publishableKeyFromHost } from "@clerk/shared/keys";
 import router from "./routes";
@@ -10,6 +11,7 @@ import {
   clerkProxyMiddleware,
   getClerkProxyHost,
 } from "./middlewares/clerkProxyMiddleware";
+import { getWalletSessionFromRequest } from "./middlewares/wallet-session";
 
 const app: Express = express();
 
@@ -35,6 +37,7 @@ app.use(
 
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -48,6 +51,12 @@ const clerkAuthMiddleware = clerkMiddleware((req) => ({
 // Public market, intelligence, and address-lookup routes do not require an
 // account. Keep Clerk scoped to account, watchlist, and admin endpoints.
 app.use(["/api/auth", "/api/watch", "/api/admin"], (req, res, next) => {
+  const walletSession = getWalletSessionFromRequest(req);
+  if (walletSession) {
+    res.locals.walletUserId = walletSession.userId;
+    next();
+    return;
+  }
   if (!process.env.CLERK_SECRET_KEY) {
     res.status(503).json({ error: "Account authentication is not configured." });
     return;

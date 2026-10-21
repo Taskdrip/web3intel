@@ -22,7 +22,99 @@ tags:
     description: AI-assisted market research
   - name: auth
     description: Authenticated account and role information
+  - name: wallet-auth
+    description: EVM wallet authentication using EIP-4361 signed messages
 paths:
+  /wallet-auth/challenge:
+    post:
+      operationId: createWalletAuthChallenge
+      tags: [wallet-auth]
+      summary: Create a one-time wallet sign-in message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WalletAuthChallengeInput"
+      responses:
+        "200":
+          description: EIP-4361 message to sign with an EVM wallet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletAuthChallenge"
+        "400":
+          description: Invalid wallet address or chain
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Too many wallet authentication attempts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /wallet-auth/verify:
+    post:
+      operationId: verifyWalletAuth
+      tags: [wallet-auth]
+      summary: Verify a wallet signature and start a wallet session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WalletAuthVerifyInput"
+      responses:
+        "200":
+          description: Wallet session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletAuthVerifyResponse"
+        "400":
+          description: Invalid or expired wallet signature
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: The account is suspended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Wallet authentication or account storage is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /wallet-auth/session:
+    get:
+      operationId: getWalletAuthSession
+      tags: [wallet-auth]
+      summary: Check the current browser wallet session
+      responses:
+        "200":
+          description: Wallet session status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletAuthSession"
+  /wallet-auth/logout:
+    post:
+      operationId: logoutWalletAuth
+      tags: [wallet-auth]
+      summary: End the current wallet session
+      responses:
+        "200":
+          description: Wallet session cleared
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletAuthLogoutResponse"
   /auth/me:
     get:
       operationId: getCurrentUser
@@ -596,6 +688,64 @@ paths:
                 $ref: "#/components/schemas/ApiError"
 components:
   schemas:
+    WalletAuthChallengeInput:
+      type: object
+      properties:
+        address:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+        chainId:
+          type: integer
+          minimum: 1
+      required: [address, chainId]
+    WalletAuthChallenge:
+      type: object
+      properties:
+        message:
+          type: string
+        nonce:
+          type: string
+      required: [message, nonce]
+    WalletAuthVerifyInput:
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2048
+        signature:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{130}$"
+      required: [message, signature]
+    WalletAuthVerifyResponse:
+      type: object
+      properties:
+        authenticated:
+          type: boolean
+          const: true
+        address:
+          type: string
+        role:
+          type: string
+          enum: [user, admin, investigator]
+      required: [authenticated, address, role]
+    WalletAuthSession:
+      type: object
+      properties:
+        authenticated:
+          type: boolean
+        address:
+          type: ["string", "null"]
+        role:
+          type: ["string", "null"]
+          enum: [user, admin, investigator, null]
+      required: [authenticated, address, role]
+    WalletAuthLogoutResponse:
+      type: object
+      properties:
+        signedOut:
+          type: boolean
+      required: [signedOut]
     CurrentUser:
       type: object
       properties:

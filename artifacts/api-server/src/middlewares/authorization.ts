@@ -8,7 +8,7 @@ export const requireActiveUser: RequestHandler = async (
   res,
   next,
 ): Promise<void> => {
-  const { userId } = getAuth(req);
+  const userId = res.locals.walletUserId as string | undefined ?? getAuth(req).userId;
   if (!userId) {
     res.status(401).json({ error: "Sign in to continue." });
     return;

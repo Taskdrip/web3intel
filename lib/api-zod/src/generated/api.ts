@@ -9,6 +9,62 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary Create a one-time wallet sign-in message
+ */
+export const createWalletAuthChallengeBodyAddressRegExp = new RegExp('^0x[a-fA-F0-9]{40}$');
+
+
+
+export const CreateWalletAuthChallengeBody = zod.object({
+  "address": zod.string().regex(createWalletAuthChallengeBodyAddressRegExp),
+  "chainId": zod.number().int().min(1)
+})
+
+export const CreateWalletAuthChallengeResponse = zod.object({
+  "message": zod.string(),
+  "nonce": zod.string()
+})
+
+
+/**
+ * @summary Verify a wallet signature and start a wallet session
+ */
+export const verifyWalletAuthBodyMessageMax = 2048;
+
+export const verifyWalletAuthBodySignatureRegExp = new RegExp('^0x[a-fA-F0-9]{130}$');
+
+
+export const VerifyWalletAuthBody = zod.object({
+  "message": zod.string().min(1).max(verifyWalletAuthBodyMessageMax),
+  "signature": zod.string().regex(verifyWalletAuthBodySignatureRegExp)
+})
+
+export const VerifyWalletAuthResponse = zod.object({
+  "authenticated": zod.literal(true),
+  "address": zod.string(),
+  "role": zod.enum(['user', 'admin', 'investigator'])
+})
+
+
+/**
+ * @summary Check the current browser wallet session
+ */
+export const GetWalletAuthSessionResponse = zod.object({
+  "authenticated": zod.boolean(),
+  "address": zod.string().nullable(),
+  "role": zod.union([zod.literal('user'),zod.literal('admin'),zod.literal('investigator'),zod.literal(null)]).nullable()
+})
+
+
+/**
+ * @summary End the current wallet session
+ */
+export const LogoutWalletAuthResponse = zod.object({
+  "signedOut": zod.boolean()
+})
+
+
+/**
  * Creates the user's local application record on first access and returns its role and account status.
  * @summary Get the signed-in user's application account
  */

@@ -5,6 +5,67 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface WalletAuthChallengeInput {
+  /** @pattern ^0x[a-fA-F0-9]{40}$ */
+  address: string;
+  /** @minimum 1 */
+  chainId: number;
+}
+
+export interface WalletAuthChallenge {
+  message: string;
+  nonce: string;
+}
+
+export interface WalletAuthVerifyInput {
+  /**
+     * @minLength 1
+     * @maxLength 2048
+     */
+  message: string;
+  /** @pattern ^0x[a-fA-F0-9]{130}$ */
+  signature: string;
+}
+
+export type WalletAuthVerifyResponseRole = typeof WalletAuthVerifyResponseRole[keyof typeof WalletAuthVerifyResponseRole];
+
+
+export const WalletAuthVerifyResponseRole = {
+  user: 'user',
+  admin: 'admin',
+  investigator: 'investigator',
+} as const;
+
+export interface WalletAuthVerifyResponse {
+  authenticated: true;
+  address: string;
+  role: WalletAuthVerifyResponseRole;
+}
+
+/**
+ * @nullable
+ */
+export type WalletAuthSessionRole = typeof WalletAuthSessionRole[keyof typeof WalletAuthSessionRole] | null;
+
+
+export const WalletAuthSessionRole = {
+  user: 'user',
+  admin: 'admin',
+  investigator: 'investigator',
+} as const;
+
+export interface WalletAuthSession {
+  authenticated: boolean;
+  /** @nullable */
+  address: string | null;
+  /** @nullable */
+  role: WalletAuthSessionRole;
+}
+
+export interface WalletAuthLogoutResponse {
+  signedOut: boolean;
+}
+
 export type CurrentUserRole = typeof CurrentUserRole[keyof typeof CurrentUserRole];
 
 
