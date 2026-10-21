@@ -7,19 +7,20 @@ import { Link, Redirect, Route, Router as WouterRouter, Switch, useLocation } fr
 import {
   Activity, ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, Blocks, Bot,
   ChevronRight, CircleAlert, Clock3, Database, ExternalLink, Eye,
-  Gauge, Layers3, LoaderCircle, LockKeyhole, Search,
+  FileText, Gauge, Layers3, LoaderCircle, LockKeyhole, Search,
   Send, ShieldCheck, Sparkles, Wallet, Waves, Radio, Newspaper,
-  Gift, Store, LifeBuoy, CircleSlash2, ChevronLeft,
+  Gift, Store, LifeBuoy, ChevronLeft, Pause, Play, Menu, X,
 } from 'lucide-react';
 import {
   useAskIntelligence, useGetMarketCoins, useGetMarketHistory, useGetMarketOverview,
   useScanWallet,
 } from '@workspace/api-client-react';
 import { getGetMarketHistoryQueryKey } from '@workspace/api-client-react';
-import heroMarkets from '@assets/generated_images/hero-markets.png';
-import heroWallet from '@assets/generated_images/hero-wallet.png';
-import heroAi from '@assets/generated_images/hero-ai.png';
-import evidenceBackground from '@assets/generated_images/section-evidence.png';
+import heroMarkets from '../attached_assets/generated_images/hero-markets.png';
+import heroWallet from '../attached_assets/generated_images/hero-wallet.png';
+import heroAi from '../attached_assets/generated_images/hero-ai.png';
+import evidenceBackground from '../attached_assets/generated_images/section-evidence.png';
+import { PublicInfoPage } from './pages/PublicPages';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -83,14 +84,24 @@ const clerkAppearance = {
 };
 const routes = [
   { path: '/dashboard', label: 'Overview', icon: Gauge },
+  { path: '/about', label: 'About', icon: Eye },
   { path: '/blockchain', label: 'Blockchain', icon: Radio },
+  { path: '/whales', label: 'Whale activity', icon: Activity },
   { path: '/markets', label: 'Markets', icon: BarChart3 },
   { path: '/wallet-scanner', label: 'Wallet scanner', icon: Wallet },
   { path: '/ai-intelligence', label: 'AI intelligence', icon: Bot },
   { path: '/airdrops', label: 'Airdrops', icon: Gift },
   { path: '/news', label: 'News', icon: Newspaper },
+  { path: '/forensics', label: 'Forensics & recovery', icon: LifeBuoy },
   { path: '/recovery', label: 'Recovery safety', icon: LifeBuoy },
   { path: '/shop', label: 'Marketplace', icon: Store },
+  { path: '/pricing', label: 'Pricing', icon: Activity },
+  { path: '/contact', label: 'Contact', icon: Send },
+  { path: '/privacy-policy', label: 'Privacy policy', icon: LockKeyhole },
+  { path: '/terms', label: 'Terms', icon: FileText },
+  { path: '/cookie-policy', label: 'Cookie policy', icon: FileText },
+  { path: '/risk-disclosure', label: 'Risk disclosure', icon: CircleAlert },
+  { path: '/security-policy', label: 'Security policy', icon: ShieldCheck },
 ];
 const networkOptions = ['bitcoin', 'ethereum', 'solana', 'polygon', 'tron', 'avalanche', 'ton', 'sui'];
 const periods = ['1', '7', '30', '90', '365', 'max'] as const;
@@ -160,7 +171,7 @@ function Header({ activePath }: { activePath: string }) {
   const current = routes.find((item) => item.path === activePath);
   return <>
     <aside className="sidebar">
-      <Link href="/dashboard" className="brand" data-testid="link-brand-home">
+      <Link href="/" className="brand" data-testid="link-brand-home">
         <span className="brand-mark"><Waves size={17} strokeWidth={1.8} /></span>
         <span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span>
       </Link>
@@ -178,13 +189,13 @@ function Header({ activePath }: { activePath: string }) {
     <main className="main-area">
       <header className="topbar">
         <div className="crumb"><span>INTELLIGENCE</span><ChevronRight size={12} /><strong>{current?.label.toUpperCase() ?? 'OVERVIEW'}</strong></div>
-        <div className="top-meta"><span className="live-pill"><i />PUBLIC FEEDS</span><span>READ-ONLY TERMINAL</span><button className="terminal-signout" type="button" onClick={() => signOut({ redirectUrl: basePath || '/' })} data-testid="button-sign-out">Sign out</button></div>
+        <div className="top-meta"><span className="live-pill">PUBLIC DATA</span><span>READ-ONLY TERMINAL</span><Show when="signed-in"><button className="terminal-signout" type="button" onClick={() => signOut({ redirectUrl: basePath || '/' })} data-testid="button-sign-out">Sign out</button></Show><Show when="signed-out"><Link href="/sign-in" className="terminal-signout" data-testid="link-shell-sign-in">Sign in</Link></Show></div>
       </header>
       <div className="mobile-head">
-        <Link href="/dashboard" className="brand" data-testid="link-mobile-brand-home">
+        <Link href="/" className="brand" data-testid="link-mobile-brand-home">
           <span className="brand-mark"><Waves size={15} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span>
         </Link>
-        <div className="mobile-meta"><span className="live-pill"><i />PUBLIC FEEDS</span><button className="terminal-signout" type="button" onClick={() => signOut({ redirectUrl: basePath || '/' })} data-testid="button-mobile-sign-out">Exit</button></div>
+        <div className="mobile-meta"><span className="live-pill">PUBLIC DATA</span><Show when="signed-in"><button className="terminal-signout" type="button" onClick={() => signOut({ redirectUrl: basePath || '/' })} data-testid="button-mobile-sign-out">Sign out</button></Show><Show when="signed-out"><Link href="/sign-in" className="terminal-signout" data-testid="link-mobile-sign-in">Sign in</Link></Show></div>
       </div>
       <Switch>
         <Route path="/dashboard" component={OverviewPage} />
@@ -346,6 +357,7 @@ function WalletPage() {
           <div className="scope-list">
             <div className="scope-row"><div className="scope-name">Public native balance</div><div className="scope-copy">Only public address and native-asset balance fields returned by the provider.</div></div>
             <div className="scope-row"><div className="scope-name">No wallet connection</div><div className="scope-copy">No signing, private keys, seed phrases, token approvals, or transactions.</div></div>
+            <div className="scope-row"><div className="scope-name">No token or NFT scan</div><div className="scope-copy">Token portfolios, NFT holdings, transaction history, and whale activity are not connected.</div></div>
             <div className="scope-row"><div className="scope-name">Network support</div><div className="scope-copy">Bitcoin, Ethereum, Solana, Polygon, Tron, Avalanche, TON, and Sui.</div></div>
             <div className="scope-row"><div className="scope-name">Provider availability</div><div className="scope-copy">Invalid, unsupported, or unavailable results are reported without estimating a balance.</div></div>
           </div>
@@ -418,6 +430,22 @@ function RoutedApp() {
     <Route path="/markets" component={AppShell} />
     <Route path="/wallet-scanner" component={AppShell} />
     <Route path="/ai-intelligence" component={AppShell} />
+    <Route path="/about" component={PublicInfoPage} />
+    <Route path="/blockchain" component={PublicInfoPage} />
+    <Route path="/whales" component={PublicInfoPage} />
+    <Route path="/airdrops" component={PublicInfoPage} />
+    <Route path="/news" component={PublicInfoPage} />
+    <Route path="/forensics/request" component={PublicInfoPage} />
+    <Route path="/forensics" component={PublicInfoPage} />
+    <Route path="/recovery" component={PublicInfoPage} />
+    <Route path="/shop" component={PublicInfoPage} />
+    <Route path="/pricing" component={PublicInfoPage} />
+    <Route path="/contact" component={PublicInfoPage} />
+    <Route path="/privacy-policy" component={PublicInfoPage} />
+    <Route path="/terms" component={PublicInfoPage} />
+    <Route path="/cookie-policy" component={PublicInfoPage} />
+    <Route path="/risk-disclosure" component={PublicInfoPage} />
+    <Route path="/security-policy" component={PublicInfoPage} />
     <Route path="/sign-in/*?" component={SignInPage} />
     <Route path="/sign-up/*?" component={SignUpPage} />
     <Route component={NotFound} />
@@ -442,35 +470,85 @@ function HomeRedirect() {
 
 function LandingPage() {
   const overview = useGetMarketOverview();
-  const coins = useGetMarketCoins({ limit: 6 });
-  const featured = coins.data?.items?.slice(0, 5) ?? [];
+  const [landingMenuOpen, setLandingMenuOpen] = useState(false);
+  const landingMenuItems = [
+    ['/about', 'About'], ['/blockchain', 'Blockchain'], ['/whales', 'Whale tracker'], ['/markets', 'Markets'],
+    ['/wallet-scanner', 'Wallet scanner'], ['/ai-intelligence', 'AI intelligence'],
+    ['/airdrops', 'Airdrops'], ['/news', 'News'], ['/forensics', 'Forensics & recovery'], ['/recovery', 'Recovery safety'],
+    ['/shop', 'Marketplace'], ['/pricing', 'Pricing'], ['/contact', 'Contact'],
+    ['/privacy-policy', 'Privacy policy'], ['/terms', 'Terms'], ['/cookie-policy', 'Cookie policy'],
+    ['/risk-disclosure', 'Risk disclosure'], ['/security-policy', 'Security policy'],
+  ] as const;
+  const slides = [
+    { image: heroMarkets, label: 'Provider-attributed markets', eyebrow: 'MARKET CONTEXT', title: 'Read the field.', copy: 'Compare reported market metrics and historical traces with their source and update time in view.', alt: 'Dark architectural image with fine golden data-like lines, used for the market research slide.' },
+    { image: heroWallet, label: 'Read-only wallet lookup', eyebrow: 'PUBLIC ADDRESS ONLY', title: 'Look, don’t connect.', copy: 'Request a supported public native balance without wallet access, signing, or transaction permissions.', alt: 'A dark glass sphere above a precise circular surface, representing a public address lookup.' },
+    { image: heroAi, label: 'Snapshot-grounded intelligence', eyebrow: 'BOUNDED AI CONTEXT', title: 'Ask what the data can answer.', copy: 'Explore the market snapshot available to the API. The answer carries its source, timestamp, and scope.', alt: 'Layered research sheets in warm light against a deep charcoal background.' },
+  ];
+  const [slide, setSlide] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updatePreference = () => setReducedMotion(media.matches);
+    updatePreference();
+    media.addEventListener?.('change', updatePreference);
+    return () => media.removeEventListener?.('change', updatePreference);
+  }, []);
+  useEffect(() => {
+    if (paused || reducedMotion) return;
+    const timer = window.setInterval(() => setSlide((current) => (current + 1) % slides.length), 6500);
+    return () => window.clearInterval(timer);
+  }, [paused, reducedMotion, slides.length]);
+  const previousSlide = () => setSlide((current) => (current + slides.length - 1) % slides.length);
+  const nextSlide = () => setSlide((current) => (current + 1) % slides.length);
+  const currentSlide = slides[slide]!;
   return <div className="landing-page">
     <header className="landing-nav">
       <Link href="/" className="brand landing-brand" data-testid="link-landing-brand"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link>
-      <nav className="landing-nav-links" aria-label="Public pages"><Link href="/markets" data-testid="link-landing-markets">Markets</Link><Link href="/wallet-scanner" data-testid="link-landing-wallet">Wallet scanner</Link><Link href="/ai-intelligence" data-testid="link-landing-ai">AI intelligence</Link></nav>
+      <nav className="landing-nav-links" aria-label="Public pages"><Link href="/about" data-testid="link-landing-about">About</Link><Link href="/blockchain" data-testid="link-landing-blockchain">Blockchain</Link><Link href="/markets" data-testid="link-landing-markets">Markets</Link><Link href="/wallet-scanner" data-testid="link-landing-wallet">Wallet scanner</Link><Link href="/ai-intelligence" data-testid="link-landing-ai">AI intelligence</Link></nav>
       <div className="landing-auth"><Link href="/sign-in" className="landing-login" data-testid="link-landing-sign-in">Sign in</Link><Link href="/sign-up" className="landing-cta" data-testid="link-landing-sign-up">Create account <ArrowRight size={15} /></Link></div>
+      <button className="landing-menu-button" type="button" aria-label={landingMenuOpen ? 'Close site navigation' : 'Open site navigation'} aria-expanded={landingMenuOpen} onClick={() => setLandingMenuOpen(!landingMenuOpen)} data-testid="button-landing-menu">{landingMenuOpen ? <X /> : <Menu />}</button>
+      {landingMenuOpen && <nav className="landing-mobile-menu" aria-label="Mobile site navigation">{landingMenuItems.map(([href, label]) => <Link key={href} href={href} onClick={() => setLandingMenuOpen(false)} data-testid={`link-landing-menu-${href.slice(1)}`}>{label}</Link>)}</nav>}
     </header>
     <main>
       <section className="landing-hero">
         <div className="hero-copy"><div className="hero-eyebrow"><span className="signal-dot" /> MARKET INTELLIGENCE / PUBLIC TERMINAL</div><h1>Clarity in a market<br />that never <em>sleeps.</em></h1><p>One disciplined workspace for sourced market signals, public wallet balances, and AI grounded in the data at hand.</p><div className="hero-actions"><Link href="/sign-up" className="landing-cta hero-cta" data-testid="button-hero-create-account">Enter the terminal <ArrowRight size={16} /></Link><Link href="/markets" className="hero-secondary" data-testid="link-hero-explore">Explore public markets <ChevronRight size={15} /></Link></div><div className="hero-proof"><span><ShieldCheck /> Read-only by design</span><span><Database /> Provider-sourced data</span></div></div>
-        <div className="hero-visual" aria-label="Illustration of a live market intelligence terminal" data-testid="visual-landing-market-terminal">
-          <div className="visual-top"><span><i /> FEED STATUS</span><strong>PUBLIC / LIVE</strong></div><div className="visual-total-label">TOTAL MARKET CAP</div><div className="visual-total">{overview.isLoading ? 'Loading…' : overview.data ? money(overview.data.totalMarketCapUsd, true) : '—'}</div><div className="visual-change">{overview.data ? `${percent(overview.data.marketCapChange24hPercent)} · 24H` : 'Provider snapshot'}</div>
-          <div className="visual-chart"><Sparkline values={featured[0]?.sparkline7d} id="landing-preview" fill /></div><div className="visual-axis"><span>7D AGO</span><span>NOW</span></div>
-          <div className="visual-assets">{featured.length ? featured.slice(0, 3).map((coin) => <div className="visual-asset" key={coin.id}><span className="visual-coin">{coin.symbol.slice(0, 1)}</span><span className="visual-asset-name">{coin.symbol.toUpperCase()}<small>#{coin.marketCapRank}</small></span><strong>{money(coin.currentPriceUsd)}</strong><span className={coin.change24hPercent >= 0 ? 'positive' : 'negative'}>{percent(coin.change24hPercent)}</span></div>) : <div className="visual-asset">{coins.isError ? 'Market feed unavailable' : 'Awaiting provider snapshot'}</div>}</div>
-          <span className="visual-orbit orbit-one" /><span className="visual-orbit orbit-two" />
+        <div className="hero-carousel" aria-roledescription="carousel" aria-label="Web3 Intelligence product highlights" data-testid="carousel-landing-highlights">
+          <div className="hero-visual" role="group" aria-roledescription="slide" aria-label={`${currentSlide.label}, ${slide + 1} of ${slides.length}. ${currentSlide.alt}`} tabIndex={0} onKeyDown={(event) => { if (event.key === 'ArrowLeft') { event.preventDefault(); previousSlide(); } if (event.key === 'ArrowRight') { event.preventDefault(); nextSlide(); } }} style={{ backgroundImage: `linear-gradient(180deg, rgba(8,14,22,.06) 0%, rgba(8,14,22,.25) 35%, rgba(8,14,22,.96) 100%), url("${currentSlide.image}")` }} data-testid="visual-landing-market-terminal">
+            <div className="visual-top"><span>PRODUCT SURFACE</span><strong>READ-ONLY</strong></div>
+            <div className="hero-slide-caption" aria-live="polite">
+              <div className="visual-total-label">{currentSlide.eyebrow}</div>
+              <div className="visual-total">{currentSlide.title}</div>
+              <p>{currentSlide.copy}</p>
+            </div>
+            <div className="hero-slide-evidence">
+              {slide === 0 ? <>
+                <div><span>Total market cap</span><strong>{overview.isLoading ? 'Loading sourced snapshot' : overview.data ? money(overview.data.totalMarketCapUsd, true) : '—'}</strong></div>
+                <div><span>Change · 24h</span><strong className={overview.data?.marketCapChange24hPercent !== undefined && overview.data.marketCapChange24hPercent < 0 ? 'negative' : 'positive'}>{overview.data ? percent(overview.data.marketCapChange24hPercent) : 'Unavailable'}</strong></div>
+                <small>{overview.data?.source ?? (overview.isError ? 'Provider snapshot unavailable' : 'Waiting for provider snapshot')} · {overview.data ? dateTime(overview.data.updatedAt) : 'Timestamp unavailable'}{overview.isError && overview.data ? ' · refresh failed; last successful snapshot' : ''}</small>
+              </> : slide === 1 ? <div className="hero-proofline"><ShieldCheck size={16} /> Public address only <span>·</span> No signatures</div> : <div className="hero-proofline"><Database size={16} /> Snapshot-grounded answers <span>·</span> Scope included</div>}
+            </div>
+          </div>
+          <div className="hero-carousel-controls" aria-label="Carousel controls">
+            <button type="button" aria-label="Previous slide" onClick={previousSlide} data-testid="button-hero-previous"><ChevronLeft /></button>
+            <div className="hero-slide-tabs" role="group" aria-label="Choose a product highlight">
+              {slides.map((item, index) => <button type="button" key={item.label} aria-label={`Show ${item.label}`} aria-pressed={slide === index} className={slide === index ? 'selected' : ''} onClick={() => setSlide(index)} data-testid={`button-hero-slide-${index + 1}`}><span>{String(index + 1).padStart(2, '0')}</span><span className="hero-tab-label">{item.label}</span></button>)}
+            </div>
+            {!reducedMotion && <button type="button" aria-label={paused ? 'Resume automatic slides' : 'Pause automatic slides'} onClick={() => setPaused(!paused)} data-testid="button-hero-pause">{paused ? <Play /> : <Pause />}</button>}
+          </div>
+          <div className="hero-index"><span>{String(slide + 1).padStart(2, '0')} / 03</span><span>{currentSlide.label.toUpperCase()}</span></div>
         </div>
-        <div className="hero-index"><span>01 / 03</span><span>INDEPENDENT SIGNAL, CLEARLY SOURCED</span></div>
       </section>
-      <section className="landing-ticker" aria-label="Market snapshot status"><span className="ticker-label"><i /> DATA SNAPSHOT</span><span>{overview.data?.source ?? (overview.isError ? 'Provider unavailable' : 'Connecting to provider')}</span><span>{overview.data ? `UPDATED ${dateTime(overview.data.updatedAt).toUpperCase()}` : 'NO ESTIMATES · NO SYNTHETIC PRICES'}</span></section>
+      <section className="landing-ticker" aria-label="Market snapshot status" data-testid="status-landing-market-snapshot"><span className="ticker-label">MARKET SNAPSHOT</span><span>{overview.data?.source ?? (overview.isError ? 'Provider unavailable' : 'Awaiting provider response')}</span><span>{overview.data ? <>UPDATED {dateTime(overview.data.updatedAt).toUpperCase()}{overview.isError && <> · LAST SUCCESSFUL SNAPSHOT <button type="button" className="ticker-retry" onClick={() => overview.refetch()} data-testid="button-retry-landing-market">Retry</button></>}</> : overview.isError ? <>Timestamp unavailable <button type="button" className="ticker-retry" onClick={() => overview.refetch()} data-testid="button-retry-landing-market">Retry</button></> : 'NO ESTIMATES · NO SYNTHETIC PRICES'}</span></section>
       <section className="landing-intro"><div className="landing-section-index">A BETTER VIEW / 01</div><div><h2>Not another chart wall.<br /><span>A research instrument.</span></h2></div><p>Markets move fast. This terminal keeps the evidence close: attributed feeds, clear boundaries, and useful tools without pretending uncertainty is insight.</p></section>
       <section className="landing-capabilities">
-        <Link href="/markets" className="capability capability-market" data-testid="card-capability-markets"><span className="capability-number">01 — MARKETS</span><div className="capability-art market-art"><div className="art-line" /><span>BTC / USD</span><b>LIVE SNAPSHOT</b></div><h3>See the field.<br />Keep the source.</h3><p>Compare provider-listed assets, inspect historical traces, and keep every metric tied to its origin.</p><span className="capability-link">Open markets <ArrowRight /></span></Link>
-        <Link href="/wallet-scanner" className="capability capability-wallet" data-testid="card-capability-wallet"><span className="capability-number">02 — WALLET SCANNER</span><div className="capability-art wallet-art"><div className="wallet-ring"><Wallet /></div><span>PUBLIC ADDRESS / READ ONLY</span></div><h3>Look up balances.<br />Never connect.</h3><p>Inspect a public native-asset balance without wallet access, signing, or transaction permissions.</p><span className="capability-link">Scan an address <ArrowRight /></span></Link>
-        <Link href="/ai-intelligence" className="capability capability-ai" data-testid="card-capability-ai"><span className="capability-number">03 — AI INTELLIGENCE</span><div className="capability-art ai-art"><span className="ai-glyph">∴</span><span>GROUNDED IN AVAILABLE DATA</span></div><h3>Ask a sharper<br />market question.</h3><p>Explore context with an assistant grounded in the available market snapshot, not imagined live feeds.</p><span className="capability-link">Ask intelligence <ArrowRight /></span></Link>
+        <Link href="/markets" className="capability capability-market" data-testid="card-capability-markets"><span className="capability-number">01 — MARKETS</span><div className="capability-art market-art" aria-hidden="true" style={{ backgroundImage: `linear-gradient(90deg,rgba(10,17,27,.78),rgba(10,17,27,.12)),url("${heroMarkets}")` }}><span>PROVIDER DATA</span><b>SOURCE VISIBLE</b></div><h3>See the field.<br />Keep the source.</h3><p>Compare provider-listed assets, inspect historical traces, and keep every metric tied to its origin.</p><span className="capability-link">Open markets <ArrowRight /></span></Link>
+        <Link href="/wallet-scanner" className="capability capability-wallet" data-testid="card-capability-wallet"><span className="capability-number">02 — WALLET SCANNER</span><div className="capability-art wallet-art" aria-hidden="true" style={{ backgroundImage: `linear-gradient(90deg,rgba(10,17,27,.45),rgba(10,17,27,.12)),url("${heroWallet}")` }}><div className="wallet-ring"><Wallet /></div><span>PUBLIC ADDRESS / READ ONLY</span></div><h3>Look up balances.<br />Never connect.</h3><p>Inspect a public native-asset balance without wallet access, signing, or transaction permissions.</p><span className="capability-link">Scan an address <ArrowRight /></span></Link>
+        <Link href="/ai-intelligence" className="capability capability-ai" data-testid="card-capability-ai"><span className="capability-number">03 — AI INTELLIGENCE</span><div className="capability-art ai-art" aria-hidden="true" style={{ backgroundImage: `linear-gradient(90deg,rgba(10,17,27,.55),rgba(10,17,27,.15)),url("${heroAi}")` }}><span className="ai-glyph">∴</span><span>GROUNDED IN AVAILABLE DATA</span></div><h3>Ask a sharper<br />market question.</h3><p>Explore context with an assistant grounded in the available market snapshot, not imagined live feeds.</p><span className="capability-link">Ask intelligence <ArrowRight /></span></Link>
       </section>
-      <section className="landing-principles"><div className="landing-section-index">BUILT ON BOUNDARIES / 02</div><h2>Trust starts with<br /><span>what we don’t claim.</span></h2><div className="principle-grid"><div><span>01</span><h3>Sources stay visible</h3><p>Provider labels and update times travel with the data.</p></div><div><span>02</span><h3>Public means public</h3><p>No wallet connection, private keys, signatures, or transactions.</p></div><div><span>03</span><h3>Interpretation is labeled</h3><p>AI context is distinguished from verified market facts.</p></div></div></section>
+      <section className="landing-principles" style={{ backgroundImage: `linear-gradient(105deg,rgba(13,22,34,.97),rgba(15,23,39,.94)),url("${evidenceBackground}")` }}><div className="landing-section-index">BUILT ON BOUNDARIES / 02</div><h2>Trust starts with<br /><span>what we don’t claim.</span></h2><div className="principle-grid"><div><span>01</span><h3>Sources stay visible</h3><p>Provider labels and update times travel with the data.</p></div><div><span>02</span><h3>Public means public</h3><p>No wallet connection, private keys, signatures, or transactions.</p></div><div><span>03</span><h3>Interpretation is labeled</h3><p>AI context is distinguished from verified market facts.</p></div></div></section>
       <section className="landing-final"><div><div className="hero-eyebrow">A CLEARER STARTING POINT</div><h2>Stay curious.<br /><em>Stay grounded.</em></h2></div><div><p>Open a public market view now, or create an account for your intelligence workspace.</p><div className="hero-actions"><Link href="/sign-up" className="landing-cta" data-testid="button-final-create-account">Create your account <ArrowRight size={15} /></Link><Link href="/markets" className="hero-secondary" data-testid="link-final-browse">Browse markets <ChevronRight size={15} /></Link></div></div></section>
-      <footer className="landing-footer"><Link href="/" className="footer-wordmark" data-testid="link-footer-home">WEB3 INTEL <span>RESEARCH TERMINAL</span></Link><span>PUBLIC DATA. CLEAR CONTEXT.</span><span>© {new Date().getFullYear()} WEB3 INTELLIGENCE</span></footer>
+       <footer className="landing-footer landing-footer-rich"><Link href="/" className="footer-wordmark" data-testid="link-footer-home">WEB3 INTEL <span>RESEARCH TERMINAL</span></Link><nav aria-label="Footer product navigation"><Link href="/about" data-testid="link-footer-about">About</Link><Link href="/blockchain" data-testid="link-footer-blockchain">Blockchain</Link><Link href="/whales" data-testid="link-footer-whales">Whale tracker</Link><Link href="/markets" data-testid="link-footer-markets">Markets</Link><Link href="/wallet-scanner" data-testid="link-footer-wallet">Wallet scanner</Link><Link href="/ai-intelligence" data-testid="link-footer-ai">AI intelligence</Link><Link href="/airdrops" data-testid="link-footer-airdrops">Airdrops</Link><Link href="/news" data-testid="link-footer-news">News</Link><Link href="/forensics" data-testid="link-footer-forensics">Forensics & recovery</Link><Link href="/recovery" data-testid="link-footer-recovery">Recovery</Link><Link href="/shop" data-testid="link-footer-shop">Marketplace</Link><Link href="/pricing" data-testid="link-footer-pricing">Pricing</Link><Link href="/contact" data-testid="link-footer-contact">Contact</Link></nav><nav aria-label="Footer policies"><Link href="/privacy-policy" data-testid="link-footer-privacy">Privacy</Link><Link href="/terms" data-testid="link-footer-terms">Terms</Link><Link href="/cookie-policy" data-testid="link-footer-cookies">Cookies</Link><Link href="/risk-disclosure" data-testid="link-footer-risk">Risk disclosure</Link><Link href="/security-policy" data-testid="link-footer-security">Security</Link></nav><span>PUBLIC DATA. CLEAR CONTEXT.</span><span>© {new Date().getFullYear()} WEB3 INTELLIGENCE</span></footer>
     </main>
   </div>;
 }
