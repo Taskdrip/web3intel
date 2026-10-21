@@ -38,14 +38,23 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  clerkMiddleware((req) => ({
-    publishableKey: publishableKeyFromHost(
-      getClerkProxyHost(req) ?? "",
-      process.env.CLERK_PUBLISHABLE_KEY,
-    ),
-  })),
-);
+const clerkAuthMiddleware = clerkMiddleware((req) => ({
+  publishableKey: publishableKeyFromHost(
+    getClerkProxyHost(req) ?? "",
+    process.env.CLERK_PUBLISHABLE_KEY,
+  ),
+}));
+
+// Public market, intelligence, and address-lookup routes do not require an
+// account. Keep Clerk scoped to the account endpoint so missing auth setup
+// cannot take otherwise-public data services offline.
+app.use("/api/auth", (req, res, next) => {
+  if (!process.env.CLERK_SECRET_KEY) {
+    res.status(503).json({ error: "Account authentication is not configured." });
+    return;
+  }
+  clerkAuthMiddleware(req, res, next);
+});
 
 app.use("/api", router);
 

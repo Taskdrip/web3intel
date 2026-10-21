@@ -103,9 +103,31 @@ const routes = [
   { path: '/risk-disclosure', label: 'Risk disclosure', icon: CircleAlert },
   { path: '/security-policy', label: 'Security policy', icon: ShieldCheck },
 ];
-const networkOptions = ['bitcoin', 'ethereum', 'solana', 'polygon', 'tron', 'avalanche', 'ton', 'sui'];
+const networkOptions = ['bitcoin', 'ethereum', 'solana', 'polygon', 'tron', 'avalanche', 'ton', 'sui'] as const;
 const periods = ['1', '7', '30', '90', '365', 'max'] as const;
 const periodLabels: Record<string, string> = { '1': '1D', '7': '1W', '30': '1M', '90': '3M', '365': '1Y', max: 'ALL' };
+const evmChains: Record<string, { id: number; name: string }> = {
+  ethereum: { id: 1, name: 'Ethereum' },
+  polygon: { id: 137, name: 'Polygon' },
+  avalanche: { id: 43114, name: 'Avalanche' },
+};
+
+type Eip1193Provider = {
+  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+  on?: (event: string, listener: (...args: unknown[]) => void) => void;
+  removeListener?: (event: string, listener: (...args: unknown[]) => void) => void;
+};
+type SolanaProvider = {
+  connect: () => Promise<{ publicKey?: { toString: () => string } } | void>;
+  disconnect: () => Promise<void> | void;
+  publicKey?: { toString: () => string } | null;
+};
+declare global {
+  interface Window {
+    ethereum?: Eip1193Provider;
+    solana?: SolanaProvider;
+  }
+}
 
 function money(value?: number, compact = false) {
   if (value === undefined || value === null || !Number.isFinite(value)) return '—';
@@ -204,8 +226,18 @@ function Header({ activePath }: { activePath: string }) {
         <Route path="/ai-intelligence" component={IntelligencePage} />
         <Route component={NotFound} />
       </Switch>
+      <footer className="app-footer">
+        <span>WEB3 INTELLIGENCE <small>Provider attribution stays with available data.</small></span>
+        <nav aria-label="Terminal references">
+          <Link href="/about" data-testid="link-terminal-footer-about">About</Link>
+          <Link href="/blockchain" data-testid="link-terminal-footer-blockchain">Blockchain boundaries</Link>
+          <Link href="/risk-disclosure" data-testid="link-terminal-footer-risk">Risk disclosure</Link>
+          <Link href="/privacy-policy" data-testid="link-terminal-footer-privacy">Privacy</Link>
+          <Link href="/" data-testid="link-terminal-footer-home">Public landing</Link>
+        </nav>
+      </footer>
       <nav className="bottom-nav" aria-label="Mobile navigation">
-        {routes.map(({ path, label, icon: Icon }) => <Link key={path} href={path} className={`bottom-link ${activePath === path ? 'active' : ''}`} aria-current={activePath === path ? 'page' : undefined} data-testid={`mobile-nav-${path === '/' ? 'overview' : path.slice(1)}`}>
+        {routes.filter(({ path }) => ['/dashboard', '/markets', '/wallet-scanner', '/ai-intelligence'].includes(path)).map(({ path, label, icon: Icon }) => <Link key={path} href={path} className={`bottom-link ${activePath === path ? 'active' : ''}`} aria-current={activePath === path ? 'page' : undefined} data-testid={`mobile-nav-${path.slice(1)}`}>
           <Icon strokeWidth={1.8} /><span>{label === 'Wallet scanner' ? 'Wallet' : label === 'AI intelligence' ? 'AI intel' : label}</span>
         </Link>)}
       </nav>
@@ -329,34 +361,164 @@ function MarketsPage() {
 
 function WalletPage() {
   const scan = useScanWallet();
-  const [network, setNetwork] = useState('ethereum');
+  const [network, setNetwork] = useState<typeof networkOptions[number]>('ethereum');
   const [address, setAddress] = useState('');
+  const [connectedAccount, setConnectedAccount] = useState('');
+  const [connectedProvider, setConnectedProvider] = useState<'evm' | 'solana' | null>(null);
+  const connectedProviderRef = useRef<'evm' | 'solana' | null>(null);
+  const [activeChainId, setActiveChainId] = useState<number | null>(null);
+  const [connectionError, setConnectionError] = useState('');
+  const [lastLookup, setLastLookup] = useState<{ network: typeof networkOptions[number]; address: string } | null>(null);
+  const selectedEvmChain = evmChains[network];
+  const isConnected = Boolean(connectedAccount && connectedProvider);
+  const chainMatches = connectedProvider === 'solana'
+    ? network === 'solana'
+    : connectedProvider === 'evm' && Boolean(selectedEvmChain && activeChainId === selectedEvmChain.id);
+  const supportedEvmChainActive = activeChainId !== null && Object.values(evmChains).some((chain) => chain.id === activeChainId);
+  const chainMismatchMessage = connectedProvider === 'solana'
+    ? network !== 'solana' ? 'This connected Solana address can only be scanned on Solana.' : ''
+    : connectedProvider === 'evm' && !selectedEvmChain
+      ? 'Injected EVM lookup is limited to Ethereum, Polygon, and Avalanche. Use manual public-address lookup for this network.'
+      : connectedProvider === 'evm' && activeChainId !== null && !supportedEvmChainActive
+        ? `Unsupported active EVM chain ID ${activeChainId}. Switch to Ethereum (1), Polygon (137), or Avalanche (43114), or use manual lookup.`
+      : connectedProvider === 'evm' && activeChainId !== selectedEvmChain?.id
+        ? `Wallet chain does not match ${selectedEvmChain?.name ?? network}. Change the network in your wallet or select the matching scanner network.`
+        : '';
+  const errorMessage = (error: unknown) => {
+    const providerError = error as { code?: number; message?: string };
+    if (providerError?.code === 4001) return 'Connection request rejected. No wallet address was connected.';
+    return providerError?.message || 'The injected wallet could not be reached. You can still use manual public-address lookup.';
+  };
+
+  useEffect(() => {
+    const provider = window.ethereum;
+    if (!provider?.on) return;
+    const onChainChanged = (value: unknown) => {
+      if (connectedProviderRef.current !== 'evm') return;
+      const parsed = typeof value === 'string' ? Number.parseInt(value, 16) : Number.NaN;
+      setActiveChainId(Number.isFinite(parsed) ? parsed : null);
+    };
+    const onAccountsChanged = (value: unknown) => {
+      if (connectedProviderRef.current !== 'evm') return;
+      const accounts = Array.isArray(value) ? value : [];
+      if (typeof accounts[0] === 'string' && accounts[0]) {
+        setConnectedAccount(accounts[0]);
+      } else {
+        setConnectedAccount('');
+        connectedProviderRef.current = null;
+        setConnectedProvider(null);
+        setActiveChainId(null);
+      }
+    };
+    provider.on('chainChanged', onChainChanged);
+    provider.on('accountsChanged', onAccountsChanged);
+    return () => {
+      provider.removeListener?.('chainChanged', onChainChanged);
+      provider.removeListener?.('accountsChanged', onAccountsChanged);
+    };
+  }, []);
+
+  const connectWallet = async () => {
+    setConnectionError('');
+    try {
+      if (network === 'solana') {
+        const provider = window.solana;
+        if (!provider) throw new Error('No injected Solana wallet provider is available in this browser.');
+        const response = await provider.connect();
+        const publicAddress = (response && response.publicKey?.toString()) || provider.publicKey?.toString();
+        if (!publicAddress) throw new Error('The Solana provider did not expose a public address.');
+        setConnectedAccount(publicAddress);
+        connectedProviderRef.current = 'solana';
+        setConnectedProvider('solana');
+        setActiveChainId(null);
+        return;
+      }
+      const supportedChain = evmChains[network];
+      if (!supportedChain) {
+        setConnectionError('Injected EVM connection is available only for Ethereum, Polygon, and Avalanche. Manual lookup remains available on this network.');
+        return;
+      }
+      const provider = window.ethereum;
+      if (!provider) throw new Error('No injected EVM wallet provider is available in this browser.');
+      const accounts = await provider.request({ method: 'eth_requestAccounts' });
+      const chain = await provider.request({ method: 'eth_chainId' });
+      if (!Array.isArray(accounts) || typeof accounts[0] !== 'string' || !accounts[0]) {
+        throw new Error('The EVM provider did not return a public account address.');
+      }
+      const parsedChain = typeof chain === 'string' ? Number.parseInt(chain, 16) : Number.NaN;
+      setConnectedAccount(accounts[0]);
+      connectedProviderRef.current = 'evm';
+      setConnectedProvider('evm');
+      setActiveChainId(Number.isFinite(parsedChain) ? parsedChain : null);
+    } catch (error) {
+      setConnectionError(errorMessage(error));
+    }
+  };
+
+  const disconnectWallet = async () => {
+    const provider = connectedProvider === 'solana' ? window.solana : undefined;
+    setConnectedAccount('');
+    connectedProviderRef.current = null;
+    setConnectedProvider(null);
+    setActiveChainId(null);
+    setConnectionError('');
+    if (provider) {
+      try {
+        await provider.disconnect();
+      } catch (error) {
+        setConnectionError(errorMessage(error));
+      }
+    }
+  };
+
+  const scanAddress = (lookupAddress: string, lookupNetwork: typeof networkOptions[number] = network) => {
+    if (!lookupAddress.trim() || scan.isPending) return;
+    const normalizedAddress = lookupAddress.trim();
+    setLastLookup({ network: lookupNetwork, address: normalizedAddress });
+    scan.mutate({ data: { network: lookupNetwork, address: normalizedAddress } });
+  };
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!address.trim() || scan.isPending) return;
-    scan.mutate({ data: { network: network as 'bitcoin' | 'ethereum' | 'solana' | 'polygon' | 'tron' | 'avalanche' | 'ton' | 'sui', address: address.trim() } });
+    scanAddress(address);
   };
   const result = scan.data;
   return <div className="content">
-    <PageTitle eyebrow="Wallet scanner / 03" title="Read public balances." description="Look up a public address on a supported network. No wallet connection, signing, or transaction access." />
+    <PageTitle eyebrow="Wallet scanner / 03" title="Read public balances." description="Look up a public address on a supported network. Optional injected-wallet access reveals only a public address and active chain; it never signs or transacts." />
     <div className="market-layout">
       <section className="panel flow-card">
         <div className="eyebrow">Public address lookup</div><h2 style={{ margin: 0, color: '#e7eff9', fontSize: 17, letterSpacing: '-.03em' }}>Inspect a wallet address</h2>
         <p className="page-description">A read-only request for the public native-asset balance only. The provider's response is shown as returned.</p>
+        <div className="injected-wallet" data-testid="panel-injected-wallet">
+          <div className="injected-wallet-heading"><div><strong>Optional injected wallet</strong><span>Public address access only · no WalletConnect</span></div><span className={`connection-indicator ${isConnected ? 'connected' : ''}`} data-testid="status-injected-wallet">{isConnected ? 'CONNECTED IN MEMORY' : 'NOT CONNECTED'}</span></div>
+          {!isConnected ? <div className="injected-wallet-actions">
+            <button type="button" className="subtle-button wallet-connect-button" onClick={connectWallet} disabled={network !== 'solana' && !selectedEvmChain} data-testid="button-connect-injected-wallet">
+              <Wallet size={14} />Connect {network === 'solana' ? 'Solana' : selectedEvmChain?.name ?? 'injected wallet'}
+            </button>
+            {network !== 'solana' && !selectedEvmChain && <span className="scope-copy">Available only on Ethereum, Polygon, or Avalanche.</span>}
+          </div> : <div className="connected-wallet-row">
+            <span className="connected-address"><span className="read-dot" />{shortAddress(connectedAccount)}</span>
+            {connectedProvider === 'evm' && <span className="wallet-chain-label">Chain ID {activeChainId ?? 'unavailable'}</span>}
+            <button type="button" className="subtle-button" onClick={() => scanAddress(connectedAccount)} disabled={!chainMatches || scan.isPending} data-testid="button-scan-connected-wallet">{scan.isPending ? 'Checking provider…' : 'Scan this address'}</button>
+            <button type="button" className="wallet-disconnect" onClick={disconnectWallet} data-testid="button-clear-injected-wallet">Clear app connection</button>
+          </div>}
+          {(connectionError || chainMismatchMessage) && <div className="wallet-connection-message" role="status" data-testid="status-wallet-connection-message">{connectionError || chainMismatchMessage}</div>}
+          <p className="wallet-privacy-note">Connection state stays in memory; no wallet address is saved in browser storage. Clearing here removes it from this app; manage any remaining EVM site permission in your wallet. Choosing Scan submits the public address and network to the configured application API and provider.</p>
+        </div>
         <form className="wallet-form" onSubmit={submit} data-testid="form-wallet-scan">
-          <label><span className="field-label">Network</span><select className="select" value={network} onChange={(event) => setNetwork(event.target.value)} data-testid="select-wallet-network">{networkOptions.map((option) => <option value={option} key={option}>{option[0]?.toUpperCase()}{option.slice(1)}</option>)}</select></label>
+          <label><span className="field-label">Network</span><select className="select" value={network} onChange={(event) => setNetwork(event.target.value as typeof networkOptions[number])} data-testid="select-wallet-network">{networkOptions.map((option) => <option value={option} key={option}>{option[0]?.toUpperCase()}{option.slice(1)}</option>)}</select></label>
           <label><span className="field-label">Public address</span><input className="input" value={address} onChange={(event) => setAddress(event.target.value)} maxLength={128} required placeholder="Paste a public address" autoComplete="off" spellCheck={false} data-testid="input-wallet-address" /></label>
-          <div className="notice safe"><ShieldCheck /><span><strong>Read-only by design.</strong> Never enter a seed phrase or private key. This scanner does not request wallet connection, signatures, or transactions.</span></div>
+          <div className="notice safe"><ShieldCheck /><span><strong>Read-only by design.</strong> Never enter a seed phrase or private key. Connection is optional and exposes only a public address; no signatures or transactions are requested.</span></div>
           <button className="primary-button" type="submit" disabled={!address.trim() || scan.isPending} data-testid="button-scan-wallet">{scan.isPending ? <><LoaderCircle className="spin" />Checking provider…</> : <><Eye />Scan public address</>}</button>
         </form>
-        {scan.isError && <div className="panel error-state" role="alert" style={{ marginTop: 14 }} data-testid="status-wallet-error"><CircleAlert /><span>Wallet lookup failed. The provider did not return a result. Check the network and address, then retry.</span><button type="button" onClick={() => scan.mutate({ data: { network: network as any, address: address.trim() } })} data-testid="button-retry-wallet">Retry</button></div>}
+        {scan.isError && <div className="panel error-state" role="alert" style={{ marginTop: 14 }} data-testid="status-wallet-error"><CircleAlert /><span>Wallet lookup failed. The provider did not return a result. Check the network and address, then retry.</span><button type="button" onClick={() => lastLookup && scanAddress(lastLookup.address, lastLookup.network)} disabled={!lastLookup || scan.isPending} data-testid="button-retry-wallet">Retry</button></div>}
       </section>
       <div>
         <section className="panel scope-panel">
           <div className="scope-heading"><LockKeyhole />Lookup boundaries</div>
           <div className="scope-list">
             <div className="scope-row"><div className="scope-name">Public native balance</div><div className="scope-copy">Only public address and native-asset balance fields returned by the provider.</div></div>
-            <div className="scope-row"><div className="scope-name">No wallet connection</div><div className="scope-copy">No signing, private keys, seed phrases, token approvals, or transactions.</div></div>
+            <div className="scope-row"><div className="scope-name">Optional injected access</div><div className="scope-copy">EIP-1193 wallets on Ethereum (1), Polygon (137), or Avalanche (43114), and injected Solana wallets. The selected scanner network must match. No WalletConnect.</div></div>
+            <div className="scope-row"><div className="scope-name">No custody or signing</div><div className="scope-copy">No private keys, seed phrases, signatures, token approvals, or transactions. Account state is held in memory and cleared on disconnect.</div></div>
             <div className="scope-row"><div className="scope-name">No token or NFT scan</div><div className="scope-copy">Token portfolios, NFT holdings, transaction history, and whale activity are not connected.</div></div>
             <div className="scope-row"><div className="scope-name">Network support</div><div className="scope-copy">Bitcoin, Ethereum, Solana, Polygon, Tron, Avalanche, TON, and Sui.</div></div>
             <div className="scope-row"><div className="scope-name">Provider availability</div><div className="scope-copy">Invalid, unsupported, or unavailable results are reported without estimating a balance.</div></div>
@@ -462,10 +624,7 @@ function DashboardGate() {
 }
 
 function HomeRedirect() {
-  return <>
-    <Show when="signed-in"><Redirect to="/dashboard" /></Show>
-    <Show when="signed-out"><LandingPage /></Show>
-  </>;
+  return <LandingPage />;
 }
 
 function LandingPage() {
@@ -481,7 +640,7 @@ function LandingPage() {
   ] as const;
   const slides = [
     { image: heroMarkets, label: 'Provider-attributed markets', eyebrow: 'MARKET CONTEXT', title: 'Read the field.', copy: 'Compare reported market metrics and historical traces with their source and update time in view.', alt: 'Dark architectural image with fine golden data-like lines, used for the market research slide.' },
-    { image: heroWallet, label: 'Read-only wallet lookup', eyebrow: 'PUBLIC ADDRESS ONLY', title: 'Look, don’t connect.', copy: 'Request a supported public native balance without wallet access, signing, or transaction permissions.', alt: 'A dark glass sphere above a precise circular surface, representing a public address lookup.' },
+    { image: heroWallet, label: 'Read-only wallet lookup', eyebrow: 'PUBLIC ADDRESS ONLY', title: 'Connect only to read.', copy: 'Manual lookup is always available. Optional injected access reveals a public address and active chain only—never signing or transaction permissions.', alt: 'A dark glass sphere above a precise circular surface, representing a public address lookup.' },
     { image: heroAi, label: 'Snapshot-grounded intelligence', eyebrow: 'BOUNDED AI CONTEXT', title: 'Ask what the data can answer.', copy: 'Explore the market snapshot available to the API. The answer carries its source, timestamp, and scope.', alt: 'Layered research sheets in warm light against a deep charcoal background.' },
   ];
   const [slide, setSlide] = useState(0);
@@ -543,7 +702,7 @@ function LandingPage() {
       <section className="landing-intro" style={{ backgroundImage: `linear-gradient(90deg, rgba(11,17,27,.98), rgba(11,17,27,.9) 54%, rgba(11,17,27,.78)), url("${heroAi}")` }}><div className="landing-section-index">A BETTER VIEW / 01</div><div><h2>Not another chart wall.<br /><span>A research instrument.</span></h2></div><p>Markets move fast. This terminal keeps the evidence close: attributed feeds, clear boundaries, and useful tools without pretending uncertainty is insight.</p></section>
       <section className="landing-capabilities">
         <Link href="/markets" className="capability capability-market" data-testid="card-capability-markets"><span className="capability-number">01 — MARKETS <span className="connection-label">CONNECTED</span></span><div className="capability-art market-art" aria-hidden="true" style={{ backgroundImage: `linear-gradient(90deg,rgba(10,17,27,.78),rgba(10,17,27,.12)),url("${heroMarkets}")` }}><span>PROVIDER DATA</span><b>SOURCE VISIBLE</b></div><h3>See the field.<br />Keep the source.</h3><p>Compare provider-listed assets, inspect historical traces, and keep every metric tied to its origin.</p><span className="capability-link">Open markets <ArrowRight /></span></Link>
-        <Link href="/wallet-scanner" className="capability capability-wallet" data-testid="card-capability-wallet"><span className="capability-number">02 — WALLET SCANNER <span className="connection-label">CONNECTED</span></span><div className="capability-art wallet-art" aria-hidden="true" style={{ backgroundImage: `linear-gradient(90deg,rgba(10,17,27,.45),rgba(10,17,27,.12)),url("${heroWallet}")` }}><div className="wallet-ring"><Wallet /></div><span>PUBLIC ADDRESS / READ ONLY</span></div><h3>Look up balances.<br />Never connect.</h3><p>Inspect a public native-asset balance without wallet access, signing, or transaction permissions.</p><span className="capability-link">Scan an address <ArrowRight /></span></Link>
+        <Link href="/wallet-scanner" className="capability capability-wallet" data-testid="card-capability-wallet"><span className="capability-number">02 — WALLET SCANNER <span className="connection-label">CONNECTED</span></span><div className="capability-art wallet-art" aria-hidden="true" style={{ backgroundImage: `linear-gradient(90deg,rgba(10,17,27,.45),rgba(10,17,27,.12)),url("${heroWallet}")` }}><div className="wallet-ring"><Wallet /></div><span>PUBLIC ADDRESS / READ ONLY</span></div><h3>Inspect a balance.<br />Keep the keys.</h3><p>Use manual public-address lookup or optional injected access to expose a public address—never signatures or transactions.</p><span className="capability-link">Scan an address <ArrowRight /></span></Link>
         <Link href="/ai-intelligence" className="capability capability-ai" data-testid="card-capability-ai"><span className="capability-number">03 — AI INTELLIGENCE <span className="connection-label">CONNECTED</span></span><div className="capability-art ai-art" aria-hidden="true" style={{ backgroundImage: `linear-gradient(90deg,rgba(10,17,27,.55),rgba(10,17,27,.15)),url("${heroAi}")` }}><span className="ai-glyph">∴</span><span>GROUNDED IN AVAILABLE DATA</span></div><h3>Ask a sharper<br />market question.</h3><p>Explore context with an assistant grounded in the available market snapshot, not imagined live feeds.</p><span className="capability-link">Ask intelligence <ArrowRight /></span></Link>
       </section>
       <section className="landing-unavailable" aria-labelledby="unavailable-heading">
@@ -552,7 +711,7 @@ function LandingPage() {
           {[['/blockchain', 'Blockchain telemetry', 'No chain health or block feed'], ['/whales', 'Whale monitoring', 'No tracked-wallet dataset'], ['/airdrops', 'Airdrop campaigns', 'No campaign or eligibility index'], ['/news', 'News and sentiment', 'No publication feed'], ['/forensics', 'Forensics and recovery', 'No case intake or recovery service'], ['/pricing', 'Plans and billing', 'No subscription or checkout']].map(([href, label, detail], index) => <Link key={href} href={href} className="unavailable-row" data-testid={`link-unavailable-${href.slice(1)}`}><span className="unavailable-index">{String(index + 1).padStart(2, '0')}</span><span className="unavailable-name">{label}<small>{detail}</small></span><span className="unavailable-state"><span />NOT CONNECTED</span><ArrowRight className="unavailable-arrow" /></Link>)}
         </div>
       </section>
-      <section className="landing-principles" style={{ backgroundImage: `linear-gradient(105deg,rgba(13,22,34,.97),rgba(15,23,39,.94)),url("${evidenceBackground}")` }}><div className="landing-section-index">BUILT ON BOUNDARIES / 03</div><h2>Trust starts with<br /><span>what we don’t claim.</span></h2><div className="principle-grid"><div><span>01</span><h3>Sources stay visible</h3><p>Provider labels and update times travel with the data.</p></div><div><span>02</span><h3>Public means public</h3><p>No wallet connection, private keys, signatures, or transactions.</p></div><div><span>03</span><h3>Interpretation is labeled</h3><p>AI context is distinguished from verified market facts.</p></div></div></section>
+      <section className="landing-principles" style={{ backgroundImage: `linear-gradient(105deg,rgba(13,22,34,.97),rgba(15,23,39,.94)),url("${evidenceBackground}")` }}><div className="landing-section-index">BUILT ON BOUNDARIES / 03</div><h2>Trust starts with<br /><span>what we don’t claim.</span></h2><div className="principle-grid"><div><span>01</span><h3>Sources stay visible</h3><p>Provider labels and update times travel with the data.</p></div><div><span>02</span><h3>Public means public</h3><p>Optional injected access reveals a public address only. No private keys, signatures, or transactions.</p></div><div><span>03</span><h3>Interpretation is labeled</h3><p>AI context is distinguished from verified market facts.</p></div></div></section>
       <section className="landing-final"><div><div className="hero-eyebrow">A CLEARER STARTING POINT</div><h2>Stay curious.<br /><em>Stay grounded.</em></h2></div><div><p>Open a public market view now, or create an account for your intelligence workspace.</p><div className="hero-actions"><Link href="/sign-up" className="landing-cta" data-testid="button-final-create-account">Create your account <ArrowRight size={15} /></Link><Link href="/markets" className="hero-secondary" data-testid="link-final-browse">Browse markets <ChevronRight size={15} /></Link></div></div></section>
        <footer className="landing-footer landing-footer-rich"><Link href="/" className="footer-wordmark" data-testid="link-footer-home">WEB3 INTEL <span>RESEARCH TERMINAL</span></Link><nav aria-label="Footer product navigation"><Link href="/about" data-testid="link-footer-about">About</Link><Link href="/blockchain" data-testid="link-footer-blockchain">Blockchain</Link><Link href="/whales" data-testid="link-footer-whales">Whale tracker</Link><Link href="/markets" data-testid="link-footer-markets">Markets</Link><Link href="/wallet-scanner" data-testid="link-footer-wallet">Wallet scanner</Link><Link href="/ai-intelligence" data-testid="link-footer-ai">AI intelligence</Link><Link href="/airdrops" data-testid="link-footer-airdrops">Airdrops</Link><Link href="/news" data-testid="link-footer-news">News</Link><Link href="/forensics" data-testid="link-footer-forensics">Forensics & recovery</Link><Link href="/recovery" data-testid="link-footer-recovery">Recovery</Link><Link href="/shop" data-testid="link-footer-shop">Marketplace</Link><Link href="/pricing" data-testid="link-footer-pricing">Pricing</Link><Link href="/contact" data-testid="link-footer-contact">Contact</Link></nav><nav aria-label="Footer policies"><Link href="/privacy-policy" data-testid="link-footer-privacy">Privacy</Link><Link href="/terms" data-testid="link-footer-terms">Terms</Link><Link href="/cookie-policy" data-testid="link-footer-cookies">Cookies</Link><Link href="/risk-disclosure" data-testid="link-footer-risk">Risk disclosure</Link><Link href="/security-policy" data-testid="link-footer-security">Security</Link></nav><span>PUBLIC DATA. CLEAR CONTEXT.</span><span>© {new Date().getFullYear()} WEB3 INTELLIGENCE</span></footer>
     </main>

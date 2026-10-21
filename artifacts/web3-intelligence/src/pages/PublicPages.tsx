@@ -32,7 +32,7 @@ const pageContent: Record<string, {
     image: evidenceBackground,
     sections: [
       { title: 'Attribution stays attached', body: 'Market views show the source and the provider update time when those fields are available. Missing data stays missing; the interface does not estimate a replacement.' },
-      { title: 'Read-only means read-only', body: 'The wallet scanner accepts a public address for a native balance lookup. It does not connect to wallets, request signatures, or initiate transactions.' },
+      { title: 'Read-only means read-only', body: 'The wallet scanner always supports manual public-address lookup and optionally accepts an injected EVM or Solana wallet to reveal a public address and active chain. It never requests signatures or initiates transactions.' },
       { title: 'AI is bounded by its snapshot', body: 'Market questions use the snapshot available to the API. The assistant is not presented as a live chain indexer or an investment adviser.' },
     ],
   },
@@ -259,6 +259,14 @@ export function PublicInfoPage() {
           {page.status && <div className="capability-status" data-testid="status-capability"><CircleAlert size={18} /><span>{page.status}</span></div>}
         </div>
       </section>
+      {location === '/blockchain' && <section className="network-illustration" aria-label="Decorative network diagram" data-testid="visual-only-network-map">
+        <div className="network-illustration-label"><span><Blocks size={15} /> NETWORK TOPOLOGY</span><strong>VISUAL ONLY · NO LIVE CHAIN DATA</strong></div>
+        <svg viewBox="0 0 920 148" role="img" aria-label="Abstract illustration of connected network nodes; no telemetry is represented">
+          <path className="network-link" d="M64 94 188 45 322 100 455 49 590 94 735 38 854 88M188 45 225 126M322 100 455 49 486 125M590 94 735 38 765 119M64 94 225 126 486 125 765 119 854 88" />
+          {[['64', '94'], ['188', '45'], ['225', '126'], ['322', '100'], ['455', '49'], ['486', '125'], ['590', '94'], ['735', '38'], ['765', '119'], ['854', '88']].map(([cx, cy], index) => <circle key={`${cx}-${cy}`} className={`network-node node-${index % 4}`} cx={cx} cy={cy} r={index % 3 === 0 ? 5 : 3.5} />)}
+        </svg>
+        <span className="network-illustration-caption">A decorative network motif only. It does not indicate blocks, transactions, network health, or provider activity.</span>
+      </section>}
       <div className="public-body">
         {page.sections.map((section, index) => <section className="public-section" key={section.title} data-testid={`section-public-${index + 1}`}>
           <div className="public-section-number">{String(index + 1).padStart(2, '0')} <span>/ {policy ? 'POLICY' : 'SCOPE'}</span></div>

@@ -12,7 +12,8 @@ Web3 Intelligence is a read-only blockchain research workspace for market data, 
 - `pnpm run build` — typecheck and build all packages.
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — apply schema changes to the development database only
-- The API requires Replit's `DATABASE_URL`. Replit-managed Clerk provisions the auth keys; keep other credentials in Replit Secrets.
+- Public market, intelligence, and wallet lookup endpoints run without account authentication. The signed-in account endpoint requires `DATABASE_URL` and configured Clerk server keys.
+- Clerk is not configured in the current workspace: `/api/auth/me` returns an explicit 503 until authentication is provisioned. Do not bypass the account check to work around missing keys.
 - `GROQ_API_KEY` is required for AI answers; `GROQ_MODEL` is optional. Without the key, the AI endpoint returns an explicit unavailable response.
 - An environment-variable-name-only template is in `.env.example`.
 
@@ -21,7 +22,7 @@ Web3 Intelligence is a read-only blockchain research workspace for market data, 
 - pnpm workspaces, Node.js, TypeScript 5.9
 - Web: React + Vite
 - API: Express 5
-- Authentication: Replit-managed Clerk
+- Authentication: Clerk integration (requires workspace provisioning)
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
@@ -37,7 +38,7 @@ Web3 Intelligence is a read-only blockchain research workspace for market data, 
 
 ## Architecture decisions
 
-- Authentication is managed by Replit Clerk; the API verifies requests server-side.
+- The API verifies account requests server-side with Clerk; public research endpoints remain unauthenticated.
 - Application roles and account status live in PostgreSQL, separate from identity-provider profile data.
 - Market and wallet data are read-only provider responses; unavailable sources are shown as unavailable rather than replaced with invented values.
 - New API endpoints are defined in OpenAPI before generating shared client and validation code.
