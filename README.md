@@ -7,13 +7,14 @@ Web3 Intelligence is a read-only research terminal for provider-sourced cryptocu
 - Public landing page with live market context from CoinGecko.
 - Market overview, searchable/sortable listings, and provider-supplied historical price data.
 - Public native-balance lookups for Bitcoin, Ethereum, Solana, Polygon, Tron, Avalanche, TON, and Sui.
-- Signed-in wallet watchlists with per-wallet activity pages and saved alerts for recent public transfer activity on Ethereum, Polygon, Avalanche, and Solana.
-- Role-gated admin views for application accounts and tracked wallets.
+- Signed-in wallet watchlists with per-wallet activity pages, one-minute polling while a detail page is open, and optional browser alerts for new saved activity.
+- Public ERC-20 and ERC-721 transfer monitoring on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent native/SPL token balance changes on Solana.
+- Role-gated admin views for application accounts, tracked wallets, and recent saved activity records.
 - Groq-backed market Q&A using the current top-100 CoinGecko snapshot, with the model, source, timestamp, scope, and disclaimer returned to the client.
 - Clerk sign-in foundation and a protected dashboard route.
 - Explicit unavailable/error states when providers do not return data.
 
-The wallet scanner reads native balances only. Watchlists store public addresses and alert preferences. Public RPC tracking currently records ERC-20 transfer logs on Ethereum, Polygon, and Avalanche, plus recent native/SPL token balance changes on Solana. It does not reliably classify buys/sells, decode NFTs or staking, or provide full historical coverage. It does not connect to wallets, request signatures, store keys, or initiate transactions. AI answers do not include wallet histories, whale activity, or unconnected blockchain feeds.
+The wallet scanner reads native balances only. Watchlists store public addresses and alert preferences. Watch pages poll only while open; browser alerts require user permission and an open page. Public RPC tracking records ERC-20 and standard ERC-721 transfer logs on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent native/SPL balance changes on Solana. It does not reliably classify buys/sells, decode ERC-1155 transfers or staking, or provide complete historical coverage. A transfer is not necessarily a trade. It does not connect to wallets, request signatures, store keys, or initiate transactions. AI answers do not include wallet histories, whale activity, or unconnected blockchain feeds.
 
 ## Stack
 
@@ -88,8 +89,11 @@ All endpoints are served beneath `/api`.
 | `GET` | `/api/watch/activity?watchId=1&limit=50` | Refresh and list recent public transfer activity |
 | `GET` | `/api/admin/users` | Admin-only application account list |
 | `GET` | `/api/admin/wallets` | Admin-only tracked wallet list |
+| `GET` | `/api/admin/activity?limit=100` | Admin-only recent saved activity across tracked wallets |
+| `DELETE` | `/api/admin/activity?activityId=1` | Admin-only removal of an app-saved activity observation; does not change on-chain data |
 | `PATCH` | `/api/admin/users/{clerkUserId}` | Admin-only role/status update |
 | `DELETE` | `/api/admin/wallets?watchId=1` | Admin-only wallet removal |
+| `PATCH` | `/api/watch/wallets/{watchId}` | Update the signed-in user's wallet label or alert preference |
 
 Wallet request example:
 

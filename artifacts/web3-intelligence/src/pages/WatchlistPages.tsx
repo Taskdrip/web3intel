@@ -1,21 +1,21 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'wouter';
 import {
-  ArrowDownLeft, ArrowLeft, ArrowUpRight, Activity, AlertTriangle, Check,
+  ArrowDownLeft, ArrowLeft, ArrowUpRight, Activity, AlertTriangle, Bell, BellOff, Check,
   ChevronRight, CircleAlert, Clock3, Database, ExternalLink, Eye, LoaderCircle,
   LockKeyhole, Plus, RefreshCw, Shield, Trash2, Wallet,
 } from 'lucide-react';
 import {
   getGetCurrentUserQueryKey, getGetWalletWatchActivityQueryKey,
-  getListAdminUsersQueryKey, getListAdminWalletWatchesQueryKey, getListWalletWatchesQueryKey,
-  useCreateWalletWatch, useDeleteAdminWalletWatch, useDeleteWalletWatch,
-  useGetCurrentUser, useGetWalletWatchActivity, useListAdminUsers,
-  useListAdminWalletWatches, useListWalletWatches, useUpdateAdminUser,
+  getListAdminActivityQueryKey, getListAdminUsersQueryKey, getListAdminWalletWatchesQueryKey, getListWalletWatchesQueryKey,
+  useCreateWalletWatch, useDeleteAdminActivity, useDeleteAdminWalletWatch, useDeleteWalletWatch,
+  useGetCurrentUser, useGetWalletWatchActivity, useListAdminActivity, useListAdminUsers,
+  useListAdminWalletWatches, useListWalletWatches, useUpdateAdminUser, useUpdateWalletWatch,
 } from '@workspace/api-client-react';
 import type { AdminUserRole, AdminUserStatus, WalletWatchNetwork } from '@workspace/api-client-react';
 
-const networks: WalletWatchNetwork[] = ['ethereum', 'polygon', 'avalanche', 'solana'];
+const networks: WalletWatchNetwork[] = ['ethereum', 'polygon', 'avalanche', 'base', 'arbitrum', 'solana'];
 
 function displayDate(value?: string | null) {
   if (!value) return 'Not checked yet';
@@ -42,7 +42,7 @@ function PublicDataBoundary({ compact = false }: { compact?: boolean }) {
     <span className="boundary-icon"><AlertTriangle size={15} /></span>
     <div>
       <strong>Public RPC coverage is partial</strong>
-      <p>Transfer events are not a complete wallet history. This feed does not reliably identify buys or sells, NFTs, or staking activity. A missing event is not proof that nothing happened.</p>
+      <p>Feeds include recent ERC-20 and ERC-721 transfers on supported EVM chains, plus Solana balance changes. They do not reliably identify buys or sells, staking, ERC-1155 events, or complete history. A missing event is not proof that nothing happened.</p>
     </div>
     {!compact && <span className="boundary-readonly"><LockKeyhole size={12} /> READ ONLY</span>}
   </aside>;
@@ -66,6 +66,7 @@ export function WatchlistPage() {
   const watches = useListWalletWatches();
   const createWatch = useCreateWalletWatch();
   const deleteWatch = useDeleteWalletWatch();
+  const updateWatch = useUpdateWalletWatch();
   const [network, setNetwork] = useState<WalletWatchNetwork>('ethereum');
   const [address, setAddress] = useState('');
   const [label, setLabel] = useState('');
@@ -91,6 +92,11 @@ export function WatchlistPage() {
   const removeWatch = (watchId: number, watchLabel: string) => {
     if (!window.confirm(`Remove “${watchLabel}” from your watchlist?`)) return;
     deleteWatch.mutate({ params: { watchId } }, {
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: getListWalletWatchesQueryKey() }),
+    });
+  };
+  const toggleAlerts = (watchId: number, alertsEnabled: boolean) => {
+    updateWatch.mutate({ watchId, data: { alertsEnabled: !alertsEnabled } }, {
       onSuccess: () => queryClient.invalidateQueries({ queryKey: getListWalletWatchesQueryKey() }),
     });
   };
@@ -125,11 +131,12 @@ export function WatchlistPage() {
               <div className="watch-row-meta"><span className="network-tag" data-testid={`text-watch-network-${watch.id}`}>{watch.network}</span><small><Clock3 size={11} />{displayDate(watch.lastCheckedAt)}</small></div>
               <div className="watch-row-actions">
                 <Link href={`/watchlist/${watch.id}`} className="watch-icon-button" aria-label={`View activity for ${watch.label}`} data-testid={`button-open-watch-${watch.id}`}><Eye size={15} /></Link>
+                <button type="button" className={`watch-icon-button ${watch.alertsEnabled ? 'alerts-active' : ''}`} aria-label={`${watch.alertsEnabled ? 'Disable' : 'Enable'} alerts for ${watch.label}`} title={watch.alertsEnabled ? 'Alerts enabled' : 'Alerts disabled'} onClick={() => toggleAlerts(watch.id, watch.alertsEnabled)} disabled={updateWatch.isPending} data-testid={`button-toggle-alerts-${watch.id}`}>{watch.alertsEnabled ? <Bell size={14} /> : <BellOff size={14} />}</button>
                 <button type="button" className="watch-icon-button danger" aria-label={`Remove ${watch.label}`} onClick={() => removeWatch(watch.id, watch.label)} disabled={deleteWatch.isPending} data-testid={`button-delete-watch-${watch.id}`}><Trash2 size={15} /></button>
               </div>
             </article>)}
           </div>}
-        {rows.length > 0 && !watches.isLoading && <div className="watch-list-foot"><span>{rows.length} {rows.length === 1 ? 'address' : 'addresses'} in your watchlist</span><span>Updated on demand by the public RPC provider</span></div>}
+        {rows.length > 0 && !watches.isLoading && <div className="watch-list-foot"><span>{rows.length} {rows.length === 1 ? 'address' : 'addresses'} in your watchlist</span><span>Activity refreshes every minute while a detail page is open</span></div>}
       </section>
 
       <aside className="panel add-watch-panel">
@@ -174,6 +181,42 @@ export function WatchlistDetailPage() {
     },
   });
   const watch = watches.data?.find((item) => item.id === watchId);
+  const notifiedActivityIds = useRef(new Set<number>());
+  const activityInitialized = useRef(false);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | 'unsupported'>(
+    typeof Notification === 'undefined' ? 'unsupported' : Notification.permission,
+  );
+
+  useEffect(() => {
+    const items = activity.data?.items;
+    if (!items) return;
+    if (!activityInitialized.current) {
+      items.forEach((item) => notifiedActivityIds.current.add(item.id));
+      activityInitialized.current = true;
+      return;
+    }
+    for (const item of items) {
+      if (notifiedActivityIds.current.has(item.id)) continue;
+      notifiedActivityIds.current.add(item.id);
+      if (watch?.alertsEnabled && notificationPermission === 'granted' && typeof Notification !== 'undefined') {
+        const notification = new Notification(`${watch.label}: activity observed`, {
+          body: `${item.direction === 'in' ? 'Incoming' : item.direction === 'out' ? 'Outgoing' : 'Changed'} · ${item.amount} ${item.asset}`,
+        });
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+      }
+    }
+  }, [activity.data?.items, notificationPermission, watch?.alertsEnabled, watch?.label]);
+
+  const enableBrowserNotifications = async () => {
+    if (typeof Notification === 'undefined') {
+      setNotificationPermission('unsupported');
+      return;
+    }
+    setNotificationPermission(await Notification.requestPermission());
+  };
 
   if (!validId) return <div className="content watch-content"><QueryError message="This watch address could not be found." retry={() => watches.refetch()} testId="status-watch-not-found" /></div>;
   if (watches.isLoading) return <div className="content watch-content"><WatchlistLoading /></div>;
@@ -197,10 +240,14 @@ export function WatchlistDetailPage() {
         <RefreshCw className={activity.isFetching ? 'spin-icon' : ''} size={13} /> {activity.isFetching ? 'Checking' : 'Refresh'}
       </button>
     </div>
+    {watch.alertsEnabled && <div className="watch-notification-bar" data-testid="panel-watch-notifications">
+      <span><Activity size={14} /> {notificationPermission === 'granted' ? 'Browser alerts are enabled while this page is open.' : notificationPermission === 'unsupported' ? 'Browser notifications are not supported here.' : notificationPermission === 'denied' ? 'Notifications are blocked in browser settings.' : 'Get a browser alert when new activity appears.'}</span>
+      {notificationPermission === 'default' && <button type="button" className="subtle-button" onClick={enableBrowserNotifications} data-testid="button-enable-watch-notifications">Enable notifications</button>}
+    </div>}
     <PublicDataBoundary />
     <section className="panel activity-panel">
       <div className="watch-panel-head activity-panel-head">
-        <div><div className="watch-section-title">Observed transfers</div><div className="watch-section-sub">{activity.data?.source ?? 'Public RPC source'} · refreshed {displayDate(activity.data?.checkedAt)}</div></div>
+        <div><div className="watch-section-title">Observed activity</div><div className="watch-section-sub">{activity.data?.source ?? 'Public RPC source'} · refreshes every 60 seconds · checked {displayDate(activity.data?.checkedAt)}</div></div>
         <span className="watch-panel-index"><Activity size={12} /> {items.length.toString().padStart(2, '0')} EVENTS</span>
       </div>
       {activity.isLoading ? <div className="watch-skeleton-list" role="status" aria-label="Loading wallet activity" data-testid="status-activity-loading">
@@ -218,7 +265,7 @@ export function WatchlistDetailPage() {
               {item.direction === 'in' ? <ArrowDownLeft size={12} /> : item.direction === 'out' ? <ArrowUpRight size={12} /> : <Activity size={12} />}
               {item.direction === 'in' ? 'INBOUND' : item.direction === 'out' ? 'OUTBOUND' : 'CHANGE'}
             </span></td>
-            <td><strong className="activity-asset">{item.asset}</strong><small>{item.activityType === 'token_transfer' ? 'TOKEN TRANSFER' : 'NATIVE TRANSFER'}</small></td>
+             <td><strong className="activity-asset">{item.asset}</strong><small>{item.activityType === 'token_transfer' ? 'TOKEN TRANSFER' : item.activityType === 'nft_transfer' ? 'NFT TRANSFER' : 'NATIVE TRANSFER'}</small></td>
             <td className="mono activity-amount">{item.amount}</td>
             <td className="mono activity-counterparty">{item.counterparty ? compactAddress(item.counterparty) : '—'}</td>
             <td className="mono">{item.blockNumber ?? '—'}</td>
@@ -240,8 +287,10 @@ export function AdminPage() {
   const isAdmin = currentUser.data?.role === 'admin' && currentUser.data.status === 'active';
   const users = useListAdminUsers({ query: { enabled: isAdmin, queryKey: getListAdminUsersQueryKey() } });
   const watches = useListAdminWalletWatches({ query: { enabled: isAdmin, queryKey: getListAdminWalletWatchesQueryKey() } });
+  const activity = useListAdminActivity({ limit: 100 }, { query: { enabled: isAdmin, queryKey: getListAdminActivityQueryKey({ limit: 100 }) } });
   const updateUser = useUpdateAdminUser();
   const deleteWatch = useDeleteAdminWalletWatch();
+  const deleteActivity = useDeleteAdminActivity();
   const [drafts, setDrafts] = useState<Record<string, UserDraft>>({});
   const [search, setSearch] = useState('');
 
@@ -267,9 +316,15 @@ export function AdminPage() {
       ]),
     });
   };
+  const removeAdminActivity = (activityId: number, asset: string) => {
+    if (!window.confirm(`Remove the saved ${asset} observation? This only deletes the app's saved record; it cannot change the on-chain transaction.`)) return;
+    deleteActivity.mutate({ params: { activityId } }, {
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: getListAdminActivityQueryKey({ limit: 100 }) }),
+    });
+  };
 
   if (currentUser.isLoading) return <div className="content watch-content"><div className="panel watch-admin-gate" role="status" data-testid="status-admin-check"><div className="skeleton skeleton-line" /><div className="skeleton skeleton-value" /></div></div>;
-  if (currentUser.isError) return <div className="content watch-content"><QueryError message="Your account role could not be verified." retry={() => currentUser.refetch()} testId="status-admin-account-error" /></div>;
+  if (currentUser.isError || !currentUser.data) return <div className="content watch-content"><QueryError message="Your account role could not be verified." retry={() => currentUser.refetch()} testId="status-admin-account-error" /></div>;
   if (!isAdmin) return <div className="content watch-content"><div className="panel watch-admin-gate" data-testid="status-admin-forbidden">
     <div className="watch-empty-mark"><LockKeyhole size={19} /></div><div className="watch-overline">RESTRICTED / ADMINISTRATORS</div>
     <h1>Administrative access required.</h1><p>This account does not have an active administrator role. The admin API remains the authority for every management action.</p>
@@ -279,13 +334,18 @@ export function AdminPage() {
   const allWatches = watches.data ?? [];
   return <div className="content watch-content">
     <SectionHeading overline="CONTROL ROOM / 04" title="Administration" copy="Manage application access and remove watch records across accounts. Every change is applied through the protected admin API." />
-    <div className="admin-banner"><Shield size={16} /><span><strong>Administrator session verified</strong><small>Account-level actions are audited by the service.</small></span><span className="admin-role-tag">{currentUser.data.role}</span></div>
+    <div className="admin-banner"><Shield size={16} /><span><strong>Administrator session verified</strong><small>Role checks and management actions are enforced by the API.</small></span><span className="admin-role-tag">{currentUser.data.role}</span></div>
     <PublicDataBoundary compact />
     <div className="admin-metrics">
       <div><span>ACCOUNTS</span><strong data-testid="text-admin-user-count">{users.data?.length ?? '—'}</strong></div>
       <div><span>WATCH RECORDS</span><strong data-testid="text-admin-watch-count">{allWatches.length || (watches.isLoading ? '—' : '0')}</strong></div>
+      <div><span>SAVED OBSERVATIONS</span><strong data-testid="text-admin-activity-count">{activity.data?.length ?? (activity.isLoading ? '—' : '0')}</strong></div>
       <div><span>YOUR ROLE</span><strong data-testid="text-admin-current-role">{currentUser.data.role}</strong></div>
     </div>
+    <aside className="watch-boundary admin-credentials-note" data-testid="notice-admin-credentials">
+      <span className="boundary-icon"><LockKeyhole size={15} /></span>
+      <div><strong>Provider credentials stay in Replit Secrets</strong><p>Add or rotate API credentials in the workspace Secrets settings. This app intentionally does not store key values in its database or expose them to administrators in the browser.</p></div>
+    </aside>
     <section className="panel admin-table-panel">
       <div className="watch-panel-head admin-panel-head">
         <div><div className="watch-section-title">Account access</div><div className="watch-section-sub">Adjust role and account status</div></div>
@@ -328,6 +388,28 @@ export function AdminPage() {
                 <td><span className="network-tag">{watch.network}</span></td><td className="admin-id mono">{watch.clerkUserId}</td>
                 <td>{watch.alertsEnabled ? 'Enabled' : 'Off'}</td><td>{displayDate(watch.lastCheckedAt)}</td>
                 <td><button type="button" className="watch-icon-button danger" aria-label={`Remove ${watch.label}`} disabled={deleteWatch.isPending} onClick={() => removeAdminWatch(watch.id, watch.label)} data-testid={`button-admin-delete-watch-${watch.id}`}><Trash2 size={14} /></button></td>
+              </tr>)}</tbody>
+            </table></div>}
+    </section>
+    <section className="panel admin-table-panel admin-watch-panel">
+      <div className="watch-panel-head">
+        <div><div className="watch-section-title">Recent saved activity</div><div className="watch-section-sub">Latest 100 public-chain observations across watched wallets</div></div>
+        <span className="watch-panel-index">READ ONLY ON-CHAIN / MANAGE SAVED RECORDS</span>
+      </div>
+      <div className="admin-data-boundary">Deleting a row only removes this app's saved observation. It cannot change or reverse an on-chain transaction.</div>
+      {activity.isLoading ? <div className="watch-skeleton-list" role="status" data-testid="status-admin-activity-loading">{[0, 1, 2].map((i) => <div className="watch-skeleton" key={i}><i /><span /><b /></div>)}</div> :
+        activity.isError ? <QueryError message="Saved activity could not be loaded." retry={() => activity.refetch()} testId="status-admin-activity-error" /> :
+          !activity.data?.length ? <div className="admin-empty" data-testid="empty-admin-activity">No saved activity observations are available.</div> :
+            <div className="admin-table-scroll"><table className="admin-table admin-activity-table">
+              <thead><tr><th>Wallet</th><th>Owner account</th><th>Network</th><th>Activity</th><th>Amount</th><th>Observed</th><th></th></tr></thead>
+              <tbody>{activity.data.map((item) => <tr key={item.id} data-testid={`row-admin-activity-${item.id}`}>
+                <td><strong>{item.label}</strong><small className="admin-address mono">{compactAddress(item.address)}</small></td>
+                <td className="admin-id mono">{item.clerkUserId}</td>
+                <td><span className="network-tag">{item.network}</span></td>
+                <td><strong>{item.activityType === 'nft_transfer' ? 'NFT transfer' : item.activityType === 'token_transfer' ? 'Token transfer' : 'Native transfer'}</strong><small>{item.direction === 'in' ? 'INBOUND' : item.direction === 'out' ? 'OUTBOUND' : 'CHANGE'} · {item.asset}</small></td>
+                <td className="mono">{item.amount}</td>
+                <td>{displayDate(item.occurredAt ?? item.createdAt)}<small><a href={item.explorerUrl} target="_blank" rel="noreferrer">Open transaction</a></small></td>
+                <td><button type="button" className="watch-icon-button danger" aria-label={`Remove saved observation ${item.id}`} disabled={deleteActivity.isPending} onClick={() => removeAdminActivity(item.id, item.asset)} data-testid={`button-admin-delete-activity-${item.id}`}><Trash2 size={14} /></button></td>
               </tr>)}</tbody>
             </table></div>}
     </section>

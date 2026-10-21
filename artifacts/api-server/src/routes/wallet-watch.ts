@@ -6,6 +6,9 @@ import {
   GetWalletWatchActivityQueryParams,
   GetWalletWatchActivityResponse,
   ListWalletWatchesResponse,
+  UpdateWalletWatchBody,
+  UpdateWalletWatchParams,
+  UpdateWalletWatchResponse,
 } from "@workspace/api-zod";
 import {
   db,
@@ -34,6 +37,16 @@ const chainConfig = {
     rpc: "https://avalanche-c-chain-rpc.publicnode.com",
     asset: "AVAX",
     explorer: "https://snowtrace.io/tx/",
+  },
+  base: {
+    rpc: "https://base-rpc.publicnode.com",
+    asset: "ETH",
+    explorer: "https://basescan.org/tx/",
+  },
+  arbitrum: {
+    rpc: "https://arbitrum-one-rpc.publicnode.com",
+    asset: "ETH",
+    explorer: "https://arbiscan.io/tx/",
   },
 } as const;
 type WatchedNetwork = keyof typeof chainConfig | "solana";
@@ -114,12 +127,28 @@ async function pollEvm(watch: typeof walletWatchesTable.$inferSelect) {
       logs.set(`${log.transactionHash}:${log.logIndex}`, log);
     }
     for (const log of logs.values()) {
-      // ERC-20 Transfer logs have three topics and a data value. ERC-721
-      // transfers use a fourth indexed token-id topic, so are not mislabeled.
-      if (log.topics.length !== 3 || !/^0x[0-9a-f]+$/i.test(log.data)) continue;
+      if (log.topics.length < 3 || !/^0x[0-9a-f]*$/i.test(log.data)) continue;
       const fromAddress = `0x${log.topics[1]?.slice(-40) ?? ""}`;
       const toAddress = `0x${log.topics[2]?.slice(-40) ?? ""}`;
       const outgoing = fromAddress.toLowerCase() === watch.address.toLowerCase();
+      if (log.topics.length === 4 && /^0x[0-9a-f]{64}$/i.test(log.topics[3] ?? "")) {
+        const tokenId = BigInt(log.topics[3]!).toString();
+        await saveActivity({
+          watchId: watch.id,
+          txHash: log.transactionHash,
+          eventKey: log.logIndex,
+          activityType: "nft_transfer",
+          direction: outgoing ? "out" : "in",
+          asset: `ERC-721 ${log.address.slice(0, 8)}…${log.address.slice(-6)} #${tokenId}`,
+          amount: "1",
+          counterparty: outgoing ? toAddress : fromAddress,
+          blockNumber: String(Number.parseInt(log.blockNumber, 16)),
+          occurredAt: null,
+          explorerUrl: `${config.explorer}${encodeURIComponent(log.transactionHash)}`,
+        });
+        continue;
+      }
+      if (log.topics.length !== 3 || !/^0x[0-9a-f]+$/i.test(log.data)) continue;
       const amount = BigInt(log.data).toString();
       await saveActivity({
         watchId: watch.id,
@@ -298,6 +327,36 @@ router.post("/watch/wallets", requireActiveUser, async (req, res): Promise<void>
     req.log.error({ err: error }, "Could not create wallet watch");
     res.status(503).json({ error: "The wallet watch could not be saved." });
   }
+});
+
+router.patch("/watch/wallets/:watchId", requireActiveUser, async (req, res): Promise<void> => {
+  const params = UpdateWalletWatchParams.safeParse(req.params);
+  const body = UpdateWalletWatchBody.safeParse(req.body);
+  if (!params.success || !body.success) {
+    res.status(400).json({ error: params.error?.message ?? body.error?.message ?? "Invalid wallet watch update." });
+    return;
+  }
+  const user = res.locals.currentUser as User;
+  const update = { ...body.data };
+  if (update.label !== undefined) {
+    update.label = update.label.trim();
+    if (!update.label) {
+      res.status(400).json({ error: "The wallet label cannot be empty." });
+      return;
+    }
+  }
+  const [updated] = await db.update(walletWatchesTable)
+    .set(update)
+    .where(and(
+      eq(walletWatchesTable.id, params.data.watchId),
+      eq(walletWatchesTable.clerkUserId, user.clerkUserId),
+    ))
+    .returning();
+  if (!updated) {
+    res.status(404).json({ error: "Wallet watch was not found." });
+    return;
+  }
+  res.json(UpdateWalletWatchResponse.parse(updated));
 });
 
 router.delete("/watch/wallets", requireActiveUser, async (req, res): Promise<void> => {

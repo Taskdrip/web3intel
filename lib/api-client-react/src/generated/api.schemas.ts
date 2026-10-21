@@ -136,6 +136,8 @@ export const WalletWatchNetwork = {
   ethereum: 'ethereum',
   polygon: 'polygon',
   avalanche: 'avalanche',
+  base: 'base',
+  arbitrum: 'arbitrum',
   solana: 'solana',
 } as const;
 
@@ -151,6 +153,15 @@ export interface WalletWatchInput {
      * @maxLength 80
      */
   label: string;
+  alertsEnabled?: boolean;
+}
+
+export interface WalletWatchUpdate {
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  label?: string;
   alertsEnabled?: boolean;
 }
 
@@ -172,6 +183,7 @@ export type WalletWatchActivityActivityType = typeof WalletWatchActivityActivity
 export const WalletWatchActivityActivityType = {
   token_transfer: 'token_transfer',
   native_transfer: 'native_transfer',
+  nft_transfer: 'nft_transfer',
 } as const;
 
 export type WalletWatchActivityDirection = typeof WalletWatchActivityDirection[keyof typeof WalletWatchActivityDirection];
@@ -265,6 +277,46 @@ export interface AdminWalletWatch {
   createdAt: string;
 }
 
+export type AdminWalletActivityActivityType = typeof AdminWalletActivityActivityType[keyof typeof AdminWalletActivityActivityType];
+
+
+export const AdminWalletActivityActivityType = {
+  token_transfer: 'token_transfer',
+  native_transfer: 'native_transfer',
+  nft_transfer: 'nft_transfer',
+} as const;
+
+export type AdminWalletActivityDirection = typeof AdminWalletActivityDirection[keyof typeof AdminWalletActivityDirection];
+
+
+export const AdminWalletActivityDirection = {
+  in: 'in',
+  out: 'out',
+  change: 'change',
+} as const;
+
+export interface AdminWalletActivity {
+  id: number;
+  watchId: number;
+  network: WalletWatchNetwork;
+  address: string;
+  label: string;
+  clerkUserId: string;
+  txHash: string;
+  activityType: AdminWalletActivityActivityType;
+  direction: AdminWalletActivityDirection;
+  asset: string;
+  amount: string;
+  /** @nullable */
+  counterparty: string | null;
+  /** @nullable */
+  blockNumber: string | null;
+  /** @nullable */
+  occurredAt: string | null;
+  explorerUrl: string;
+  createdAt: string;
+}
+
 export interface QuestionInput {
   /**
      * @minLength 1
@@ -335,5 +387,20 @@ export type DeleteAdminWalletWatchParams = {
  * @minimum 1
  */
 watchId: number;
+};
+
+export type ListAdminActivityParams = {
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+};
+
+export type DeleteAdminActivityParams = {
+/**
+ * @minimum 1
+ */
+activityId: number;
 };
 

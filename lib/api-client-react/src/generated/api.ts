@@ -22,15 +22,18 @@ import type {
 import type {
   AdminUser,
   AdminUserUpdate,
+  AdminWalletActivity,
   AdminWalletWatch,
   ApiError,
   CurrentUser,
+  DeleteAdminActivityParams,
   DeleteAdminWalletWatchParams,
   DeleteWalletWatchParams,
   GetMarketCoinsParams,
   GetMarketHistoryParams,
   GetWalletWatchActivityParams,
   HealthStatus,
+  ListAdminActivityParams,
   MarketCoinsResponse,
   MarketHistoryResponse,
   MarketOverview,
@@ -40,7 +43,8 @@ import type {
   WalletScanResult,
   WalletWatch,
   WalletWatchActivityResponse,
-  WalletWatchInput
+  WalletWatchInput,
+  WalletWatchUpdate
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -806,6 +810,95 @@ export const useDeleteWalletWatch = <TError = ErrorType<ApiError>,
       return useMutation(getDeleteWalletWatchMutationOptions(options));
     }
 
+export const getUpdateWalletWatchUrl = (watchId: number,) => {
+
+
+
+
+  return `/api/watch/wallets/${watchId}`
+}
+
+/**
+ * @summary Update the label or alert setting for an owned wallet watch
+ */
+export const updateWalletWatch = async (watchId: number,
+    walletWatchUpdate: WalletWatchUpdate, options?: Parameters<typeof customFetch>[1]): Promise<WalletWatch> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<WalletWatch>(getUpdateWalletWatchUrl(watchId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(walletWatchUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateWalletWatchMutationKey = () => ['updateWalletWatch'] as const;
+
+export const getUpdateWalletWatchMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateWalletWatch>>, TError,UpdateWalletWatchMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateWalletWatch>>, TError,UpdateWalletWatchMutationVariables, TContext> => {
+
+const mutationKey = getUpdateWalletWatchMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateWalletWatch>>, UpdateWalletWatchMutationVariables> = (props) => {
+          const {watchId,data} = props ?? {};
+
+          return  updateWalletWatch(watchId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateWalletWatchMutationResult = NonNullable<Awaited<ReturnType<typeof updateWalletWatch>>>
+    export type UpdateWalletWatchMutationBody = BodyType<WalletWatchUpdate>
+    export type UpdateWalletWatchMutationError = ErrorType<ApiError>
+    export type UpdateWalletWatchMutationVariables = {watchId: number;data: BodyType<WalletWatchUpdate>}
+
+    /**
+ * @summary Update the label or alert setting for an owned wallet watch
+ */
+export const useUpdateWalletWatch = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateWalletWatch>>, TError,UpdateWalletWatchMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateWalletWatch>>,
+        TError,
+        UpdateWalletWatchMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateWalletWatchMutationOptions(options));
+    }
+
 export const getGetWalletWatchActivityUrl = (params: GetWalletWatchActivityParams,) => {
   const normalizedParams = new URLSearchParams();
 
@@ -822,7 +915,7 @@ export const getGetWalletWatchActivityUrl = (params: GetWalletWatchActivityParam
 }
 
 /**
- * Public RPC mode currently tracks ERC-20 transfer logs on Ethereum, Polygon, Avalanche, and recent Solana token/native balance changes. It does not classify swaps, staking, or NFTs.
+ * Public RPC mode tracks ERC-20 and ERC-721 transfer logs on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent Solana token/native balance changes. It does not reliably classify swaps or staking.
  * @summary Refresh and list recent public transfer activity for a watched wallet
  */
 export const getWalletWatchActivity = async (params: GetWalletWatchActivityParams, options?: Parameters<typeof customFetch>[1]): Promise<WalletWatchActivityResponse> => {
@@ -1124,6 +1217,171 @@ export const useDeleteAdminWalletWatch = <TError = ErrorType<ApiError>,
         TContext
       > => {
       return useMutation(getDeleteAdminWalletWatchMutationOptions(options));
+    }
+
+export const getListAdminActivityUrl = (params?: ListAdminActivityParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/activity?${stringifiedParams}` : `/api/admin/activity`
+}
+
+/**
+ * @summary List recent saved public wallet activity across accounts
+ */
+export const listAdminActivity = async (params?: ListAdminActivityParams, options?: Parameters<typeof customFetch>[1]): Promise<AdminWalletActivity[]> => {
+
+  return customFetch<AdminWalletActivity[]>(getListAdminActivityUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAdminActivityQueryKey = (params?: ListAdminActivityParams,) => {
+    return [
+    `/api/admin/activity`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListAdminActivityQueryOptions = <TData = Awaited<ReturnType<typeof listAdminActivity>>, TError = ErrorType<ApiError>>(params?: ListAdminActivityParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminActivity>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAdminActivityQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminActivity>>> = ({ signal }) => listAdminActivity(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAdminActivity>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAdminActivityQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminActivity>>>
+export type ListAdminActivityQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary List recent saved public wallet activity across accounts
+ */
+
+export function useListAdminActivity<TData = Awaited<ReturnType<typeof listAdminActivity>>, TError = ErrorType<ApiError>>(
+ params?: ListAdminActivityParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminActivity>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAdminActivityQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDeleteAdminActivityUrl = (params: DeleteAdminActivityParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/activity?${stringifiedParams}` : `/api/admin/activity`
+}
+
+/**
+ * @summary Remove one saved observation from the application database
+ */
+export const deleteAdminActivity = async (params: DeleteAdminActivityParams, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteAdminActivityUrl(params),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteAdminActivityMutationKey = () => ['deleteAdminActivity'] as const;
+
+export const getDeleteAdminActivityMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAdminActivity>>, TError,DeleteAdminActivityMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAdminActivity>>, TError,DeleteAdminActivityMutationVariables, TContext> => {
+
+const mutationKey = getDeleteAdminActivityMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAdminActivity>>, DeleteAdminActivityMutationVariables> = (props) => {
+          const {params} = props ?? {};
+
+          return  deleteAdminActivity(params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAdminActivityMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAdminActivity>>>
+
+    export type DeleteAdminActivityMutationError = ErrorType<ApiError>
+    export type DeleteAdminActivityMutationVariables = {params: DeleteAdminActivityParams}
+
+    /**
+ * @summary Remove one saved observation from the application database
+ */
+export const useDeleteAdminActivity = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAdminActivity>>, TError,DeleteAdminActivityMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAdminActivity>>,
+        TError,
+        DeleteAdminActivityMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteAdminActivityMutationOptions(options));
     }
 
 export const getUpdateAdminUserUrl = (clerkUserId: string,) => {

@@ -13,5 +13,7 @@ export const WalletWatchNetwork = {
   ethereum: 'ethereum',
   polygon: 'polygon',
   avalanche: 'avalanche',
+  base: 'base',
+  arbitrum: 'arbitrum',
   solana: 'solana',
 } as const;

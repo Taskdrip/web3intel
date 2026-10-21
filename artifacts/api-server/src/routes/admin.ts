@@ -1,6 +1,9 @@
 import { Router, type IRouter } from "express";
 import { and, desc, eq } from "drizzle-orm";
 import {
+  DeleteAdminActivityQueryParams,
+  ListAdminActivityQueryParams,
+  ListAdminActivityResponse,
   ListAdminUsersResponse,
   ListAdminWalletWatchesResponse,
   UpdateAdminUserBody,
@@ -9,6 +12,7 @@ import {
 } from "@workspace/api-zod";
 import {
   db,
+  walletActivityTable,
   usersTable,
   walletWatchesTable,
   type User,
@@ -72,6 +76,52 @@ router.get("/admin/wallets", async (_req, res): Promise<void> => {
   const watches = await db.select().from(walletWatchesTable)
     .orderBy(desc(walletWatchesTable.createdAt));
   res.json(ListAdminWalletWatchesResponse.parse(watches));
+});
+
+router.get("/admin/activity", async (req, res): Promise<void> => {
+  const query = ListAdminActivityQueryParams.safeParse(req.query);
+  if (!query.success) {
+    res.status(400).json({ error: query.error.message });
+    return;
+  }
+  const activity = await db.select({
+    id: walletActivityTable.id,
+    watchId: walletActivityTable.watchId,
+    network: walletWatchesTable.network,
+    address: walletWatchesTable.address,
+    label: walletWatchesTable.label,
+    clerkUserId: walletWatchesTable.clerkUserId,
+    txHash: walletActivityTable.txHash,
+    activityType: walletActivityTable.activityType,
+    direction: walletActivityTable.direction,
+    asset: walletActivityTable.asset,
+    amount: walletActivityTable.amount,
+    counterparty: walletActivityTable.counterparty,
+    blockNumber: walletActivityTable.blockNumber,
+    occurredAt: walletActivityTable.occurredAt,
+    explorerUrl: walletActivityTable.explorerUrl,
+    createdAt: walletActivityTable.createdAt,
+  }).from(walletActivityTable)
+    .innerJoin(walletWatchesTable, eq(walletActivityTable.watchId, walletWatchesTable.id))
+    .orderBy(desc(walletActivityTable.createdAt))
+    .limit(query.data.limit);
+  res.json(ListAdminActivityResponse.parse(activity));
+});
+
+router.delete("/admin/activity", async (req, res): Promise<void> => {
+  const query = DeleteAdminActivityQueryParams.safeParse(req.query);
+  if (!query.success) {
+    res.status(400).json({ error: query.error.message });
+    return;
+  }
+  const deleted = await db.delete(walletActivityTable)
+    .where(eq(walletActivityTable.id, query.data.activityId))
+    .returning({ id: walletActivityTable.id });
+  if (!deleted.length) {
+    res.status(404).json({ error: "Saved activity observation was not found." });
+    return;
+  }
+  res.status(204).end();
 });
 
 router.delete("/admin/wallets", async (req, res): Promise<void> => {

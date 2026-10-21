@@ -131,7 +131,7 @@ export const ScanWalletResponse = zod.object({
 export const ListWalletWatchesResponseItem = zod.object({
   "id": zod.number().int(),
   "clerkUserId": zod.string(),
-  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'solana']),
+  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'base', 'arbitrum', 'solana']),
   "address": zod.string(),
   "label": zod.string(),
   "alertsEnabled": zod.boolean(),
@@ -151,7 +151,7 @@ export const createWalletWatchBodyLabelMax = 80;
 
 
 export const CreateWalletWatchBody = zod.object({
-  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'solana']),
+  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'base', 'arbitrum', 'solana']),
   "address": zod.string().min(1).max(createWalletWatchBodyAddressMax),
   "label": zod.string().min(1).max(createWalletWatchBodyLabelMax),
   "alertsEnabled": zod.boolean().optional()
@@ -160,7 +160,7 @@ export const CreateWalletWatchBody = zod.object({
 export const CreateWalletWatchResponse = zod.object({
   "id": zod.number().int(),
   "clerkUserId": zod.string(),
-  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'solana']),
+  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'base', 'arbitrum', 'solana']),
   "address": zod.string(),
   "label": zod.string(),
   "alertsEnabled": zod.boolean(),
@@ -183,7 +183,38 @@ export const DeleteWalletWatchResponse = zod.void()
 
 
 /**
- * Public RPC mode currently tracks ERC-20 transfer logs on Ethereum, Polygon, Avalanche, and recent Solana token/native balance changes. It does not classify swaps, staking, or NFTs.
+ * @summary Update the label or alert setting for an owned wallet watch
+ */
+
+
+
+export const UpdateWalletWatchParams = zod.object({
+  "watchId": zod.coerce.number().int().min(1)
+})
+
+export const updateWalletWatchBodyLabelMax = 80;
+
+
+
+export const UpdateWalletWatchBody = zod.object({
+  "label": zod.string().min(1).max(updateWalletWatchBodyLabelMax).optional(),
+  "alertsEnabled": zod.boolean().optional()
+})
+
+export const UpdateWalletWatchResponse = zod.object({
+  "id": zod.number().int(),
+  "clerkUserId": zod.string(),
+  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'base', 'arbitrum', 'solana']),
+  "address": zod.string(),
+  "label": zod.string(),
+  "alertsEnabled": zod.boolean(),
+  "lastCheckedAt": zod.coerce.date().nullable(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * Public RPC mode tracks ERC-20 and ERC-721 transfer logs on Ethereum, Polygon, Avalanche, Base, and Arbitrum, plus recent Solana token/native balance changes. It does not reliably classify swaps or staking.
  * @summary Refresh and list recent public transfer activity for a watched wallet
  */
 
@@ -201,7 +232,7 @@ export const GetWalletWatchActivityResponse = zod.object({
   "items": zod.array(zod.object({
   "id": zod.number().int(),
   "txHash": zod.string(),
-  "activityType": zod.enum(['token_transfer', 'native_transfer']),
+  "activityType": zod.enum(['token_transfer', 'native_transfer', 'nft_transfer']),
   "direction": zod.enum(['in', 'out', 'change']),
   "asset": zod.string(),
   "amount": zod.string(),
@@ -235,7 +266,7 @@ export const ListAdminUsersResponse = zod.array(ListAdminUsersResponseItem)
 export const ListAdminWalletWatchesResponseItem = zod.object({
   "id": zod.number().int(),
   "clerkUserId": zod.string(),
-  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'solana']),
+  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'base', 'arbitrum', 'solana']),
   "address": zod.string(),
   "label": zod.string(),
   "alertsEnabled": zod.boolean(),
@@ -256,6 +287,52 @@ export const DeleteAdminWalletWatchQueryParams = zod.object({
 })
 
 export const DeleteAdminWalletWatchResponse = zod.void()
+
+
+/**
+ * @summary List recent saved public wallet activity across accounts
+ */
+export const listAdminActivityQueryLimitDefault = 50;
+export const listAdminActivityQueryLimitMax = 100;
+
+
+
+export const ListAdminActivityQueryParams = zod.object({
+  "limit": zod.coerce.number().int().min(1).max(listAdminActivityQueryLimitMax).default(listAdminActivityQueryLimitDefault)
+})
+
+export const ListAdminActivityResponseItem = zod.object({
+  "id": zod.number().int(),
+  "watchId": zod.number().int(),
+  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'base', 'arbitrum', 'solana']),
+  "address": zod.string(),
+  "label": zod.string(),
+  "clerkUserId": zod.string(),
+  "txHash": zod.string(),
+  "activityType": zod.enum(['token_transfer', 'native_transfer', 'nft_transfer']),
+  "direction": zod.enum(['in', 'out', 'change']),
+  "asset": zod.string(),
+  "amount": zod.string(),
+  "counterparty": zod.string().nullable(),
+  "blockNumber": zod.string().nullable(),
+  "occurredAt": zod.coerce.date().nullable(),
+  "explorerUrl": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+export const ListAdminActivityResponse = zod.array(ListAdminActivityResponseItem)
+
+
+/**
+ * @summary Remove one saved observation from the application database
+ */
+
+
+
+export const DeleteAdminActivityQueryParams = zod.object({
+  "activityId": zod.coerce.number().int().min(1)
+})
+
+export const DeleteAdminActivityResponse = zod.void()
 
 
 /**

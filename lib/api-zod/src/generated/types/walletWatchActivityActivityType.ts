@@ -12,4 +12,5 @@ export type WalletWatchActivityActivityType = typeof WalletWatchActivityActivity
 export const WalletWatchActivityActivityType = {
   token_transfer: 'token_transfer',
   native_transfer: 'native_transfer',
+  nft_transfer: 'nft_transfer',
 } as const;
