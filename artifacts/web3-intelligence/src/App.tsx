@@ -8,13 +8,18 @@ import {
   Activity, ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, Blocks, Bot,
   ChevronRight, CircleAlert, Clock3, Database, ExternalLink, Eye,
   Gauge, Layers3, LoaderCircle, LockKeyhole, Search,
-  Send, ShieldCheck, Sparkles, Wallet, Waves,
+  Send, ShieldCheck, Sparkles, Wallet, Waves, Radio, Newspaper,
+  Gift, Store, LifeBuoy, CircleSlash2, ChevronLeft,
 } from 'lucide-react';
 import {
   useAskIntelligence, useGetMarketCoins, useGetMarketHistory, useGetMarketOverview,
   useScanWallet,
 } from '@workspace/api-client-react';
 import { getGetMarketHistoryQueryKey } from '@workspace/api-client-react';
+import heroMarkets from '@assets/generated_images/hero-markets.png';
+import heroWallet from '@assets/generated_images/hero-wallet.png';
+import heroAi from '@assets/generated_images/hero-ai.png';
+import evidenceBackground from '@assets/generated_images/section-evidence.png';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -78,9 +83,14 @@ const clerkAppearance = {
 };
 const routes = [
   { path: '/dashboard', label: 'Overview', icon: Gauge },
+  { path: '/blockchain', label: 'Blockchain', icon: Radio },
   { path: '/markets', label: 'Markets', icon: BarChart3 },
   { path: '/wallet-scanner', label: 'Wallet scanner', icon: Wallet },
   { path: '/ai-intelligence', label: 'AI intelligence', icon: Bot },
+  { path: '/airdrops', label: 'Airdrops', icon: Gift },
+  { path: '/news', label: 'News', icon: Newspaper },
+  { path: '/recovery', label: 'Recovery safety', icon: LifeBuoy },
+  { path: '/shop', label: 'Marketplace', icon: Store },
 ];
 const networkOptions = ['bitcoin', 'ethereum', 'solana', 'polygon', 'tron', 'avalanche', 'ton', 'sui'];
 const periods = ['1', '7', '30', '90', '365', 'max'] as const;
