@@ -10,6 +10,12 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: market
+    description: Public cryptocurrency market data
+  - name: wallet
+    description: Read-only public wallet balance lookups
+  - name: intelligence
+    description: AI-assisted market research
 paths:
   /healthz:
     get:
@@ -24,6 +30,146 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /market/overview:
+    get:
+      operationId: getMarketOverview
+      tags: [market]
+      summary: Get global cryptocurrency market metrics
+      responses:
+        "200":
+          description: Market overview from the configured public data provider
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketOverview"
+        "503":
+          description: Market data provider is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /market/coins:
+    get:
+      operationId: getMarketCoins
+      tags: [market]
+      summary: List the top cryptocurrencies by market capitalization
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 100
+      responses:
+        "200":
+          description: Coins with provider timestamps and source attribution
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketCoinsResponse"
+        "503":
+          description: Market data provider is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /market/history:
+    get:
+      operationId: getMarketHistory
+      tags: [market]
+      summary: Get historical price points for a cryptocurrency
+      parameters:
+        - name: coinId
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 80
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["1", "7", "30", "90", "365", "max"]
+            default: "7"
+      responses:
+        "200":
+          description: Historical prices with source attribution
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketHistoryResponse"
+        "503":
+          description: Market data provider is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /wallet/scan:
+    post:
+      operationId: scanWallet
+      tags: [wallet]
+      summary: Read public native-token balance for a wallet
+      description: Read-only lookup. Never accepts or requests private keys, seed phrases, signatures, or transactions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WalletScanInput"
+      responses:
+        "200":
+          description: Address validation and read-only wallet scan result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletScanResult"
+        "400":
+          description: Invalid network or address format
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Network data provider is unavailable or not configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletScanResult"
+  /intelligence/ask:
+    post:
+      operationId: askIntelligence
+      tags: [intelligence]
+      summary: Ask a market question using current public market data
+      description: Answers are grounded in a fresh public market snapshot; wallet histories and unconnected blockchain feeds are not available to the model.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionInput"
+      responses:
+        "200":
+          description: Market analysis with scope and source attribution
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionResponse"
+        "400":
+          description: Invalid question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: AI or market data provider is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +179,185 @@ components:
           type: string
       required:
         - status
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+    MarketOverview:
+      type: object
+      properties:
+        totalMarketCapUsd:
+          type: number
+        totalVolume24hUsd:
+          type: number
+        bitcoinDominancePercent:
+          type: number
+        activeCryptocurrencies:
+          type: integer
+        marketCapChange24hPercent:
+          type: number
+        updatedAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+      required:
+        - totalMarketCapUsd
+        - totalVolume24hUsd
+        - bitcoinDominancePercent
+        - activeCryptocurrencies
+        - marketCapChange24hPercent
+        - updatedAt
+        - source
+    MarketCoin:
+      type: object
+      properties:
+        id:
+          type: string
+        symbol:
+          type: string
+        name:
+          type: string
+        image:
+          type: string
+        currentPriceUsd:
+          type: number
+        marketCapUsd:
+          type: number
+        marketCapRank:
+          type: integer
+        volume24hUsd:
+          type: number
+        change24hPercent:
+          type: number
+        sparkline7d:
+          type: array
+          items:
+            type: number
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - symbol
+        - name
+        - image
+        - currentPriceUsd
+        - marketCapUsd
+        - marketCapRank
+        - volume24hUsd
+        - change24hPercent
+        - sparkline7d
+        - updatedAt
+    MarketCoinsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MarketCoin"
+        updatedAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+      required: [items, updatedAt, source]
+    MarketHistoryPoint:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+        priceUsd:
+          type: number
+      required: [timestamp, priceUsd]
+    MarketHistoryResponse:
+      type: object
+      properties:
+        coinId:
+          type: string
+        days:
+          type: string
+        points:
+          type: array
+          items:
+            $ref: "#/components/schemas/MarketHistoryPoint"
+        updatedAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+      required: [coinId, days, points, updatedAt, source]
+    WalletNetwork:
+      type: string
+      enum: [bitcoin, ethereum, solana, polygon, tron, avalanche, ton, sui]
+    WalletScanInput:
+      type: object
+      properties:
+        network:
+          $ref: "#/components/schemas/WalletNetwork"
+        address:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required: [network, address]
+    WalletScanResult:
+      type: object
+      properties:
+        network:
+          $ref: "#/components/schemas/WalletNetwork"
+        address:
+          type: string
+        status:
+          type: string
+          enum: [ok, invalid, unsupported, unavailable]
+        nativeAsset:
+          type: ["string", "null"]
+        nativeBalance:
+          type: ["string", "null"]
+        explorerUrl:
+          type: string
+        source:
+          type: ["string", "null"]
+        checkedAt:
+          type: string
+          format: date-time
+        message:
+          type: string
+      required:
+        - network
+        - address
+        - status
+        - nativeAsset
+        - nativeBalance
+        - explorerUrl
+        - source
+        - checkedAt
+        - message
+    QuestionInput:
+      type: object
+      properties:
+        question:
+          type: string
+          minLength: 1
+          maxLength: 1000
+      required: [question]
+    QuestionResponse:
+      type: object
+      properties:
+        answer:
+          type: string
+        model:
+          type: string
+        dataUpdatedAt:
+          type: string
+          format: date-time
+        dataSource:
+          type: string
+        scope:
+          type: string
+        disclaimer:
+          type: string
+      required: [answer, model, dataUpdatedAt, dataSource, scope, disclaimer]
 
