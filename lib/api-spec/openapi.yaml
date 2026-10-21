@@ -16,7 +16,40 @@ tags:
     description: Read-only public wallet balance lookups
   - name: intelligence
     description: AI-assisted market research
+  - name: auth
+    description: Authenticated account and role information
 paths:
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get the signed-in user's application account
+      description: Creates the user's local application record on first access and returns its role and account status.
+      responses:
+        "200":
+          description: Current application account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentUser"
+        "401":
+          description: Sign-in is required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: The account is suspended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: The application account could not be loaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
   /healthz:
     get:
       operationId: healthCheck
@@ -172,6 +205,24 @@ paths:
                 $ref: "#/components/schemas/ApiError"
 components:
   schemas:
+    CurrentUser:
+      type: object
+      properties:
+        clerkUserId:
+          type: string
+        role:
+          type: string
+          enum: [user, admin, investigator]
+        status:
+          type: string
+          enum: [active, suspended]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [clerkUserId, role, status, createdAt, updatedAt]
     HealthStatus:
       type: object
       properties:

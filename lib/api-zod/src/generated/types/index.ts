@@ -7,6 +7,9 @@
  */
 
 export * from './apiError';
+export * from './currentUser';
+export * from './currentUserRole';
+export * from './currentUserStatus';
 export * from './getMarketCoinsParams';
 export * from './getMarketHistoryDays';
 export * from './getMarketHistoryParams';

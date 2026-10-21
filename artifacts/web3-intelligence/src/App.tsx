@@ -1,6 +1,9 @@
-import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Link, Route, Router as WouterRouter, Switch, useLocation } from 'wouter';
+import { ClerkProvider, Show, SignIn, SignUp, useClerk } from '@clerk/react';
+import { publishableKeyFromHost } from '@clerk/react/internal';
+import { shadcn } from '@clerk/themes';
+import { Link, Redirect, Route, Router as WouterRouter, Switch, useLocation } from 'wouter';
 import {
   Activity, ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, Blocks, Bot,
   ChevronRight, CircleAlert, Clock3, Database, ExternalLink, Eye,
@@ -15,8 +18,66 @@ import { getGetMarketHistoryQueryKey } from '@workspace/api-client-react';
 import './index.css';
 
 const queryClient = new QueryClient();
+const clerkPubKey = publishableKeyFromHost(
+  window.location.hostname,
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
+);
+const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+function stripBase(path: string) {
+  return basePath && path.startsWith(basePath) ? path.slice(basePath.length) || '/' : path;
+}
+if (!clerkPubKey) throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY in .env file');
+const clerkAppearance = {
+  theme: shadcn,
+  cssLayerName: 'clerk',
+  options: {
+    logoPlacement: 'inside' as const,
+    logoLinkUrl: basePath || '/',
+    logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
+  },
+  variables: {
+    colorPrimary: '#39c8f2',
+    colorForeground: '#e9f2ff',
+    colorMutedForeground: '#9aa9bf',
+    colorDanger: '#ef7f92',
+    colorBackground: '#111a29',
+    colorInput: '#0d1522',
+    colorInputForeground: '#e9f2ff',
+    colorNeutral: '#34435a',
+    fontFamily: 'Manrope, sans-serif',
+    borderRadius: '0.8rem',
+  },
+  elements: {
+    rootBox: 'w-full flex justify-center',
+    cardBox: 'bg-[#111a29] rounded-2xl w-[440px] max-w-full overflow-hidden border border-[#29384e]',
+    card: '!shadow-none !border-0 !bg-transparent !rounded-none',
+    footer: '!shadow-none !border-0 !bg-transparent !rounded-none',
+    headerTitle: 'text-[#edf5ff] font-semibold',
+    headerSubtitle: 'text-[#9aa9bf]',
+    socialButtonsBlockButtonText: 'text-[#e9f2ff] font-medium',
+    formFieldLabel: 'text-[#bdc9d9]',
+    footerActionLink: 'text-[#55d3f5] hover:text-[#a4efff]',
+    footerActionText: 'text-[#9aa9bf]',
+    dividerText: 'text-[#8797ae]',
+    identityPreviewEditButton: 'text-[#55d3f5]',
+    formFieldSuccessText: 'text-[#5ed6b1]',
+    alertText: 'text-[#ffc0c8]',
+    logoBox: 'mb-2',
+    logoImage: 'h-9 w-auto',
+    socialButtonsBlockButton: 'border border-[#34435a] bg-[#151f30] hover:bg-[#1a2940]',
+    formButtonPrimary: 'bg-[#37bde8] text-[#06131e] hover:bg-[#65d7f7]',
+    formFieldInput: 'border-[#34435a] bg-[#0d1522] text-[#e9f2ff]',
+    footerAction: 'border-t border-[#29384e]',
+    dividerLine: 'bg-[#34435a]',
+    alert: 'border-[#7e3e50] bg-[#351b29]',
+    otpCodeFieldInput: 'border-[#34435a] bg-[#0d1522] text-[#e9f2ff]',
+    formFieldRow: 'text-[#bdc9d9]',
+    main: 'text-[#e9f2ff]',
+  },
+};
 const routes = [
-  { path: '/', label: 'Overview', icon: Gauge },
+  { path: '/dashboard', label: 'Overview', icon: Gauge },
   { path: '/markets', label: 'Markets', icon: BarChart3 },
   { path: '/wallet-scanner', label: 'Wallet scanner', icon: Wallet },
   { path: '/ai-intelligence', label: 'AI intelligence', icon: Bot },
@@ -85,10 +146,11 @@ function ErrorPanel({ message, retry }: { message: string; retry: () => void }) 
 }
 
 function Header({ activePath }: { activePath: string }) {
+  const { signOut } = useClerk();
   const current = routes.find((item) => item.path === activePath);
   return <>
     <aside className="sidebar">
-      <Link href="/" className="brand" data-testid="link-brand-home">
+      <Link href="/dashboard" className="brand" data-testid="link-brand-home">
         <span className="brand-mark"><Waves size={17} strokeWidth={1.8} /></span>
         <span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span>
       </Link>
@@ -106,16 +168,16 @@ function Header({ activePath }: { activePath: string }) {
     <main className="main-area">
       <header className="topbar">
         <div className="crumb"><span>INTELLIGENCE</span><ChevronRight size={12} /><strong>{current?.label.toUpperCase() ?? 'OVERVIEW'}</strong></div>
-        <div className="top-meta"><span className="live-pill"><i />PUBLIC FEEDS</span><span>READ-ONLY TERMINAL</span></div>
+        <div className="top-meta"><span className="live-pill"><i />PUBLIC FEEDS</span><span>READ-ONLY TERMINAL</span><button className="terminal-signout" type="button" onClick={() => signOut({ redirectUrl: basePath || '/' })} data-testid="button-sign-out">Sign out</button></div>
       </header>
       <div className="mobile-head">
-        <Link href="/" className="brand" data-testid="link-mobile-brand-home">
+        <Link href="/dashboard" className="brand" data-testid="link-mobile-brand-home">
           <span className="brand-mark"><Waves size={15} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span>
         </Link>
-        <span className="live-pill"><i />PUBLIC FEEDS</span>
+        <div className="mobile-meta"><span className="live-pill"><i />PUBLIC FEEDS</span><button className="terminal-signout" type="button" onClick={() => signOut({ redirectUrl: basePath || '/' })} data-testid="button-mobile-sign-out">Exit</button></div>
       </div>
       <Switch>
-        <Route path="/" component={OverviewPage} />
+        <Route path="/dashboard" component={OverviewPage} />
         <Route path="/markets" component={MarketsPage} />
         <Route path="/wallet-scanner" component={WalletPage} />
         <Route path="/ai-intelligence" component={IntelligencePage} />
@@ -340,13 +402,97 @@ function NotFound() {
 }
 
 function RoutedApp() {
+  return <Switch>
+    <Route path="/" component={HomeRedirect} />
+    <Route path="/dashboard" component={DashboardGate} />
+    <Route path="/markets" component={AppShell} />
+    <Route path="/wallet-scanner" component={AppShell} />
+    <Route path="/ai-intelligence" component={AppShell} />
+    <Route path="/sign-in/*?" component={SignInPage} />
+    <Route path="/sign-up/*?" component={SignUpPage} />
+    <Route component={NotFound} />
+  </Switch>;
+}
+
+function AppShell() {
   const [location] = useLocation();
-  const path = routes.some((route) => route.path === location) ? location : '/';
-  return <div className="app-shell"><Header activePath={path} /></div>;
+  return <div className="app-shell"><Header activePath={location} /></div>;
+}
+
+function DashboardGate() {
+  return <><Show when="signed-in"><AppShell /></Show><Show when="signed-out"><Redirect to="/" /></Show></>;
+}
+
+function HomeRedirect() {
+  return <>
+    <Show when="signed-in"><Redirect to="/dashboard" /></Show>
+    <Show when="signed-out"><LandingPage /></Show>
+  </>;
+}
+
+function LandingPage() {
+  const overview = useGetMarketOverview();
+  const coins = useGetMarketCoins({ limit: 6 });
+  const featured = coins.data?.items?.slice(0, 5) ?? [];
+  return <div className="landing-page">
+    <header className="landing-nav">
+      <Link href="/" className="brand landing-brand" data-testid="link-landing-brand"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link>
+      <nav className="landing-nav-links" aria-label="Public pages"><Link href="/markets" data-testid="link-landing-markets">Markets</Link><Link href="/wallet-scanner" data-testid="link-landing-wallet">Wallet scanner</Link><Link href="/ai-intelligence" data-testid="link-landing-ai">AI intelligence</Link></nav>
+      <div className="landing-auth"><Link href="/sign-in" className="landing-login" data-testid="link-landing-sign-in">Sign in</Link><Link href="/sign-up" className="landing-cta" data-testid="link-landing-sign-up">Create account <ArrowRight size={15} /></Link></div>
+    </header>
+    <main>
+      <section className="landing-hero">
+        <div className="hero-copy"><div className="hero-eyebrow"><span className="signal-dot" /> MARKET INTELLIGENCE / PUBLIC TERMINAL</div><h1>Clarity in a market<br />that never <em>sleeps.</em></h1><p>One disciplined workspace for sourced market signals, public wallet balances, and AI grounded in the data at hand.</p><div className="hero-actions"><Link href="/sign-up" className="landing-cta hero-cta" data-testid="button-hero-create-account">Enter the terminal <ArrowRight size={16} /></Link><Link href="/markets" className="hero-secondary" data-testid="link-hero-explore">Explore public markets <ChevronRight size={15} /></Link></div><div className="hero-proof"><span><ShieldCheck /> Read-only by design</span><span><Database /> Provider-sourced data</span></div></div>
+        <div className="hero-visual" aria-label="Illustration of a live market intelligence terminal" data-testid="visual-landing-market-terminal">
+          <div className="visual-top"><span><i /> FEED STATUS</span><strong>PUBLIC / LIVE</strong></div><div className="visual-total-label">TOTAL MARKET CAP</div><div className="visual-total">{overview.isLoading ? 'Loading…' : overview.data ? money(overview.data.totalMarketCapUsd, true) : '—'}</div><div className="visual-change">{overview.data ? `${percent(overview.data.marketCapChange24hPercent)} · 24H` : 'Provider snapshot'}</div>
+          <div className="visual-chart"><Sparkline values={featured[0]?.sparkline7d} id="landing-preview" fill /></div><div className="visual-axis"><span>7D AGO</span><span>NOW</span></div>
+          <div className="visual-assets">{featured.length ? featured.slice(0, 3).map((coin) => <div className="visual-asset" key={coin.id}><span className="visual-coin">{coin.symbol.slice(0, 1)}</span><span className="visual-asset-name">{coin.symbol.toUpperCase()}<small>#{coin.marketCapRank}</small></span><strong>{money(coin.currentPriceUsd)}</strong><span className={coin.change24hPercent >= 0 ? 'positive' : 'negative'}>{percent(coin.change24hPercent)}</span></div>) : <div className="visual-asset">{coins.isError ? 'Market feed unavailable' : 'Awaiting provider snapshot'}</div>}</div>
+          <span className="visual-orbit orbit-one" /><span className="visual-orbit orbit-two" />
+        </div>
+        <div className="hero-index"><span>01 / 03</span><span>INDEPENDENT SIGNAL, CLEARLY SOURCED</span></div>
+      </section>
+      <section className="landing-ticker" aria-label="Market snapshot status"><span className="ticker-label"><i /> DATA SNAPSHOT</span><span>{overview.data?.source ?? (overview.isError ? 'Provider unavailable' : 'Connecting to provider')}</span><span>{overview.data ? `UPDATED ${dateTime(overview.data.updatedAt).toUpperCase()}` : 'NO ESTIMATES · NO SYNTHETIC PRICES'}</span></section>
+      <section className="landing-intro"><div className="landing-section-index">A BETTER VIEW / 01</div><div><h2>Not another chart wall.<br /><span>A research instrument.</span></h2></div><p>Markets move fast. This terminal keeps the evidence close: attributed feeds, clear boundaries, and useful tools without pretending uncertainty is insight.</p></section>
+      <section className="landing-capabilities">
+        <Link href="/markets" className="capability capability-market" data-testid="card-capability-markets"><span className="capability-number">01 — MARKETS</span><div className="capability-art market-art"><div className="art-line" /><span>BTC / USD</span><b>LIVE SNAPSHOT</b></div><h3>See the field.<br />Keep the source.</h3><p>Compare provider-listed assets, inspect historical traces, and keep every metric tied to its origin.</p><span className="capability-link">Open markets <ArrowRight /></span></Link>
+        <Link href="/wallet-scanner" className="capability capability-wallet" data-testid="card-capability-wallet"><span className="capability-number">02 — WALLET SCANNER</span><div className="capability-art wallet-art"><div className="wallet-ring"><Wallet /></div><span>PUBLIC ADDRESS / READ ONLY</span></div><h3>Look up balances.<br />Never connect.</h3><p>Inspect a public native-asset balance without wallet access, signing, or transaction permissions.</p><span className="capability-link">Scan an address <ArrowRight /></span></Link>
+        <Link href="/ai-intelligence" className="capability capability-ai" data-testid="card-capability-ai"><span className="capability-number">03 — AI INTELLIGENCE</span><div className="capability-art ai-art"><span className="ai-glyph">∴</span><span>GROUNDED IN AVAILABLE DATA</span></div><h3>Ask a sharper<br />market question.</h3><p>Explore context with an assistant grounded in the available market snapshot, not imagined live feeds.</p><span className="capability-link">Ask intelligence <ArrowRight /></span></Link>
+      </section>
+      <section className="landing-principles"><div className="landing-section-index">BUILT ON BOUNDARIES / 02</div><h2>Trust starts with<br /><span>what we don’t claim.</span></h2><div className="principle-grid"><div><span>01</span><h3>Sources stay visible</h3><p>Provider labels and update times travel with the data.</p></div><div><span>02</span><h3>Public means public</h3><p>No wallet connection, private keys, signatures, or transactions.</p></div><div><span>03</span><h3>Interpretation is labeled</h3><p>AI context is distinguished from verified market facts.</p></div></div></section>
+      <section className="landing-final"><div><div className="hero-eyebrow">A CLEARER STARTING POINT</div><h2>Stay curious.<br /><em>Stay grounded.</em></h2></div><div><p>Open a public market view now, or create an account for your intelligence workspace.</p><div className="hero-actions"><Link href="/sign-up" className="landing-cta" data-testid="button-final-create-account">Create your account <ArrowRight size={15} /></Link><Link href="/markets" className="hero-secondary" data-testid="link-final-browse">Browse markets <ChevronRight size={15} /></Link></div></div></section>
+      <footer className="landing-footer"><Link href="/" className="footer-wordmark" data-testid="link-footer-home">WEB3 INTEL <span>RESEARCH TERMINAL</span></Link><span>PUBLIC DATA. CLEAR CONTEXT.</span><span>© {new Date().getFullYear()} WEB3 INTELLIGENCE</span></footer>
+    </main>
+  </div>;
+}
+
+function SignInPage() {
+  return <div className="auth-page"><div className="auth-context"><Link href="/" className="brand" data-testid="link-auth-home"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link><div className="auth-context-copy"><div className="hero-eyebrow">PRIVATE WORKSPACE / SECURE ACCESS</div><h1>Your market<br />view, <em>in focus.</em></h1><p>Sign in to return to your intelligence workspace. Public research pages remain open to everyone.</p></div><span className="auth-footnote">SESSION PROTECTED BY CLERK AUTH</span></div><div className="auth-card-wrap"><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} /></div></div>;
+}
+
+function SignUpPage() {
+  return <div className="auth-page"><div className="auth-context"><Link href="/" className="brand" data-testid="link-auth-home"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link><div className="auth-context-copy"><div className="hero-eyebrow">RESEARCH WITH CONTEXT</div><h1>Make room for<br /><em>better signals.</em></h1><p>Create an account to open your personal view of the public Web3 intelligence terminal.</p></div><span className="auth-footnote">PRIVATE BY DEFAULT · EVIDENCE ALWAYS VISIBLE</span></div><div className="auth-card-wrap"><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} /></div></div>;
+}
+
+function ClerkCacheInvalidator() {
+  const { addListener } = useClerk();
+  const prevUserIdRef = useRef<string | null | undefined>(undefined);
+  useEffect(() => addListener(({ user }) => {
+    const userId = user?.id ?? null;
+    if (prevUserIdRef.current !== undefined && prevUserIdRef.current !== userId) queryClient.clear();
+    prevUserIdRef.current = userId;
+  }), [addListener]);
+  return null;
+}
+
+function ClerkRouter() {
+  const [, setLocation] = useLocation();
+  return <ClerkProvider publishableKey={clerkPubKey} proxyUrl={clerkProxyUrl} appearance={clerkAppearance} signInUrl={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} localization={{ signIn: { start: { title: 'Welcome back', subtitle: 'Sign in to your intelligence workspace' } }, signUp: { start: { title: 'Create your account', subtitle: 'A clearer view starts here' } } }} routerPush={(to) => setLocation(stripBase(to))} routerReplace={(to) => setLocation(stripBase(to), { replace: true })}>
+    <QueryClientProvider client={queryClient}><ClerkCacheInvalidator /><RoutedApp /></QueryClientProvider>
+  </ClerkProvider>;
 }
 
 function App() {
-  return <QueryClientProvider client={queryClient}><WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}><RoutedApp /></WouterRouter></QueryClientProvider>;
+  return <WouterRouter base={basePath}><ClerkRouter /></WouterRouter>;
 }
 
 export default App;

@@ -1,0 +1,2076 @@
+Continue building this web app where you stopped and complete it, 
+# MASTER DEVELOPMENT PROMPT: PREMIUM AI-POWERED BLOCKCHAIN INTELLIGENCE & WEB3 ECOSYSTEM
+
+## 1. PROJECT OVERVIEW
+
+Act as a world-class team consisting of:
+
+- Senior blockchain software architects.
+- Full-stack SaaS developers.
+- Ethical hackers and cybersecurity engineers.
+- Blockchain forensic investigators.
+- AI engineers specializing in LLM integrations.
+- UI/UX designers specializing in premium fintech and Web3 applications.
+- Database and cloud infrastructure engineers.
+- Technical SEO specialists.
+- Product growth and conversion optimization experts.
+
+Your assignment is to design, architect, develop, test and deploy a complete, premium-quality, production-ready Blockchain Intelligence Web Application.
+
+The application must be visually exceptional, technically sophisticated, highly secure, responsive, scalable and commercially competitive.
+
+Do not build a basic cryptocurrency dashboard. Build a complete Web3 intelligence ecosystem that provides users with actionable blockchain insights, real-time market intelligence, whale transaction tracking, wallet asset discovery, airdrop opportunities, crypto news, AI-powered research, wallet connectivity and a digital products marketplace.
+
+The application must have a distinctive visual identity, intuitive navigation, smooth animations, professional data visualization and an excellent desktop and mobile experience.
+
+**Development environment:** Replit Agent.
+
+**AI engine:** Groq API (use configurable Groq-supported models).
+
+**Architecture:** Modular, API-driven, database-backed, secure and scalable.
+
+**Product objective:** Create a premium commercial SaaS platform with free and paid subscription tiers, capable of serving individual crypto investors, professional traders, blockchain researchers, developers, crypto communities and Web3 businesses.
+
+---
+
+# 2. PRODUCT MODULES
+
+Develop the following interconnected modules:
+
+1. Premium public landing page.
+2. Blockchain intelligence dashboard.
+3. Top 100 whale-wallet tracking for each supported network.
+4. Live transaction monitoring.
+5. Top 100 cryptocurrency market tracker.
+6. Wallet asset discovery and scanner.
+7. Self-custodial wallet connections.
+8. AI blockchain intelligence assistant.
+9. Airdrop discovery and opportunities.
+10. Blockchain and cryptocurrency news.
+11. Crypto forensic investigation and recovery assistance.
+12. Web3 digital products marketplace.
+13. User dashboard and portfolio management.
+14. Subscription and payment management.
+15. Admin control center.
+16. Internal messaging and support system.
+17. SEO, analytics and growth infrastructure.
+
+Every module must work together through a unified user account, database and notification system.
+
+# 3. VISUAL IDENTITY AND UI/UX DESIGN
+
+Create an exceptionally polished Web3 fintech interface.
+
+The design should feel like a combination of an institutional crypto intelligence terminal and a premium modern SaaS application.
+
+### Design direction
+
+- Dark-first interface with an optional light theme.
+- Deep midnight backgrounds.
+- Premium charcoal and dark navy surfaces.
+- Electric blue, cyan and subtle violet accents.
+- Clean typography.
+- Subtle glassmorphism.
+- Sophisticated gradients.
+- Minimal but meaningful glowing effects.
+- Smooth transitions and micro-interactions.
+- High-quality data visualizations.
+- Beautifully designed cards and information panels.
+- Consistent spacing and alignment.
+- Professional iconography.
+
+Avoid excessive neon effects, cluttered layouts, oversized text and generic cryptocurrency templates.
+
+### Typography
+
+Use modern, highly readable typography such as Inter, Geist or a comparable professional font.
+
+Use monospaced typography for wallet addresses, transaction hashes, token identifiers and technical data.
+
+### Animation
+
+Implement:
+
+- Animated landing-page hero slider.
+- Smooth page transitions.
+- Animated numerical counters.
+- Subtle chart-loading animations.
+- Live transaction notification animations.
+- Hover interactions.
+- Skeleton loading states.
+- Smooth dropdown menus.
+- Animated notification indicators.
+- Responsive mobile navigation.
+- Elegant modal and drawer transitions.
+
+Animations must remain lightweight and must not compromise performance.
+
+### Main navigation
+
+Create a clean navigation system:
+
+- Home
+- Blockchain
+- Markets
+- Wallet Scanner
+- Airdrops
+- News
+- AI Intelligence
+- Recovery Services
+- Shop
+
+Include a prominent Connect Wallet button, Sign In and Get Started actions.
+
+On authenticated accounts, display the user's profile, notification center, subscription status and dashboard access.
+
+# 4. LANDING PAGE
+
+Build a professional conversion-focused landing page.
+
+### Header
+
+Create a transparent or semi-transparent sticky header that becomes more solid when scrolling.
+
+Include the platform logo, navigation, theme switcher, account actions and wallet connection.
+
+### Hero section
+
+Create a visually captivating hero section with an animated background image slider.
+
+Use relevant premium visuals, including:
+
+- Digital blockchain networks.
+- Global cryptocurrency transaction visualization.
+- Sophisticated financial data screens.
+- Digital wallet interfaces.
+- Abstract cryptographic networks.
+- Blockchain nodes and interconnected data structures.
+
+The slider should showcase different platform capabilities.
+
+Suggested hero headline:
+
+**See Beyond the Blockchain. Discover Every Opportunity.**
+
+Supporting text:
+
+"Track crypto whales, monitor live blockchain transactions, discover hidden wallet assets, explore profitable airdrops and access AI-powered blockchain intelligence from one powerful platform."
+
+Primary CTA: Explore Blockchain Intelligence.
+
+Secondary CTA: Start Tracking Wallets.
+
+Add animated live statistics, but only display verified figures from actual connected data sources.
+
+### Feature sections
+
+Create separate professionally designed sections for:
+
+1. Blockchain whale intelligence.
+2. Live crypto market tracking.
+3. Wallet asset discovery.
+4. AI-powered blockchain research.
+5. Airdrop opportunities.
+6. Crypto news and intelligence.
+7. Blockchain forensic investigation.
+8. Web3 marketplace.
+
+Each section should include relevant imagery, concise copy, clear benefits and appropriate CTAs.
+
+### Additional sections
+
+- Live market overview.
+- Featured blockchain networks.
+- Top whale transactions.
+- Trending cryptocurrencies.
+- Latest verified airdrops.
+- Latest industry news.
+- Platform statistics.
+- Testimonials (only genuine testimonials, never fabricated).
+- Pricing plans.
+- Frequently asked questions.
+- Newsletter subscription.
+- Final CTA.
+
+### Footer
+
+Create a comprehensive footer with:
+
+**Platform**
+- About Us
+- Blockchain Explorer
+- Whale Tracker
+- Wallet Scanner
+- AI Intelligence
+- Airdrops
+- Crypto News
+- Shop
+
+**Services**
+- Blockchain Forensics
+- Security Consulting
+- Recovery Assistance
+- Developer Tools
+- Enterprise Solutions
+
+**Legal**
+- Privacy Policy
+- Terms of Service
+- Cookie Policy
+- Risk Disclosure
+- Security Disclaimer
+- Refund Policy
+- Acceptable Use Policy
+
+**Support**
+- Contact Us
+- Help Center
+- Submit a Ticket
+- Report a Security Issue
+
+Include social media links, copyright information and newsletter registration.
+
+---
+
+# 5. BLOCKCHAIN INTELLIGENCE PAGE
+
+This is one of the most important features of the platform.
+
+Create a dedicated blockchain intelligence page with individual network dashboards.
+
+### Supported networks
+
+Implement modular support for:
+
+1. Bitcoin (BTC).
+2. Ethereum (ETH).
+3. Solana (SOL).
+4. Polygon (POL).
+5. TRON (TRX).
+6. Avalanche (AVAX).
+7. TON.
+8. Sui.
+
+Allow administrators to select which seven networks are featured on the main dashboard.
+
+Build the architecture to support additional networks in the future.
+
+### Individual blockchain dashboard
+
+When a user selects a blockchain, display:
+
+- Network name and logo.
+- Network status.
+- Current native token price.
+- Market capitalization.
+- Total transaction count.
+- Transaction volume.
+- Active addresses.
+- Network activity.
+- Latest blocks, where supported.
+- Latest transactions.
+- Largest transactions.
+- Top 100 tracked wallets.
+- Whale buying activities.
+- Whale selling activities.
+- Whale transfers.
+- Trending assets on that network.
+
+Use real data from integrated blockchain APIs.
+
+### Top 100 wallet ranking engine
+
+Develop a dynamic ranking engine that identifies the top 100 relevant wallets on each supported blockchain.
+
+Rank wallets using configurable criteria:
+
+- Total transaction volume.
+- Total asset holdings.
+- Estimated portfolio value.
+- Transaction frequency.
+- Net asset inflows.
+- Net asset outflows.
+- Historical activity.
+
+Allow sorting by:
+
+- Highest portfolio value.
+- Highest 24-hour transaction volume.
+- Highest 7-day transaction volume.
+- Highest 30-day transaction volume.
+- Most active wallets.
+- Largest recent transactions.
+
+Provide historical ranking changes.
+
+Each wallet profile should display:
+
+- Wallet address.
+- Blockchain network.
+- Current estimated portfolio value.
+- Supported token holdings.
+- NFT holdings where indexed.
+- Recent transaction history.
+- Total transaction volume.
+- Last active time.
+- Wallet ranking.
+- Historical activity charts.
+
+Distinguish verified exchange wallets, smart contracts, treasury wallets, known institutional wallets and unidentified addresses wherever reliable labels are available.
+
+Do not incorrectly label an address as an individual or institution without evidence.
+
+### Whale transaction monitoring
+
+Monitor tracked wallets for:
+
+- BUY.
+- SELL.
+- TRANSFER IN.
+- TRANSFER OUT.
+- TOKEN SWAP.
+- NFT PURCHASE.
+- NFT SALE.
+- LARGE ASSET MOVEMENT.
+
+Important: Blockchain transfers do not always mean a purchase or sale. Use transaction traces, swap events and token movement data to classify activities accurately.
+
+For every detected transaction, display:
+
+- Wallet address.
+- Asset name and symbol.
+- Transaction type.
+- Quantity.
+- Estimated USD value.
+- Transaction hash.
+- Timestamp.
+- Destination or source wallet.
+- Network.
+- Transaction status.
+
+Include a direct link to the relevant blockchain explorer.
+
+### Real-time alerts
+
+Implement real-time transaction notifications using WebSockets or an appropriate event-driven architecture.
+
+When a tracked whale wallet performs an important transaction, update the dashboard immediately.
+
+Allow users to:
+
+- Follow wallets.
+- Create custom watchlists.
+- Set transaction-value thresholds.
+- Select transaction types.
+- Select preferred networks.
+- Receive in-app notifications.
+- Receive email notifications.
+- Configure Telegram notifications where integration is enabled.
+- Set notification frequency.
+
+Add filters for transaction volume, asset type, blockchain and wallet ranking.
+
+---
+
+# 6. CRYPTOCURRENCY MARKETS PAGE
+
+Create a premium cryptocurrency market intelligence page displaying the top 100 cryptocurrencies.
+
+Use a reliable market data provider with configurable API integration.
+
+### Market table
+
+Display:
+
+- Rank.
+- Cryptocurrency logo.
+- Name.
+- Symbol.
+- Current price.
+- 24-hour percentage change.
+- 24-hour trading volume.
+- Market capitalization.
+- Circulating supply.
+- 7-day performance chart.
+
+### Features
+
+- Live or provider-supported near-real-time price updates.
+- Search by cryptocurrency name or symbol.
+- Sorting by price, market cap and trading volume.
+- Filters for gainers and losers.
+- Market category filters.
+- Individual cryptocurrency detail pages.
+- Historical price charts.
+- Market performance comparisons.
+- Watchlist functionality.
+- Price alerts.
+- Favorite cryptocurrencies.
+
+### Charts
+
+Use a professional charting library such as TradingView Lightweight Charts or an equivalent.
+
+Provide:
+
+- 1H.
+- 24H.
+- 7D.
+- 1M.
+- 3M.
+- 1Y.
+- ALL.
+
+Include candlestick charts where historical OHLCV data is available.
+
+Clearly indicate data timestamps, market-data source and any delays.
+
+Never fabricate real-time prices.
+
+---
+
+# 7. SMART WALLET SCANNER
+
+Create a dedicated page called Wallet Scanner.
+
+This should be one of the platform's strongest user acquisition features.
+
+### Search interface
+
+Provide a clean, prominent wallet search panel.
+
+Users should be able to:
+
+1. Enter a public wallet address.
+2. Select the blockchain network.
+3. Click Scan Wallet.
+4. View an organized wallet intelligence report.
+
+Automatically validate the address format against the selected network.
+
+Support the eight initial blockchain networks and their relevant address formats.
+
+### Scanner results
+
+Display the following where supported by the relevant indexing providers:
+
+**Wallet Overview**
+- Public wallet address.
+- Network.
+- Native token balance.
+- Total estimated portfolio value.
+- Number of token holdings.
+- Number of NFTs.
+- Recent transaction activity.
+- First observed activity.
+- Last observed activity.
+
+**Hidden and overlooked assets**
+
+Identify:
+
+- Low-visibility token holdings.
+- Small or forgotten token balances.
+- Previously acquired tokens.
+- Tokens not displayed by common wallet interfaces.
+- Supported airdrop-related token holdings.
+- Claimable rewards where verified.
+- Unusual token balances.
+
+**NFT discovery**
+
+Display:
+
+- NFT collections.
+- NFT names.
+- NFT images.
+- Contract addresses.
+- Token IDs.
+- Estimated floor value where available.
+- Marketplace information.
+- Ownership status.
+
+**Airdrop discovery**
+
+Identify possible airdrop opportunities associated with wallet activity.
+
+Clearly distinguish:
+
+- Confirmed claimable rewards.
+- Officially announced distributions.
+- Potential eligibility.
+- Unverified airdrop claims.
+
+Never label speculative opportunities as confirmed assets.
+
+### Scanner results interface
+
+Create a beautiful report layout with tabs:
+
+- Overview.
+- Tokens.
+- NFTs.
+- Airdrops.
+- Transactions.
+- Security Insights.
+
+Provide exportable reports where permitted.
+
+Allow users to save previous scans to their dashboard.
+
+Public-address scanning must never require the user to connect or reveal wallet credentials.
+
+---
+
+# 8. SELF-CUSTODIAL WALLET CONNECTION
+
+Allow users to connect supported wallets securely.
+
+Support appropriate wallet connection standards and adapters for:
+
+- Bitcoin.
+- Ethereum.
+- Solana.
+- Polygon.
+- TRON.
+- Avalanche.
+- TON.
+- Sui.
+
+Implement compatible integrations such as:
+
+- WalletConnect.
+- MetaMask.
+- Trust Wallet.
+- Phantom.
+- TronLink.
+- Tonkeeper.
+- Sui-compatible wallets.
+- Other supported network wallets.
+
+### Critical security requirements
+
+The application must NEVER:
+
+- Request users' seed phrases.
+- Collect private keys.
+- Upload private keys to the backend.
+- Store recovery phrases in the database.
+- Store decrypted wallet credentials.
+- Secretly initiate wallet transactions.
+- Execute transfers without explicit user authorization.
+
+Wallet connections must be non-custodial.
+
+Signing operations must happen through the user's wallet provider, with clear transaction details and explicit consent.
+
+The backend should only store public wallet addresses, wallet connection metadata, network preferences and user-authorized public portfolio information.
+
+Users must be able to disconnect wallets and remove associated tracking information.
+
+---
+
+# 9. GROQ AI BLOCKCHAIN INTELLIGENCE
+
+Integrate Groq AI as the primary conversational and analytical AI engine.
+
+Use environment variables for API credentials.
+
+Never expose API keys in frontend code.
+
+Create a dedicated AI Intelligence page.
+
+### AI assistant capabilities
+
+Users should be able to ask questions such as:
+
+- What are the biggest whale movements today?
+- Which tracked wallets are accumulating Bitcoin?
+- What are the biggest Ethereum transactions in the last 24 hours?
+- Which cryptocurrencies are experiencing unusual transaction activity?
+- What assets are gaining attention across the tracked networks?
+- Summarize today's major blockchain developments.
+- Analyze this wallet's transaction history.
+- Compare the activity of two whale wallets.
+- Explain this transaction.
+- Identify unusual token movements.
+
+### AI functionality
+
+The AI should:
+
+1. Retrieve verified information from the platform's blockchain database.
+2. Retrieve relevant market information.
+3. Analyze transaction patterns.
+4. Summarize large datasets.
+5. Identify unusual activity.
+6. Explain technical blockchain events in simple language.
+7. Generate wallet activity summaries.
+8. Answer questions using actual indexed information.
+9. Provide source transaction hashes and explorer links.
+10. Distinguish confirmed facts from AI-generated interpretations.
+
+Implement retrieval-augmented generation (RAG) so the AI can query authorized platform data.
+
+Use Groq-supported models through a configurable model adapter.
+
+Create an AI usage system with:
+
+- Free daily usage limits.
+- Premium usage limits.
+- Usage history.
+- Token consumption tracking.
+- Rate limiting.
+- Admin-configurable quotas.
+
+AI must never fabricate transaction records, prices, wallet balances or airdrop eligibility.
+
+Clearly label AI-generated analysis as informational rather than financial advice.
+
+---
+
+# 10. AIRDROP DISCOVERY PLATFORM
+
+Create a dedicated Airdrops page with a professional discovery interface.
+
+The objective is to help users find legitimate, funded blockchain projects offering rewards to participants.
+
+### Airdrop categories
+
+- Confirmed token airdrops.
+- Testnet campaigns.
+- Mainnet campaigns.
+- Retroactive rewards.
+- DeFi participation.
+- NFT rewards.
+- Social media campaigns.
+- Content creation campaigns.
+- Community engagement.
+- Referral campaigns.
+- Promotional campaigns.
+- Bug bounty and security campaigns.
+- Paid Web3 tasks.
+
+### Airdrop cards
+
+Each opportunity should display:
+
+- Project logo.
+- Project name.
+- Blockchain.
+- Campaign description.
+- Reward type.
+- Estimated reward value where verified.
+- Campaign status.
+- Start date.
+- End date.
+- Eligibility criteria.
+- Required tasks.
+- Official website.
+- Official social media accounts.
+- Participation link.
+- Verification status.
+
+### Advanced filtering
+
+Allow filtering by:
+
+- Blockchain.
+- Reward type.
+- Campaign status.
+- Difficulty.
+- Estimated reward.
+- Project category.
+- End date.
+- Free or paid participation.
+
+### Airdrop detail pages
+
+Every campaign should have its own SEO-friendly page.
+
+Include:
+
+- Project introduction.
+- Funding and backing information where independently verifiable.
+- Token information.
+- Campaign details.
+- Step-by-step participation guide.
+- Reward structure.
+- Eligibility requirements.
+- Official source links.
+- Risk warnings.
+- Frequently asked questions.
+
+### Airdrop verification system
+
+Create an admin verification workflow.
+
+Status options:
+
+- Pending Review.
+- Under Investigation.
+- Verified.
+- Official.
+- Suspicious.
+- Expired.
+- Rejected.
+
+Use official project announcements, reputable sources and independently verifiable evidence.
+
+Do not advertise a project as funded merely because its website claims it is funded.
+
+Provide an automated expiry system and an admin moderation interface.
+
+---
+
+# 11. BLOCKCHAIN NEWS AND INDUSTRY INTELLIGENCE
+
+Create a dedicated Crypto News page.
+
+Aggregate news from reputable sources using authorized APIs, RSS feeds and other permitted integrations.
+
+### News categories
+
+- Bitcoin.
+- Ethereum.
+- Altcoins.
+- DeFi.
+- NFTs.
+- Blockchain Technology.
+- Web3.
+- Regulation.
+- Cryptocurrency Security.
+- Cybersecurity.
+- Exchanges.
+- Institutional Adoption.
+- AI and Blockchain.
+- Token Launches.
+- Market Analysis.
+
+### News interface
+
+Display:
+
+- Featured headlines.
+- Latest news.
+- Trending stories.
+- Category filters.
+- Search.
+- Publication date.
+- Publisher name.
+- Original article links.
+- Relevant cryptocurrency tags.
+
+### AI news intelligence
+
+Use Groq AI to:
+
+- Summarize news articles.
+- Generate concise headlines where permitted.
+- Identify important developments.
+- Extract key entities.
+- Categorize articles.
+- Identify duplicate coverage.
+- Generate daily industry briefings.
+
+Respect publisher copyright. Do not republish complete copyrighted articles without permission.
+
+Every article must retain its original source attribution and link.
+
+Create individual news pages with structured metadata where appropriate.
+
+---
+
+# 12. CRYPTO FORENSIC INVESTIGATION AND RECOVERY ASSISTANCE
+
+Create a premium service page called Blockchain Forensics & Recovery Assistance.
+
+This service should connect users with the platform's legitimate cybersecurity and blockchain forensic investigation team.
+
+### Hero headline
+
+"Lost Crypto? Follow the Evidence. Investigate the Movement."
+
+Supporting text:
+
+"Our blockchain investigation specialists help individuals and organizations investigate suspicious transactions, trace stolen digital assets, document blockchain evidence and understand available response options."
+
+### Services
+
+- Stolen cryptocurrency transaction tracing.
+- Wallet compromise investigation.
+- Scam and phishing transaction analysis.
+- Smart contract exploit investigation.
+- Exchange transfer tracing.
+- Fraudulent investment investigation.
+- Blockchain evidence documentation.
+- Wallet security assessments.
+- Incident response consultation.
+- Law enforcement evidence preparation.
+
+### Investigation request form
+
+Create an elegant multi-step form with:
+
+- Full name.
+- Email address.
+- Phone number.
+- Country.
+- Blockchain network.
+- Victim wallet address.
+- Suspected destination wallet address.
+- Transaction hash.
+- Estimated amount lost.
+- Date of incident.
+- Incident category.
+- Description of what happened.
+- Evidence attachment upload.
+- Preferred contact method.
+- Consent and privacy acknowledgement.
+
+Include an option to submit anonymously where operationally and legally appropriate.
+
+### Automated investigation workflow
+
+After submission:
+
+1. Generate a unique case reference.
+2. Save the case securely.
+3. Notify the admin team.
+4. Assign an investigator.
+5. Create a private conversation.
+6. Allow users to upload additional evidence.
+7. Track investigation progress.
+8. Allow administrators to update case status.
+9. Generate downloadable investigation reports.
+
+### Case statuses
+
+- Submitted.
+- Under Review.
+- Investigation Opened.
+- Evidence Analysis.
+- Awaiting Client Information.
+- Report Ready.
+- Closed.
+
+### Important security and legal safeguards
+
+Never request a seed phrase or private key.
+
+Never guarantee recovery of stolen cryptocurrency.
+
+Never promise that funds can be reversed or recovered simply by paying a fee.
+
+Clearly distinguish blockchain tracing from actual asset recovery. Recovery may require cooperation from exchanges, law enforcement or other relevant entities.
+
+Provide transparent service pricing and written engagement terms.
+
+Include appropriate jurisdictional restrictions and legal disclaimers.
+
+---
+
+# 13. WEB3 DIGITAL PRODUCTS MARKETPLACE
+
+Create a dedicated Shop for digital products and services.
+
+The marketplace should support professionally organized product categories.
+
+### Categories
+
+- Crypto Mining Equipment.
+- Mining Software.
+- Blockchain Development Tools.
+- Smart Contract Scripts.
+- Trading Tools.
+- Crypto Research Tools.
+- AI Software.
+- Automation Scripts.
+- Cybersecurity Tools.
+- Ethical Hacking Resources.
+- Web3 Templates.
+- Developer Resources.
+- Educational Courses.
+- Digital Downloads.
+
+Only permit lawful, authorized and security-reviewed products. Prohibit malware, credential theft tools, unauthorized wallet-draining software and malicious scripts.
+
+### Product cards
+
+Display:
+
+- Product image.
+- Product name.
+- Description.
+- Price.
+- Discount price.
+- Category.
+- Product rating from verified buyers.
+- Availability.
+- Product format.
+- Product details.
+
+### Product detail pages
+
+Include:
+
+- Product gallery.
+- Full description.
+- Features.
+- System requirements.
+- Compatibility.
+- Installation instructions.
+- Documentation.
+- Product demo where available.
+- Pricing.
+- Reviews.
+- FAQs.
+- Related products.
+
+### Shopping cart
+
+Allow users to:
+
+- Add products.
+- Remove products.
+- Update quantities.
+- Apply coupons.
+- View order totals.
+- Proceed to checkout.
+
+### Cryptocurrency manual payment
+
+Implement an admin-managed cryptocurrency payment system.
+
+Administrators should be able to configure:
+
+- Payment network.
+- Accepted cryptocurrency.
+- Receiving wallet address.
+- Payment instructions.
+- QR code.
+- Payment confirmation requirements.
+
+Checkout workflow:
+
+1. User places an order.
+2. System generates a unique order reference.
+3. System displays the configured payment wallet.
+4. System calculates the required payment amount using a reliable exchange-rate provider.
+5. User submits transaction hash and payment evidence.
+6. Order status changes to Awaiting Verification.
+7. Admin verifies payment independently.
+8. Admin approves or rejects payment.
+9. Approved orders unlock the purchased digital product or service.
+10. User receives an order confirmation.
+
+Order statuses:
+
+- Pending Payment.
+- Awaiting Verification.
+- Payment Confirmed.
+- Processing.
+- Completed.
+- Rejected.
+- Refunded.
+
+Never automatically approve payments solely because a user uploads a screenshot.
+
+Where possible, independently verify transaction hashes, destination addresses, token amounts and confirmations through blockchain APIs.
+
+Do not store customer payment secrets.
+
+---
+
+# 14. USER REGISTRATION AND AUTHENTICATION
+
+Build a clean and secure account management system.
+
+### Registration fields
+
+- Username.
+- Email address.
+- Password.
+- Phone number.
+
+Implement:
+
+- Email verification.
+- Secure password hashing.
+- Login.
+- Logout.
+- Forgot password.
+- Password reset.
+- Account verification.
+- Session management.
+- Optional two-factor authentication.
+- Login attempt protection.
+- Rate limiting.
+- Account lockout protection.
+- Device/session management.
+
+After successful authentication, redirect users to their personalized dashboard.
+
+Use role-based access control.
+
+Roles:
+
+- Super Admin.
+- Admin.
+- Investigator.
+- Moderator.
+- Support Agent.
+- Premium User.
+- Free User.
+
+Enforce permissions on the backend, not just by hiding frontend controls.
+
+---
+
+# 15. USER DASHBOARD
+
+Create a personalized dashboard with a clean financial-intelligence interface.
+
+### Dashboard overview
+
+Display:
+
+- Welcome message.
+- Connected wallets.
+- Tracked whale wallets.
+- Followed blockchain networks.
+- Portfolio overview.
+- Favorite cryptocurrencies.
+- Recent whale movements.
+- Latest blockchain alerts.
+- Saved airdrop opportunities.
+- Recent news.
+- AI usage statistics.
+- Subscription plan.
+- Recent support messages.
+
+### User functionality
+
+Allow users to:
+
+- Manage their profile.
+- Connect and disconnect wallets.
+- Follow whale wallets.
+- Create wallet watchlists.
+- Save wallet scans.
+- Save airdrops.
+- Follow cryptocurrencies.
+- Create price alerts.
+- Manage notification settings.
+- Access AI assistant.
+- View order history.
+- Download purchased products.
+- View subscriptions.
+- Contact support.
+- Delete their accounts.
+
+---
+
+# 16. ADMIN CONTROL CENTER
+
+Develop a comprehensive admin dashboard.
+
+The admin must have control over all important platform activities.
+
+### Admin overview
+
+Display:
+
+- Total registered users.
+- Active users.
+- New registrations.
+- Premium subscribers.
+- Total revenue.
+- Pending orders.
+- Confirmed payments.
+- Pending payment verification.
+- Active blockchain networks.
+- Whale transactions processed.
+- Total wallet scans.
+- Active airdrop campaigns.
+- Pending airdrop reviews.
+- Open forensic cases.
+- Support conversations.
+- AI API usage.
+- API service health.
+
+### User management
+
+Administrators can:
+
+- View users.
+- Search users.
+- Filter users.
+- View user profiles.
+- Change account status.
+- Suspend accounts.
+- Manage roles.
+- Manage subscriptions.
+- Review account activity.
+- Review platform usage.
+- Handle reported accounts.
+
+### Blockchain management
+
+Administrators can:
+
+- Enable or disable networks.
+- Configure featured networks.
+- Configure blockchain RPC providers.
+- Configure indexing providers.
+- Manage API credentials securely.
+- Monitor provider usage.
+- View API health.
+- Configure whale tracking parameters.
+- Manage tracked wallet labels.
+- Review failed indexing jobs.
+
+### Market management
+
+Administrators can configure:
+
+- Market data provider.
+- Cryptocurrency ranking limits.
+- Market refresh frequency.
+- Supported trading pairs.
+- Price alert settings.
+
+### Airdrop management
+
+Administrators can:
+
+- Add opportunities.
+- Edit opportunities.
+- Delete opportunities.
+- Upload project logos.
+- Add campaign instructions.
+- Verify projects.
+- Publish campaigns.
+- Feature campaigns.
+- Mark suspicious campaigns.
+- Archive expired campaigns.
+
+### News management
+
+Administrators can:
+
+- Manage news feeds.
+- Manage categories.
+- Review AI summaries.
+- Publish editorial content.
+- Feature news.
+- Manage SEO metadata.
+
+### Shop management
+
+Administrators can:
+
+- Add products.
+- Edit products.
+- Delete products.
+- Manage categories.
+- Upload product images.
+- Manage inventory.
+- Manage pricing.
+- Create discount coupons.
+- Manage orders.
+- Approve payments.
+- Manage digital downloads.
+- Manage customer reviews.
+
+### Financial management
+
+Provide:
+
+- Subscription records.
+- Payment records.
+- Manual crypto payment verification.
+- Revenue reports.
+- Refund management.
+- Coupon management.
+- Invoice generation.
+
+### Forensic service management
+
+Allow administrators and authorized investigators to:
+
+- Review new cases.
+- Assign investigators.
+- Update case statuses.
+- Communicate with customers.
+- Review evidence.
+- Upload reports.
+- Generate case documents.
+- Close investigations.
+
+### Global settings
+
+Create an admin settings center for:
+
+- Website branding.
+- Logo.
+- Favicon.
+- Theme colors.
+- Homepage content.
+- Hero slider.
+- SEO defaults.
+- Social media links.
+- Contact information.
+- SMTP settings.
+- Groq API configuration.
+- Blockchain provider configuration.
+- Market API configuration.
+- Payment wallets.
+- Subscription plans.
+- Notification settings.
+- Legal page content.
+- Maintenance mode.
+
+All important content and configurations should be manageable without modifying source code.
+
+---
+
+# 17. REAL-TIME NOTIFICATION AND CHAT SYSTEM
+
+Build an integrated notification and messaging system.
+
+### Notifications
+
+Support:
+
+- Whale transaction alerts.
+- Cryptocurrency price alerts.
+- Wallet scan completion.
+- Airdrop announcements.
+- New airdrop opportunities.
+- Order updates.
+- Payment verification.
+- Subscription updates.
+- Security notifications.
+- Support responses.
+
+Provide an in-app notification center with unread counts, notification history and user preferences.
+
+### Live chat
+
+Create a clean messaging interface between administrators/support agents and authenticated users.
+
+Features:
+
+- Real-time messaging.
+- Conversation history.
+- Message timestamps.
+- Read receipts.
+- File attachments.
+- Image attachments.
+- Case-linked conversations.
+- Admin assignment.
+- Conversation status.
+- Unread message counts.
+
+Support mobile-friendly messaging.
+
+Protect conversations with appropriate access controls.
+
+---
+
+# 18. SUBSCRIPTIONS AND MONETIZATION
+
+Build a flexible subscription system.
+
+Create the following initial plan structure, with all prices editable from the admin dashboard.
+
+### Free Explorer
+
+- Limited wallet scans.
+- Basic cryptocurrency market data.
+- Limited whale transaction visibility.
+- Limited watchlists.
+- Basic airdrop discovery.
+- Limited AI queries.
+
+### Pro Intelligence
+
+- Increased wallet scans.
+- Expanded whale tracking.
+- Advanced transaction filters.
+- Custom alerts.
+- Portfolio analytics.
+- Increased AI usage.
+- Advanced airdrop filtering.
+- Extended transaction history.
+
+### Elite Intelligence
+
+- Advanced whale intelligence.
+- Multiple watchlists.
+- More comprehensive wallet analysis.
+- Advanced AI research.
+- Premium notifications.
+- Exportable reports.
+- Priority support.
+
+### Enterprise
+
+- Team accounts.
+- Higher API limits.
+- Advanced monitoring.
+- Custom reporting.
+- Dedicated support.
+- Enterprise integration options.
+
+Allow administrators to change prices, features, usage limits and billing periods.
+
+Implement subscription expiry, renewals, cancellation and access control.
+
+Support payment integrations appropriate to the operating jurisdictions, including conventional payment gateways and legally supported cryptocurrency payment options.
+
+---
+
+# 19. DATABASE ARCHITECTURE
+
+Use a robust relational database such as PostgreSQL.
+
+Design a normalized, scalable database schema.
+
+Include appropriate tables for:
+
+- Users.
+- User profiles.
+- Roles.
+- Permissions.
+- Sessions.
+- Connected wallets.
+- Supported blockchains.
+- Blockchain providers.
+- Tracked whale wallets.
+- Wallet rankings.
+- Wallet balances.
+- Token holdings.
+- NFTs.
+- Transactions.
+- Token prices.
+- Market snapshots.
+- Watchlists.
+- Watchlist items.
+- Price alerts.
+- Whale alerts.
+- Notifications.
+- Airdrops.
+- Airdrop tasks.
+- Airdrop verification records.
+- News articles.
+- News categories.
+- AI conversations.
+- AI usage.
+- Products.
+- Product categories.
+- Product images.
+- Orders.
+- Order items.
+- Payment records.
+- Payment wallet configurations.
+- Subscriptions.
+- Coupons.
+- Reviews.
+- Forensic cases.
+- Investigation evidence.
+- Support conversations.
+- Support messages.
+- Audit logs.
+- System settings.
+
+Use database migrations and proper foreign-key relationships.
+
+Implement database indexing for high-volume queries.
+
+Use pagination for all large datasets.
+
+Do not store large blockchain transaction histories as unstructured JSON when normalized or indexed structures are more appropriate.
+
+Use caching for frequently requested market information and blockchain data.
+
+Implement background jobs for blockchain indexing, price updates, whale rankings, notifications and AI processing.
+
+---
+
+# 20. TECHNICAL STACK AND INTEGRATIONS
+
+Use a modern, production-oriented architecture.
+
+### Frontend
+
+- React.
+- TypeScript.
+- Next.js or an equivalent SEO-friendly React framework.
+- Tailwind CSS.
+- A high-quality component library.
+- Framer Motion or equivalent animation library.
+- TradingView Lightweight Charts or equivalent.
+- Responsive layouts.
+
+### Backend
+
+- Node.js.
+- TypeScript.
+- Secure REST APIs.
+- WebSocket infrastructure.
+- Modular service architecture.
+- Background job processing.
+
+### Database and infrastructure
+
+- PostgreSQL.
+- Prisma or equivalent ORM.
+- Redis for caching and queue management where available.
+- Secure object storage for product files and investigation attachments.
+- Replit Secrets for sensitive configuration.
+- Appropriate monitoring and error tracking.
+
+### Blockchain data providers
+
+Build provider adapters so that services can be replaced without changing core business logic.
+
+Evaluate appropriate providers, including:
+
+- Alchemy.
+- QuickNode.
+- Helius.
+- Moralis.
+- Bitquery.
+- Covalent or its current supported equivalent.
+- Blockchain-native RPC providers.
+- CoinGecko or equivalent market data providers.
+
+Select providers according to network coverage, historical indexing, token and NFT support, pricing and rate limits.
+
+Do not assume a single provider supports every network or every requested feature.
+
+### Blockchain-specific integration requirements
+
+- Bitcoin: UTXO transaction indexing and address balances.
+- Ethereum: EVM transactions, token transfers, logs and smart contract events.
+- Polygon: EVM-compatible transactions and token events.
+- Avalanche: C-Chain indexing and supported network data.
+- Solana: transaction parsing, SPL token movements and program events.
+- TRON: TRC-20 transfers and relevant account activity.
+- TON: account, jetton and transaction indexing.
+- Sui: object ownership, coin balances, events and transactions.
+
+### AI integration
+
+Groq API.
+
+Configure:
+
+GROQ_API_KEY
+
+GROQ_MODEL
+
+Keep model selection configurable.
+
+### Important API integration rule
+
+Create a centralized integration layer with provider adapters.
+
+Every API integration must include:
+
+- Authentication.
+- Error handling.
+- Retry logic.
+- Rate limiting.
+- Timeout management.
+- Logging.
+- Provider health monitoring.
+- Fallback handling where appropriate.
+- Usage monitoring.
+
+The application must clearly distinguish live data, cached data and unavailable data.
+
+Never display fabricated transactions or fake market information to create the appearance of a working application.
+
+---
+
+# 21. SECURITY AND CRYPTOGRAPHIC ARCHITECTURE
+
+Security must be a foundational requirement, not an optional feature.
+
+Implement a defense-in-depth security architecture.
+
+### Application security
+
+- OWASP-aligned security practices.
+- Secure authentication.
+- Strong password hashing using Argon2id or an equivalent modern password-hashing algorithm.
+- CSRF protection where applicable.
+- XSS prevention.
+- SQL injection prevention.
+- Secure input validation.
+- Output encoding.
+- HTTP security headers.
+- Content Security Policy.
+- Rate limiting.
+- Secure cookies.
+- Session invalidation.
+- File upload validation.
+- Malware scanning for uploaded files.
+- Secure error handling.
+- Audit logging.
+
+### API security
+
+- API authentication.
+- Authorization checks.
+- Request validation.
+- Rate limits.
+- IP-based controls where appropriate.
+- Abuse detection.
+- API key rotation.
+- Secret management.
+
+### Cryptographic practices
+
+Use established, reviewed cryptographic libraries and protocols.
+
+Implement:
+
+- TLS-protected communication.
+- Secure cryptographic random number generation.
+- Proper digital signature verification.
+- Wallet address validation.
+- Secure authentication token management.
+- Encrypted sensitive configuration.
+- Key rotation policies.
+- Secure backup procedures.
+
+Never invent custom encryption algorithms.
+
+Never store user wallet private keys or seed phrases.
+
+### Admin security
+
+- Role-based access control.
+- Mandatory MFA for privileged accounts.
+- Sensitive-action confirmation.
+- Audit trails.
+- Admin session monitoring.
+- Login anomaly detection.
+- Privileged API access restrictions.
+
+### Security monitoring
+
+Build an admin security dashboard displaying:
+
+- Failed login attempts.
+- Suspicious account activity.
+- API abuse.
+- Unusual wallet scan requests.
+- File upload violations.
+- Administrative actions.
+- Service availability.
+
+---
+
+# 22. SEO AND ORGANIC GROWTH
+
+The platform must be designed for strong search-engine visibility from the beginning.
+
+Implement technical SEO across the entire application.
+
+### SEO architecture
+
+- SEO-friendly URLs.
+- Server-side rendering or static rendering where appropriate.
+- Dynamic metadata.
+- Unique title tags.
+- Unique meta descriptions.
+- Canonical URLs.
+- XML sitemap.
+- Robots.txt.
+- Breadcrumb navigation.
+- Open Graph metadata.
+- Twitter/X cards.
+- Image alt attributes.
+- Structured data.
+- Internal linking.
+- Fast-loading pages.
+- Mobile optimization.
+
+### Structured data
+
+Implement appropriate schema types, including:
+
+- Organization.
+- WebSite.
+- SoftwareApplication.
+- Product.
+- Article.
+- BreadcrumbList.
+- FAQPage where eligible.
+
+Only publish schema data that accurately represents visible page content and meets current search-engine requirements.
+
+### Programmatic SEO
+
+Generate indexable pages for:
+
+- Blockchain networks.
+- Individual cryptocurrencies.
+- Wallet intelligence profiles where public indexing is appropriate.
+- Airdrop campaigns.
+- News articles.
+- Digital products.
+- Blockchain guides.
+- Educational resources.
+
+Prevent search-engine indexing of private user dashboards, sensitive wallet reports and authenticated information.
+
+Use canonicalization and noindex controls to avoid duplicate and low-value generated pages.
+
+### Content strategy
+
+Create an integrated educational blog with categories such as:
+
+- Crypto Market Intelligence.
+- Whale Tracking.
+- Blockchain Security.
+- Wallet Security.
+- Airdrop Guides.
+- Blockchain Technology.
+- Cryptocurrency Tutorials.
+- Web3 Development.
+- Crypto Scams and Prevention.
+
+Allow the AI content assistant to help prepare editorial drafts, but require human review before publication.
+
+---
+
+# 23. PERFORMANCE AND SCALABILITY
+
+The platform must support significant growth without becoming slow or unstable.
+
+Implement:
+
+- Lazy loading.
+- Image optimization.
+- Code splitting.
+- Server-side pagination.
+- Database indexing.
+- API response caching.
+- Background processing.
+- Queue-based notifications.
+- WebSocket connection management.
+- Efficient chart data aggregation.
+- CDN-ready static assets.
+- Database connection pooling.
+- Error monitoring.
+
+Avoid requesting complete historical blockchain data every time a user opens a dashboard.
+
+Use incremental indexing and persist processed blockchain events.
+
+For whale tracking, implement scheduled discovery and ranking jobs alongside real-time monitoring of already tracked addresses.
+
+Design the indexing architecture to handle provider limits, chain reorganizations, duplicate events and failed synchronization jobs.
+
+---
+
+# 24. USER EXPERIENCE REQUIREMENTS
+
+The entire application must feel like a cohesive premium product.
+
+Important interface requirements:
+
+- No cluttered layouts.
+- No unnecessary popups.
+- No broken links.
+- No empty buttons.
+- No nonfunctional navigation.
+- No placeholder dashboards presented as real data.
+- No fake statistics.
+- No fake wallet activity.
+- No misleading investment claims.
+
+Every major page should have:
+
+- Proper loading states.
+- Empty states.
+- Error states.
+- Success feedback.
+- Responsive tables.
+- Search and filtering where applicable.
+- Pagination where appropriate.
+
+Make complex blockchain information understandable to beginners without sacrificing technical detail for advanced users.
+
+---
+
+# 25. LEGAL AND COMPLIANCE PAGES
+
+Create complete, professionally written legal pages.
+
+Include:
+
+1. Privacy Policy.
+2. Terms and Conditions.
+3. Cookie Policy.
+4. Cryptocurrency Risk Disclosure.
+5. Financial Disclaimer.
+6. Wallet Connection Disclaimer.
+7. Blockchain Data Disclaimer.
+8. AI Usage Disclaimer.
+9. Forensic Investigation Disclaimer.
+10. Recovery Services Terms.
+11. Refund and Cancellation Policy.
+12. Acceptable Use Policy.
+13. Intellectual Property Policy.
+14. Security and Responsible Disclosure Policy.
+
+The legal content must reflect the actual services and jurisdictions in which the platform operates.
+
+Do not claim regulatory licensing or certifications unless independently established.
+
+Include appropriate warnings that cryptocurrency prices, airdrop values, wallet valuations and AI-generated insights may be inaccurate or change rapidly.
+
+---
+
+# 26. CONTACT AND SUPPORT
+
+Create a professional contact page.
+
+Include:
+
+- General enquiries.
+- Business partnerships.
+- Enterprise enquiries.
+- Technical support.
+- Security vulnerability reports.
+- Blockchain investigation requests.
+- Product support.
+
+Add a secure contact form, email notifications and an integrated support ticket system.
+
+Provide configurable contact details and social links through the admin panel.
+
+---
+
+# 27. REQUIRED APPLICATION ROUTES
+
+Build the following public-facing routes:
+
+- /
+- /about
+- /blockchain
+- /blockchain/[network]
+- /markets
+- /markets/[coin]
+- /whales
+- /wallet-scanner
+- /wallet/[network]/[address]
+- /airdrops
+- /airdrops/[slug]
+- /news
+- /news/[slug]
+- /ai-intelligence
+- /forensics
+- /forensics/request
+- /shop
+- /shop/[slug]
+- /cart
+- /checkout
+- /pricing
+- /contact
+- /blog
+- /blog/[slug]
+- /privacy-policy
+- /terms
+- /cookie-policy
+- /risk-disclosure
+- /security-policy
+- /refund-policy
+- /login
+- /register
+- /forgot-password
+
+Authenticated user routes:
+
+- /dashboard
+- /dashboard/wallets
+- /dashboard/watchlists
+- /dashboard/portfolio
+- /dashboard/alerts
+- /dashboard/scans
+- /dashboard/airdrops
+- /dashboard/messages
+- /dashboard/orders
+- /dashboard/subscription
+- /dashboard/settings
+
+Administrative routes:
+
+- /admin
+- /admin/users
+- /admin/blockchains
+- /admin/providers
+- /admin/whales
+- /admin/transactions
+- /admin/markets
+- /admin/airdrops
+- /admin/news
+- /admin/products
+- /admin/orders
+- /admin/payments
+- /admin/subscriptions
+- /admin/forensics
+- /admin/messages
+- /admin/content
+- /admin/seo
+- /admin/security
+- /admin/analytics
+- /admin/settings
+
+Protect all restricted routes through backend authorization.
+
+---
+
+# 28. DEVELOPMENT EXECUTION PLAN
+
+Do not attempt to build every complex feature in one uncontrolled coding operation.
+
+Work in organized development phases.
+
+### Phase 1: Foundation
+
+- Project architecture.
+- Database setup.
+- Authentication.
+- Role management.
+- Design system.
+- Landing page.
+- Navigation.
+- Responsive layouts.
+- Admin foundation.
+
+### Phase 2: Blockchain Intelligence
+
+- Network integrations.
+- Market data integrations.
+- Blockchain dashboards.
+- Wallet indexing.
+- Top 100 ranking engine.
+- Transaction monitoring.
+- Real-time notifications.
+
+### Phase 3: Wallet Intelligence
+
+- Wallet scanner.
+- Token holdings.
+- NFT indexing.
+- Airdrop discovery from wallet activity.
+- Wallet connection integrations.
+- Portfolio dashboard.
+
+### Phase 4: AI and Discovery
+
+- Groq integration.
+- RAG intelligence.
+- AI assistant.
+- Airdrop management.
+- News aggregation.
+- AI news summaries.
+
+### Phase 5: Commercial Infrastructure
+
+- Digital products marketplace.
+- Shopping cart.
+- Crypto manual payments.
+- Order management.
+- Subscriptions.
+- Premium feature restrictions.
+
+### Phase 6: Forensic Services
+
+- Investigation request forms.
+- Case management.
+- Evidence uploads.
+- Investigator assignment.
+- Live support chat.
+- Investigation reports.
+
+### Phase 7: Finalization
+
+- Security testing.
+- Performance optimization.
+- SEO implementation.
+- Mobile testing.
+- Accessibility.
+- API integration testing.
+- Database optimization.
+- Deployment configuration.
+
+---
+
+# 29. QUALITY ASSURANCE AND ACCEPTANCE CRITERIA
+
+Before declaring the application complete, test every major workflow.
+
+### Authentication tests
+
+- New user registration.
+- Email verification.
+- Login.
+- Logout.
+- Password reset.
+- Session expiration.
+- Role permissions.
+
+### Blockchain tests
+
+- Network switching.
+- Wallet address validation.
+- Wallet scanning.
+- Token balance retrieval.
+- NFT retrieval.
+- Transaction indexing.
+- Whale ranking.
+- Whale transaction alerts.
+- Blockchain explorer links.
+
+### Market tests
+
+- Cryptocurrency data retrieval.
+- Chart rendering.
+- Historical data.
+- Search and filtering.
+- Price alerts.
+
+### Airdrop tests
+
+- Campaign creation.
+- Campaign editing.
+- Verification.
+- Publishing.
+- Expiry.
+- User bookmarking.
+
+### Shop tests
+
+- Product creation.
+- Shopping cart.
+- Checkout.
+- Manual payment submission.
+- Payment verification.
+- Digital product delivery.
+
+### Forensic service tests
+
+- Case submission.
+- Evidence upload.
+- Investigator assignment.
+- User-admin communication.
+- Case status changes.
+
+### Admin tests
+
+- User management.
+- Permissions.
+- Payment management.
+- Blockchain provider management.
+- Content management.
+- Security logs.
+
+### Performance tests
+
+Test under realistic concurrent usage.
+
+Ensure that:
+
+- Pages load efficiently.
+- Charts remain responsive.
+- Live updates do not freeze the interface.
+- Failed APIs do not crash the entire platform.
+- Background jobs can recover from failures.
+- Database queries remain efficient.
+
+Do not mark a feature complete simply because its frontend interface exists. It must work end-to-end with the backend and its intended data source.
+
+---
+
+# 30. FINAL DELIVERY REQUIREMENTS
+
+The completed application must include:
+
+1. A polished public website.
+2. Fully functional user dashboard.
+3. Comprehensive admin dashboard.
+4. Working authentication.
+5. Database migrations and schema.
+6. Blockchain provider integrations.
+7. Market data integration.
+8. Groq AI integration.
+9. Real-time transaction monitoring architecture.
+10. Wallet scanner.
+11. Airdrop management system.
+12. Crypto news aggregation.
+13. Digital products marketplace.
+14. Manual cryptocurrency checkout.
+15. Forensic investigation workflow.
+16. Notification and messaging system.
+17. Subscription infrastructure.
+18. SEO implementation.
+19. Legal pages.
+20. Security documentation.
+21. Deployment instructions.
+22. Environment variable documentation.
+23. Automated tests.
+24. Backup and recovery documentation.
+
+Create a comprehensive README explaining installation, configuration, API setup, database setup, deployment and maintenance.
+
+Use Replit Secrets for all credentials.
+
+Provide a `.env.example` containing variable names only, never actual secret values.
+
+Do not expose private API keys in frontend bundles or GitHub repositories.
+
+---
+
+# 31. CRITICAL INSTRUCTIONS TO REPLIT AGENT
+
+These instructions override any tendency to produce a simplified demonstration.
+
+**BUILD A REAL APPLICATION, NOT A VISUAL PROTOTYPE.**
+
+- Do not stop after generating the landing page.
+- Do not create static dashboards pretending to display real blockchain data.
+- Do not use hardcoded transactions as live data.
+- Do not generate fake whale wallets.
+- Do not invent cryptocurrency prices.
+- Do not invent airdrop rewards.
+- Do not expose API credentials.
+- Do not request or store private wallet keys.
+- Do not use insecure authentication shortcuts.
+- Do not create admin interfaces without actual backend permissions.
+- Do not leave important buttons without working actions.
+- Do not sacrifice application security for convenience.
+
+If an external API key is unavailable, build the integration adapter, configuration interface and a clearly identified unavailable-data state. Document the missing credential. Never silently substitute fake data.
+
+If an integration is rate-limited, use caching, queue processing and retry mechanisms.
+
+Build reusable components and keep the codebase clean, documented and modular.
+
+Maintain consistent design quality across every page.
+
+Prioritize correctness, security, performance and usability over unnecessary visual complexity.
+
+**The final product should look and operate like an established premium Web3 intelligence company with a mature SaaS engineering team behind it.**
+
+Begin by establishing the architecture, database schema, design system and project roadmap. Then implement the application phase by phase, verifying each module before proceeding to the next.
+
+Do not consider the project finished until all core workflows have been tested successfully.

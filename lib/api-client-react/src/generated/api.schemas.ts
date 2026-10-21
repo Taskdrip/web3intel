@@ -5,6 +5,31 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type CurrentUserRole = typeof CurrentUserRole[keyof typeof CurrentUserRole];
+
+
+export const CurrentUserRole = {
+  user: 'user',
+  admin: 'admin',
+  investigator: 'investigator',
+} as const;
+
+export type CurrentUserStatus = typeof CurrentUserStatus[keyof typeof CurrentUserStatus];
+
+
+export const CurrentUserStatus = {
+  active: 'active',
+  suspended: 'suspended',
+} as const;
+
+export interface CurrentUser {
+  clerkUserId: string;
+  role: CurrentUserRole;
+  status: CurrentUserStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface HealthStatus {
   status: string;
 }

@@ -9,6 +9,19 @@ import * as zod from 'zod';
 
 
 /**
+ * Creates the user's local application record on first access and returns its role and account status.
+ * @summary Get the signed-in user's application account
+ */
+export const GetCurrentUserResponse = zod.object({
+  "clerkUserId": zod.string(),
+  "role": zod.enum(['user', 'admin', 'investigator']),
+  "status": zod.enum(['active', 'suspended']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
  * Returns server health status
  * @summary Health check
  */

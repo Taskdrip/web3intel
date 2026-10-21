@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 52" fill="none">
+  <rect x="1" y="1" width="50" height="50" rx="15" fill="#111D2C" stroke="#39C8F2" stroke-opacity=".48"/>
+  <path d="M10 28c5.2-6 10.2-6 15.2 0s10 6 15.2 0" stroke="#4BD0F0" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M10 35c5.2-6 10.2-6 15.2 0s10 6 15.2 0" stroke="#9383F3" stroke-width="2.2" stroke-linecap="round" opacity=".9"/>
+  <circle cx="26" cy="19" r="2.5" fill="#A2F2FF"/>
+  <text x="64" y="24" fill="#EAF3FC" font-family="Manrope, sans-serif" font-size="13" font-weight="800" letter-spacing="2">WEB3 INTEL</text>
+  <text x="64" y="39" fill="#8093AA" font-family="monospace" font-size="7.5" letter-spacing="1.8">RESEARCH TERMINAL</text>
+</svg>
