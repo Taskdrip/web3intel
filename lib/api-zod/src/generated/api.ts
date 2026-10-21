@@ -126,6 +126,164 @@ export const ScanWalletResponse = zod.object({
 
 
 /**
+ * @summary List the signed-in user's watched wallets
+ */
+export const ListWalletWatchesResponseItem = zod.object({
+  "id": zod.number().int(),
+  "clerkUserId": zod.string(),
+  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'solana']),
+  "address": zod.string(),
+  "label": zod.string(),
+  "alertsEnabled": zod.boolean(),
+  "lastCheckedAt": zod.coerce.date().nullable(),
+  "createdAt": zod.coerce.date()
+})
+export const ListWalletWatchesResponse = zod.array(ListWalletWatchesResponseItem)
+
+
+/**
+ * @summary Add a public address to the signed-in user's watchlist
+ */
+export const createWalletWatchBodyAddressMax = 128;
+
+export const createWalletWatchBodyLabelMax = 80;
+
+
+
+export const CreateWalletWatchBody = zod.object({
+  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'solana']),
+  "address": zod.string().min(1).max(createWalletWatchBodyAddressMax),
+  "label": zod.string().min(1).max(createWalletWatchBodyLabelMax),
+  "alertsEnabled": zod.boolean().optional()
+})
+
+export const CreateWalletWatchResponse = zod.object({
+  "id": zod.number().int(),
+  "clerkUserId": zod.string(),
+  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'solana']),
+  "address": zod.string(),
+  "label": zod.string(),
+  "alertsEnabled": zod.boolean(),
+  "lastCheckedAt": zod.coerce.date().nullable(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Remove a wallet from the signed-in user's watchlist
+ */
+
+
+
+export const DeleteWalletWatchQueryParams = zod.object({
+  "watchId": zod.coerce.number().int().min(1)
+})
+
+export const DeleteWalletWatchResponse = zod.void()
+
+
+/**
+ * Public RPC mode currently tracks ERC-20 transfer logs on Ethereum, Polygon, Avalanche, and recent Solana token/native balance changes. It does not classify swaps, staking, or NFTs.
+ * @summary Refresh and list recent public transfer activity for a watched wallet
+ */
+
+export const getWalletWatchActivityQueryLimitDefault = 50;
+export const getWalletWatchActivityQueryLimitMax = 100;
+
+
+
+export const GetWalletWatchActivityQueryParams = zod.object({
+  "watchId": zod.coerce.number().int().min(1),
+  "limit": zod.coerce.number().int().min(1).max(getWalletWatchActivityQueryLimitMax).default(getWalletWatchActivityQueryLimitDefault)
+})
+
+export const GetWalletWatchActivityResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.number().int(),
+  "txHash": zod.string(),
+  "activityType": zod.enum(['token_transfer', 'native_transfer']),
+  "direction": zod.enum(['in', 'out', 'change']),
+  "asset": zod.string(),
+  "amount": zod.string(),
+  "counterparty": zod.string().nullable(),
+  "blockNumber": zod.string().nullable(),
+  "occurredAt": zod.coerce.date().nullable(),
+  "explorerUrl": zod.string()
+})),
+  "checkedAt": zod.coerce.date(),
+  "source": zod.string(),
+  "notice": zod.string()
+})
+
+
+/**
+ * @summary List application accounts for administrators
+ */
+export const ListAdminUsersResponseItem = zod.object({
+  "clerkUserId": zod.string(),
+  "role": zod.enum(['user', 'admin', 'investigator']),
+  "status": zod.enum(['active', 'suspended']),
+  "trackedWalletCount": zod.number().int(),
+  "createdAt": zod.coerce.date()
+})
+export const ListAdminUsersResponse = zod.array(ListAdminUsersResponseItem)
+
+
+/**
+ * @summary List wallet watches across all accounts
+ */
+export const ListAdminWalletWatchesResponseItem = zod.object({
+  "id": zod.number().int(),
+  "clerkUserId": zod.string(),
+  "network": zod.enum(['ethereum', 'polygon', 'avalanche', 'solana']),
+  "address": zod.string(),
+  "label": zod.string(),
+  "alertsEnabled": zod.boolean(),
+  "lastCheckedAt": zod.coerce.date().nullable(),
+  "createdAt": zod.coerce.date()
+})
+export const ListAdminWalletWatchesResponse = zod.array(ListAdminWalletWatchesResponseItem)
+
+
+/**
+ * @summary Remove a wallet watch from any account
+ */
+
+
+
+export const DeleteAdminWalletWatchQueryParams = zod.object({
+  "watchId": zod.coerce.number().int().min(1)
+})
+
+export const DeleteAdminWalletWatchResponse = zod.void()
+
+
+/**
+ * @summary Update an application's user role or status
+ */
+export const updateAdminUserPathClerkUserIdMax = 160;
+
+
+
+export const UpdateAdminUserParams = zod.object({
+  "clerkUserId": zod.coerce.string().min(1).max(updateAdminUserPathClerkUserIdMax)
+})
+
+export const UpdateAdminUserBody = zod.object({
+  "role": zod.enum(['user', 'admin', 'investigator']).optional(),
+  "status": zod.enum(['active', 'suspended']).optional()
+})
+
+export const UpdateAdminUserResponse = zod.object({
+  "clerkUserId": zod.string(),
+  "role": zod.enum(['user', 'admin', 'investigator']),
+  "status": zod.enum(['active', 'suspended']),
+  "trackedWalletCount": zod.number().int(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
  * Answers are grounded in a fresh public market snapshot; wallet histories and unconnected blockchain feeds are not available to the model.
  * @summary Ask a market question using current public market data
  */

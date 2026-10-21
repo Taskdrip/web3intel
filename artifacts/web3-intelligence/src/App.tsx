@@ -7,7 +7,7 @@ import { Link, Redirect, Route, Router as WouterRouter, Switch, useLocation } fr
 import {
   Activity, ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, Blocks, Bot,
   ChevronRight, CircleAlert, Clock3, Database, ExternalLink, Eye,
-  FileText, Gauge, Layers3, LoaderCircle, LockKeyhole, Search,
+  FileText, Gauge, Layers3, LoaderCircle, LockKeyhole, Search, ListChecks, Shield,
   Send, ShieldCheck, Sparkles, Wallet, Waves, Radio, Newspaper,
   Gift, Store, LifeBuoy, ChevronLeft, Pause, Play, Menu, X,
 } from 'lucide-react';
@@ -21,6 +21,7 @@ import heroWallet from '../attached_assets/generated_images/hero-wallet.png';
 import heroAi from '../attached_assets/generated_images/hero-ai.png';
 import evidenceBackground from '../attached_assets/generated_images/section-evidence.png';
 import { PublicInfoPage } from './pages/PublicPages';
+import { AdminPage, WatchlistDetailPage, WatchlistPage } from './pages/WatchlistPages';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -89,6 +90,8 @@ const routes = [
   { path: '/whales', label: 'Whale activity', icon: Activity },
   { path: '/markets', label: 'Markets', icon: BarChart3 },
   { path: '/wallet-scanner', label: 'Wallet scanner', icon: Wallet },
+  { path: '/watchlist', label: 'Wallet watchlist', icon: ListChecks },
+  { path: '/admin', label: 'Administration', icon: Shield },
   { path: '/ai-intelligence', label: 'AI intelligence', icon: Bot },
   { path: '/airdrops', label: 'Airdrops', icon: Gift },
   { path: '/news', label: 'News', icon: Newspaper },
@@ -198,8 +201,8 @@ function Header({ activePath }: { activePath: string }) {
         <span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span>
       </Link>
       <div className="nav-label">Workspace</div>
-      <nav className="nav-list" aria-label="Main navigation">
-        {routes.map(({ path, label, icon: Icon }) => <Link key={path} href={path} className={`nav-link ${activePath === path ? 'active' : ''}`} aria-current={activePath === path ? 'page' : undefined} data-testid={`link-nav-${path === '/' ? 'overview' : path.slice(1)}`}>
+    <nav className="nav-list" aria-label="Main navigation">
+        {routes.map(({ path, label, icon: Icon }) => <Link key={path} href={path} className={`nav-link ${activePath === path || (path === '/watchlist' && activePath.startsWith('/watchlist/')) ? 'active' : ''}`} aria-current={activePath === path ? 'page' : undefined} data-testid={`link-nav-${path === '/' ? 'overview' : path.slice(1)}`}>
           <Icon strokeWidth={1.8} /><span>{label}</span>{activePath === path && <ChevronRight size={13} style={{ marginLeft: 'auto', opacity: .7 }} />}
         </Link>)}
       </nav>
@@ -224,6 +227,9 @@ function Header({ activePath }: { activePath: string }) {
         <Route path="/markets" component={MarketsPage} />
         <Route path="/wallet-scanner" component={WalletPage} />
         <Route path="/ai-intelligence" component={IntelligencePage} />
+        <Route path="/watchlist" component={WatchlistPage} />
+        <Route path="/watchlist/:watchId" component={WatchlistDetailPage} />
+        <Route path="/admin" component={AdminPage} />
         <Route component={NotFound} />
       </Switch>
       <footer className="app-footer">
@@ -592,6 +598,9 @@ function RoutedApp() {
     <Route path="/markets" component={AppShell} />
     <Route path="/wallet-scanner" component={AppShell} />
     <Route path="/ai-intelligence" component={AppShell} />
+    <Route path="/watchlist/:watchId" component={SignedInAppShell} />
+    <Route path="/watchlist" component={SignedInAppShell} />
+    <Route path="/admin" component={SignedInAppShell} />
     <Route path="/about" component={PublicInfoPage} />
     <Route path="/blockchain" component={PublicInfoPage} />
     <Route path="/whales" component={PublicInfoPage} />
@@ -617,6 +626,10 @@ function RoutedApp() {
 function AppShell() {
   const [location] = useLocation();
   return <div className="app-shell"><Header activePath={location} /></div>;
+}
+
+function SignedInAppShell() {
+  return <><Show when="signed-in"><AppShell /></Show><Show when="signed-out"><Redirect to="/sign-in" /></Show></>;
 }
 
 function DashboardGate() {

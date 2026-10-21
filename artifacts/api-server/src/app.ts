@@ -46,9 +46,8 @@ const clerkAuthMiddleware = clerkMiddleware((req) => ({
 }));
 
 // Public market, intelligence, and address-lookup routes do not require an
-// account. Keep Clerk scoped to the account endpoint so missing auth setup
-// cannot take otherwise-public data services offline.
-app.use("/api/auth", (req, res, next) => {
+// account. Keep Clerk scoped to account, watchlist, and admin endpoints.
+app.use(["/api/auth", "/api/watch", "/api/admin"], (req, res, next) => {
   if (!process.env.CLERK_SECRET_KEY) {
     res.status(503).json({ error: "Account authentication is not configured." });
     return;

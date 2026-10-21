@@ -12,7 +12,7 @@ Web3 Intelligence is a read-only blockchain research workspace for market data, 
 - `pnpm run build` — typecheck and build all packages.
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — apply schema changes to the development database only
-- Public market, intelligence, and wallet lookup endpoints run without account authentication. The signed-in account endpoint requires `DATABASE_URL` and configured Clerk server keys.
+- Public market, intelligence, and one-off wallet lookup endpoints run without account authentication. Watchlists and admin routes require `DATABASE_URL` and configured Clerk server keys.
 - Clerk is not configured in the current workspace: `/api/auth/me` returns an explicit 503 until authentication is provisioned. Do not bypass the account check to work around missing keys.
 - `GROQ_API_KEY` is required for AI answers; `GROQ_MODEL` is optional. Without the key, the AI endpoint returns an explicit unavailable response.
 - An environment-variable-name-only template is in `.env.example`.
@@ -41,12 +41,16 @@ Web3 Intelligence is a read-only blockchain research workspace for market data, 
 - The API verifies account requests server-side with Clerk; public research endpoints remain unauthenticated.
 - Application roles and account status live in PostgreSQL, separate from identity-provider profile data.
 - Market and wallet data are read-only provider responses; unavailable sources are shown as unavailable rather than replaced with invented values.
+- Public RPC watch coverage is limited: EVM tracks ERC-20 transfer events; Solana tracks recent token/native balance changes. It does not classify swaps, staking, NFTs, or complete historical activity. No API keys are needed for this keyless mode.
+- Admin APIs manage application accounts and tracked wallets, not arbitrary SQL or direct database administration. Admin access never returns provider credentials.
 - New API endpoints are defined in OpenAPI before generating shared client and validation code.
 
 ## Product
 
 - Market overview, sortable/searchable cryptocurrency listings, and historical price charts.
 - Public, read-only native-balance checks for supported wallet networks.
+- Signed-in wallet watches with on-demand public RPC polling and saved token/native transfer activity (Ethereum, Polygon, Avalanche, Solana).
+- Admin-only account and wallet management using database-backed application roles.
 - AI market research grounded in the current market snapshot, with a clear scope and disclaimer.
 - Sign-in foundation and database-backed application user roles.
 
@@ -61,6 +65,7 @@ Web3 Intelligence is a read-only blockchain research workspace for market data, 
 
 - Managed artifact workflows supply `PORT` and `BASE_PATH`; start them through Replit's workflow controls.
 - Apply schema changes with the development `push` command only.
+- Wallet watch tables must be applied to the development database with `pnpm --filter @workspace/db run push` before using watchlists.
 - AI responses require `GROQ_API_KEY`; the API returns an unavailable state when it is missing.
 
 ## Pointers

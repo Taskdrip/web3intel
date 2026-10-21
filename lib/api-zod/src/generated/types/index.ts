@@ -6,13 +6,23 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './adminUser';
+export * from './adminUserRole';
+export * from './adminUserStatus';
+export * from './adminUserUpdate';
+export * from './adminUserUpdateRole';
+export * from './adminUserUpdateStatus';
+export * from './adminWalletWatch';
 export * from './apiError';
 export * from './currentUser';
 export * from './currentUserRole';
 export * from './currentUserStatus';
+export * from './deleteAdminWalletWatchParams';
+export * from './deleteWalletWatchParams';
 export * from './getMarketCoinsParams';
 export * from './getMarketHistoryDays';
 export * from './getMarketHistoryParams';
+export * from './getWalletWatchActivityParams';
 export * from './healthStatus';
 export * from './marketCoin';
 export * from './marketCoinsResponse';
@@ -25,3 +35,10 @@ export * from './walletNetwork';
 export * from './walletScanInput';
 export * from './walletScanResult';
 export * from './walletScanResultStatus';
+export * from './walletWatch';
+export * from './walletWatchActivity';
+export * from './walletWatchActivityActivityType';
+export * from './walletWatchActivityDirection';
+export * from './walletWatchActivityResponse';
+export * from './walletWatchInput';
+export * from './walletWatchNetwork';

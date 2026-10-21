@@ -7,11 +7,13 @@ Web3 Intelligence is a read-only research terminal for provider-sourced cryptocu
 - Public landing page with live market context from CoinGecko.
 - Market overview, searchable/sortable listings, and provider-supplied historical price data.
 - Public native-balance lookups for Bitcoin, Ethereum, Solana, Polygon, Tron, Avalanche, TON, and Sui.
+- Signed-in wallet watchlists with per-wallet activity pages and saved alerts for recent public transfer activity on Ethereum, Polygon, Avalanche, and Solana.
+- Role-gated admin views for application accounts and tracked wallets.
 - Groq-backed market Q&A using the current top-100 CoinGecko snapshot, with the model, source, timestamp, scope, and disclaimer returned to the client.
 - Clerk sign-in foundation and a protected dashboard route.
 - Explicit unavailable/error states when providers do not return data.
 
-The wallet scanner reads native balances only. It does not connect to wallets, request signatures, store scan results, or return token/NFT holdings or transaction histories. AI answers do not include wallet histories, whale activity, or unconnected blockchain feeds.
+The wallet scanner reads native balances only. Watchlists store public addresses and alert preferences. Public RPC tracking currently records ERC-20 transfer logs on Ethereum, Polygon, and Avalanche, plus recent native/SPL token balance changes on Solana. It does not reliably classify buys/sells, decode NFTs or staking, or provide full historical coverage. It does not connect to wallets, request signatures, store keys, or initiate transactions. AI answers do not include wallet histories, whale activity, or unconnected blockchain feeds.
 
 ## Stack
 
@@ -80,6 +82,14 @@ All endpoints are served beneath `/api`.
 | `POST` | `/api/wallet/scan` | Public native-balance lookup |
 | `POST` | `/api/intelligence/ask` | Snapshot-grounded market question |
 | `GET` | `/api/auth/me` | Current signed-in account; requires authentication and database access |
+| `GET` | `/api/watch/wallets` | List the signed-in user's wallet watches |
+| `POST` | `/api/watch/wallets` | Add a public address to the signed-in user's watchlist |
+| `DELETE` | `/api/watch/wallets?watchId=1` | Remove a wallet from the signed-in user's watchlist |
+| `GET` | `/api/watch/activity?watchId=1&limit=50` | Refresh and list recent public transfer activity |
+| `GET` | `/api/admin/users` | Admin-only application account list |
+| `GET` | `/api/admin/wallets` | Admin-only tracked wallet list |
+| `PATCH` | `/api/admin/users/{clerkUserId}` | Admin-only role/status update |
+| `DELETE` | `/api/admin/wallets?watchId=1` | Admin-only wallet removal |
 
 Wallet request example:
 

@@ -20,10 +20,16 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AdminUser,
+  AdminUserUpdate,
+  AdminWalletWatch,
   ApiError,
   CurrentUser,
+  DeleteAdminWalletWatchParams,
+  DeleteWalletWatchParams,
   GetMarketCoinsParams,
   GetMarketHistoryParams,
+  GetWalletWatchActivityParams,
   HealthStatus,
   MarketCoinsResponse,
   MarketHistoryResponse,
@@ -31,7 +37,10 @@ import type {
   QuestionInput,
   QuestionResponse,
   WalletScanInput,
-  WalletScanResult
+  WalletScanResult,
+  WalletWatch,
+  WalletWatchActivityResponse,
+  WalletWatchInput
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -505,7 +514,7 @@ return customFetch<WalletScanResult>(getScanWalletUrl(),
 
 export const getScanWalletMutationKey = () => ['scanWallet'] as const;
 
-export const getScanWalletMutationOptions = <TError = ErrorType<ApiError | WalletScanResult>,
+export const getScanWalletMutationOptions = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof scanWallet>>, TError,ScanWalletMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof scanWallet>>, TError,ScanWalletMutationVariables, TContext> => {
 
@@ -534,13 +543,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type ScanWalletMutationResult = NonNullable<Awaited<ReturnType<typeof scanWallet>>>
     export type ScanWalletMutationBody = BodyType<WalletScanInput>
-    export type ScanWalletMutationError = ErrorType<ApiError | WalletScanResult>
+    export type ScanWalletMutationError = ErrorType<unknown>
     export type ScanWalletMutationVariables = {data: BodyType<WalletScanInput>}
 
     /**
  * @summary Read public native-token balance for a wallet
  */
-export const useScanWallet = <TError = ErrorType<ApiError | WalletScanResult>,
+export const useScanWallet = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof scanWallet>>, TError,ScanWalletMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof scanWallet>>,
@@ -549,6 +558,661 @@ export const useScanWallet = <TError = ErrorType<ApiError | WalletScanResult>,
         TContext
       > => {
       return useMutation(getScanWalletMutationOptions(options));
+    }
+
+export const getListWalletWatchesUrl = () => {
+
+
+
+
+  return `/api/watch/wallets`
+}
+
+/**
+ * @summary List the signed-in user's watched wallets
+ */
+export const listWalletWatches = async ( options?: Parameters<typeof customFetch>[1]): Promise<WalletWatch[]> => {
+
+  return customFetch<WalletWatch[]>(getListWalletWatchesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListWalletWatchesQueryKey = () => {
+    return [
+    `/api/watch/wallets`
+    ] as const;
+    }
+
+
+export const getListWalletWatchesQueryOptions = <TData = Awaited<ReturnType<typeof listWalletWatches>>, TError = ErrorType<ApiError>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listWalletWatches>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListWalletWatchesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listWalletWatches>>> = ({ signal }) => listWalletWatches({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listWalletWatches>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListWalletWatchesQueryResult = NonNullable<Awaited<ReturnType<typeof listWalletWatches>>>
+export type ListWalletWatchesQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary List the signed-in user's watched wallets
+ */
+
+export function useListWalletWatches<TData = Awaited<ReturnType<typeof listWalletWatches>>, TError = ErrorType<ApiError>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listWalletWatches>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListWalletWatchesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateWalletWatchUrl = () => {
+
+
+
+
+  return `/api/watch/wallets`
+}
+
+/**
+ * @summary Add a public address to the signed-in user's watchlist
+ */
+export const createWalletWatch = async (walletWatchInput: WalletWatchInput, options?: Parameters<typeof customFetch>[1]): Promise<WalletWatch> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<WalletWatch>(getCreateWalletWatchUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(walletWatchInput)
+  }
+);}
+
+
+
+
+
+export const getCreateWalletWatchMutationKey = () => ['createWalletWatch'] as const;
+
+export const getCreateWalletWatchMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createWalletWatch>>, TError,CreateWalletWatchMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createWalletWatch>>, TError,CreateWalletWatchMutationVariables, TContext> => {
+
+const mutationKey = getCreateWalletWatchMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createWalletWatch>>, CreateWalletWatchMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createWalletWatch(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateWalletWatchMutationResult = NonNullable<Awaited<ReturnType<typeof createWalletWatch>>>
+    export type CreateWalletWatchMutationBody = BodyType<WalletWatchInput>
+    export type CreateWalletWatchMutationError = ErrorType<ApiError>
+    export type CreateWalletWatchMutationVariables = {data: BodyType<WalletWatchInput>}
+
+    /**
+ * @summary Add a public address to the signed-in user's watchlist
+ */
+export const useCreateWalletWatch = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createWalletWatch>>, TError,CreateWalletWatchMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createWalletWatch>>,
+        TError,
+        CreateWalletWatchMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateWalletWatchMutationOptions(options));
+    }
+
+export const getDeleteWalletWatchUrl = (params: DeleteWalletWatchParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/watch/wallets?${stringifiedParams}` : `/api/watch/wallets`
+}
+
+/**
+ * @summary Remove a wallet from the signed-in user's watchlist
+ */
+export const deleteWalletWatch = async (params: DeleteWalletWatchParams, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteWalletWatchUrl(params),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteWalletWatchMutationKey = () => ['deleteWalletWatch'] as const;
+
+export const getDeleteWalletWatchMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteWalletWatch>>, TError,DeleteWalletWatchMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteWalletWatch>>, TError,DeleteWalletWatchMutationVariables, TContext> => {
+
+const mutationKey = getDeleteWalletWatchMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteWalletWatch>>, DeleteWalletWatchMutationVariables> = (props) => {
+          const {params} = props ?? {};
+
+          return  deleteWalletWatch(params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteWalletWatchMutationResult = NonNullable<Awaited<ReturnType<typeof deleteWalletWatch>>>
+
+    export type DeleteWalletWatchMutationError = ErrorType<ApiError>
+    export type DeleteWalletWatchMutationVariables = {params: DeleteWalletWatchParams}
+
+    /**
+ * @summary Remove a wallet from the signed-in user's watchlist
+ */
+export const useDeleteWalletWatch = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteWalletWatch>>, TError,DeleteWalletWatchMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteWalletWatch>>,
+        TError,
+        DeleteWalletWatchMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteWalletWatchMutationOptions(options));
+    }
+
+export const getGetWalletWatchActivityUrl = (params: GetWalletWatchActivityParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/watch/activity?${stringifiedParams}` : `/api/watch/activity`
+}
+
+/**
+ * Public RPC mode currently tracks ERC-20 transfer logs on Ethereum, Polygon, Avalanche, and recent Solana token/native balance changes. It does not classify swaps, staking, or NFTs.
+ * @summary Refresh and list recent public transfer activity for a watched wallet
+ */
+export const getWalletWatchActivity = async (params: GetWalletWatchActivityParams, options?: Parameters<typeof customFetch>[1]): Promise<WalletWatchActivityResponse> => {
+
+  return customFetch<WalletWatchActivityResponse>(getGetWalletWatchActivityUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetWalletWatchActivityQueryKey = (params?: GetWalletWatchActivityParams,) => {
+    return [
+    `/api/watch/activity`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetWalletWatchActivityQueryOptions = <TData = Awaited<ReturnType<typeof getWalletWatchActivity>>, TError = ErrorType<ApiError>>(params: GetWalletWatchActivityParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWalletWatchActivity>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetWalletWatchActivityQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getWalletWatchActivity>>> = ({ signal }) => getWalletWatchActivity(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getWalletWatchActivity>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetWalletWatchActivityQueryResult = NonNullable<Awaited<ReturnType<typeof getWalletWatchActivity>>>
+export type GetWalletWatchActivityQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Refresh and list recent public transfer activity for a watched wallet
+ */
+
+export function useGetWalletWatchActivity<TData = Awaited<ReturnType<typeof getWalletWatchActivity>>, TError = ErrorType<ApiError>>(
+ params: GetWalletWatchActivityParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWalletWatchActivity>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetWalletWatchActivityQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListAdminUsersUrl = () => {
+
+
+
+
+  return `/api/admin/users`
+}
+
+/**
+ * @summary List application accounts for administrators
+ */
+export const listAdminUsers = async ( options?: Parameters<typeof customFetch>[1]): Promise<AdminUser[]> => {
+
+  return customFetch<AdminUser[]>(getListAdminUsersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAdminUsersQueryKey = () => {
+    return [
+    `/api/admin/users`
+    ] as const;
+    }
+
+
+export const getListAdminUsersQueryOptions = <TData = Awaited<ReturnType<typeof listAdminUsers>>, TError = ErrorType<ApiError>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAdminUsersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminUsers>>> = ({ signal }) => listAdminUsers({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAdminUsersQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminUsers>>>
+export type ListAdminUsersQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary List application accounts for administrators
+ */
+
+export function useListAdminUsers<TData = Awaited<ReturnType<typeof listAdminUsers>>, TError = ErrorType<ApiError>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAdminUsersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListAdminWalletWatchesUrl = () => {
+
+
+
+
+  return `/api/admin/wallets`
+}
+
+/**
+ * @summary List wallet watches across all accounts
+ */
+export const listAdminWalletWatches = async ( options?: Parameters<typeof customFetch>[1]): Promise<AdminWalletWatch[]> => {
+
+  return customFetch<AdminWalletWatch[]>(getListAdminWalletWatchesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAdminWalletWatchesQueryKey = () => {
+    return [
+    `/api/admin/wallets`
+    ] as const;
+    }
+
+
+export const getListAdminWalletWatchesQueryOptions = <TData = Awaited<ReturnType<typeof listAdminWalletWatches>>, TError = ErrorType<ApiError>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminWalletWatches>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAdminWalletWatchesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminWalletWatches>>> = ({ signal }) => listAdminWalletWatches({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAdminWalletWatches>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAdminWalletWatchesQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminWalletWatches>>>
+export type ListAdminWalletWatchesQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary List wallet watches across all accounts
+ */
+
+export function useListAdminWalletWatches<TData = Awaited<ReturnType<typeof listAdminWalletWatches>>, TError = ErrorType<ApiError>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminWalletWatches>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAdminWalletWatchesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDeleteAdminWalletWatchUrl = (params: DeleteAdminWalletWatchParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/wallets?${stringifiedParams}` : `/api/admin/wallets`
+}
+
+/**
+ * @summary Remove a wallet watch from any account
+ */
+export const deleteAdminWalletWatch = async (params: DeleteAdminWalletWatchParams, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteAdminWalletWatchUrl(params),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteAdminWalletWatchMutationKey = () => ['deleteAdminWalletWatch'] as const;
+
+export const getDeleteAdminWalletWatchMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAdminWalletWatch>>, TError,DeleteAdminWalletWatchMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAdminWalletWatch>>, TError,DeleteAdminWalletWatchMutationVariables, TContext> => {
+
+const mutationKey = getDeleteAdminWalletWatchMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAdminWalletWatch>>, DeleteAdminWalletWatchMutationVariables> = (props) => {
+          const {params} = props ?? {};
+
+          return  deleteAdminWalletWatch(params,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAdminWalletWatchMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAdminWalletWatch>>>
+
+    export type DeleteAdminWalletWatchMutationError = ErrorType<ApiError>
+    export type DeleteAdminWalletWatchMutationVariables = {params: DeleteAdminWalletWatchParams}
+
+    /**
+ * @summary Remove a wallet watch from any account
+ */
+export const useDeleteAdminWalletWatch = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAdminWalletWatch>>, TError,DeleteAdminWalletWatchMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAdminWalletWatch>>,
+        TError,
+        DeleteAdminWalletWatchMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteAdminWalletWatchMutationOptions(options));
+    }
+
+export const getUpdateAdminUserUrl = (clerkUserId: string,) => {
+
+
+
+
+  return `/api/admin/users/${clerkUserId}`
+}
+
+/**
+ * @summary Update an application's user role or status
+ */
+export const updateAdminUser = async (clerkUserId: string,
+    adminUserUpdate: AdminUserUpdate, options?: Parameters<typeof customFetch>[1]): Promise<AdminUser> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AdminUser>(getUpdateAdminUserUrl(clerkUserId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(adminUserUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateAdminUserMutationKey = () => ['updateAdminUser'] as const;
+
+export const getUpdateAdminUserMutationOptions = <TError = ErrorType<ApiError | WalletScanResult>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminUser>>, TError,UpdateAdminUserMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAdminUser>>, TError,UpdateAdminUserMutationVariables, TContext> => {
+
+const mutationKey = getUpdateAdminUserMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAdminUser>>, UpdateAdminUserMutationVariables> = (props) => {
+          const {clerkUserId,data} = props ?? {};
+
+          return  updateAdminUser(clerkUserId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAdminUserMutationResult = NonNullable<Awaited<ReturnType<typeof updateAdminUser>>>
+    export type UpdateAdminUserMutationBody = BodyType<AdminUserUpdate>
+    export type UpdateAdminUserMutationError = ErrorType<ApiError | WalletScanResult>
+    export type UpdateAdminUserMutationVariables = {clerkUserId: string;data: BodyType<AdminUserUpdate>}
+
+    /**
+ * @summary Update an application's user role or status
+ */
+export const useUpdateAdminUser = <TError = ErrorType<ApiError | WalletScanResult>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminUser>>, TError,UpdateAdminUserMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateAdminUser>>,
+        TError,
+        UpdateAdminUserMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateAdminUserMutationOptions(options));
     }
 
 export const getAskIntelligenceUrl = () => {

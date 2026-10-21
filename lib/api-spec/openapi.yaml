@@ -13,7 +13,7 @@ tags:
   - name: market
     description: Public cryptocurrency market data
   - name: wallet
-    description: Read-only public wallet balance lookups
+    description: Read-only public wallet balance and watch operations
   - name: intelligence
     description: AI-assisted market research
   - name: auth
@@ -160,6 +160,201 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/WalletScanResult"
+  /watch/wallets:
+    get:
+      operationId: listWalletWatches
+      tags: [wallet]
+      summary: List the signed-in user's watched wallets
+      responses:
+        "200":
+          description: Wallet watches owned by the current account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WalletWatch"
+        "401":
+          description: Sign-in is required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      operationId: createWalletWatch
+      tags: [wallet]
+      summary: Add a public address to the signed-in user's watchlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WalletWatchInput"
+      responses:
+        "201":
+          description: Wallet watch created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletWatch"
+        "400":
+          description: Address or network is invalid or unsupported
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Sign-in is required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteWalletWatch
+      tags: [wallet]
+      summary: Remove a wallet from the signed-in user's watchlist
+      parameters:
+        - name: watchId
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "204":
+          description: Wallet watch removed
+        "404":
+          description: Wallet watch was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /watch/activity:
+    get:
+      operationId: getWalletWatchActivity
+      tags: [wallet]
+      summary: Refresh and list recent public transfer activity for a watched wallet
+      description: Public RPC mode currently tracks ERC-20 transfer logs on Ethereum, Polygon, Avalanche, and recent Solana token/native balance changes. It does not classify swaps, staking, or NFTs.
+      parameters:
+        - name: watchId
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        "200":
+          description: Recent tracked activity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletWatchActivityResponse"
+        "404":
+          description: Wallet watch was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /admin/users:
+    get:
+      operationId: listAdminUsers
+      tags: [auth]
+      summary: List application accounts for administrators
+      responses:
+        "200":
+          description: User accounts and counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminUser"
+        "403":
+          description: Administrator access is required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /admin/wallets:
+    get:
+      operationId: listAdminWalletWatches
+      tags: [auth]
+      summary: List wallet watches across all accounts
+      responses:
+        "200":
+          description: Watched public addresses and their account owners
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminWalletWatch"
+        "403":
+          description: Administrator access is required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteAdminWalletWatch
+      tags: [auth]
+      summary: Remove a wallet watch from any account
+      parameters:
+        - name: watchId
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "204":
+          description: Wallet watch removed
+        "404":
+          description: Wallet watch was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /admin/users/{clerkUserId}:
+    patch:
+      operationId: updateAdminUser
+      tags: [auth]
+      summary: Update an application's user role or status
+      parameters:
+        - name: clerkUserId
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 160
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUserUpdate"
+      responses:
+        "200":
+          description: Updated account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "403":
+          description: Administrator access is required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
         "400":
           description: Invalid network or address format
           content:
@@ -386,6 +581,138 @@ components:
         - source
         - checkedAt
         - message
+    WalletWatchNetwork:
+      type: string
+      enum: [ethereum, polygon, avalanche, solana]
+    WalletWatchInput:
+      type: object
+      properties:
+        network:
+          $ref: "#/components/schemas/WalletWatchNetwork"
+        address:
+          type: string
+          minLength: 1
+          maxLength: 128
+        label:
+          type: string
+          minLength: 1
+          maxLength: 80
+        alertsEnabled:
+          type: boolean
+      required: [network, address, label]
+    WalletWatch:
+      type: object
+      properties:
+        id:
+          type: integer
+        clerkUserId:
+          type: string
+        network:
+          $ref: "#/components/schemas/WalletWatchNetwork"
+        address:
+          type: string
+        label:
+          type: string
+        alertsEnabled:
+          type: boolean
+        lastCheckedAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, clerkUserId, network, address, label, alertsEnabled, lastCheckedAt, createdAt]
+    WalletWatchActivity:
+      type: object
+      properties:
+        id:
+          type: integer
+        txHash:
+          type: string
+        activityType:
+          type: string
+          enum: [token_transfer, native_transfer]
+        direction:
+          type: string
+          enum: [in, out, change]
+        asset:
+          type: string
+        amount:
+          type: string
+        counterparty:
+          type: ["string", "null"]
+        blockNumber:
+          type: ["string", "null"]
+        occurredAt:
+          type: ["string", "null"]
+          format: date-time
+        explorerUrl:
+          type: string
+      required: [id, txHash, activityType, direction, asset, amount, counterparty, blockNumber, occurredAt, explorerUrl]
+    WalletWatchActivityResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/WalletWatchActivity"
+        checkedAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+        notice:
+          type: string
+      required: [items, checkedAt, source, notice]
+    AdminUser:
+      type: object
+      properties:
+        clerkUserId:
+          type: string
+        role:
+          type: string
+          enum: [user, admin, investigator]
+        status:
+          type: string
+          enum: [active, suspended]
+        trackedWalletCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [clerkUserId, role, status, trackedWalletCount, createdAt]
+    AdminUserUpdate:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [user, admin, investigator]
+        status:
+          type: string
+          enum: [active, suspended]
+      minProperties: 1
+    AdminWalletWatch:
+      type: object
+      properties:
+        id:
+          type: integer
+        clerkUserId:
+          type: string
+        network:
+          $ref: "#/components/schemas/WalletWatchNetwork"
+        address:
+          type: string
+        label:
+          type: string
+        alertsEnabled:
+          type: boolean
+        lastCheckedAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, clerkUserId, network, address, label, alertsEnabled, lastCheckedAt, createdAt]
     QuestionInput:
       type: object
       properties:

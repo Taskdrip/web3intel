@@ -129,6 +129,142 @@ export interface WalletScanResult {
   message: string;
 }
 
+export type WalletWatchNetwork = typeof WalletWatchNetwork[keyof typeof WalletWatchNetwork];
+
+
+export const WalletWatchNetwork = {
+  ethereum: 'ethereum',
+  polygon: 'polygon',
+  avalanche: 'avalanche',
+  solana: 'solana',
+} as const;
+
+export interface WalletWatchInput {
+  network: WalletWatchNetwork;
+  /**
+     * @minLength 1
+     * @maxLength 128
+     */
+  address: string;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  label: string;
+  alertsEnabled?: boolean;
+}
+
+export interface WalletWatch {
+  id: number;
+  clerkUserId: string;
+  network: WalletWatchNetwork;
+  address: string;
+  label: string;
+  alertsEnabled: boolean;
+  /** @nullable */
+  lastCheckedAt: string | null;
+  createdAt: string;
+}
+
+export type WalletWatchActivityActivityType = typeof WalletWatchActivityActivityType[keyof typeof WalletWatchActivityActivityType];
+
+
+export const WalletWatchActivityActivityType = {
+  token_transfer: 'token_transfer',
+  native_transfer: 'native_transfer',
+} as const;
+
+export type WalletWatchActivityDirection = typeof WalletWatchActivityDirection[keyof typeof WalletWatchActivityDirection];
+
+
+export const WalletWatchActivityDirection = {
+  in: 'in',
+  out: 'out',
+  change: 'change',
+} as const;
+
+export interface WalletWatchActivity {
+  id: number;
+  txHash: string;
+  activityType: WalletWatchActivityActivityType;
+  direction: WalletWatchActivityDirection;
+  asset: string;
+  amount: string;
+  /** @nullable */
+  counterparty: string | null;
+  /** @nullable */
+  blockNumber: string | null;
+  /** @nullable */
+  occurredAt: string | null;
+  explorerUrl: string;
+}
+
+export interface WalletWatchActivityResponse {
+  items: WalletWatchActivity[];
+  checkedAt: string;
+  source: string;
+  notice: string;
+}
+
+export type AdminUserRole = typeof AdminUserRole[keyof typeof AdminUserRole];
+
+
+export const AdminUserRole = {
+  user: 'user',
+  admin: 'admin',
+  investigator: 'investigator',
+} as const;
+
+export type AdminUserStatus = typeof AdminUserStatus[keyof typeof AdminUserStatus];
+
+
+export const AdminUserStatus = {
+  active: 'active',
+  suspended: 'suspended',
+} as const;
+
+export interface AdminUser {
+  clerkUserId: string;
+  role: AdminUserRole;
+  status: AdminUserStatus;
+  trackedWalletCount: number;
+  createdAt: string;
+}
+
+export type AdminUserUpdateRole = typeof AdminUserUpdateRole[keyof typeof AdminUserUpdateRole];
+
+
+export const AdminUserUpdateRole = {
+  user: 'user',
+  admin: 'admin',
+  investigator: 'investigator',
+} as const;
+
+export type AdminUserUpdateStatus = typeof AdminUserUpdateStatus[keyof typeof AdminUserUpdateStatus];
+
+
+export const AdminUserUpdateStatus = {
+  active: 'active',
+  suspended: 'suspended',
+} as const;
+
+export interface AdminUserUpdate {
+  role?: AdminUserUpdateRole;
+  status?: AdminUserUpdateStatus;
+}
+
+export interface AdminWalletWatch {
+  id: number;
+  clerkUserId: string;
+  network: WalletWatchNetwork;
+  address: string;
+  label: string;
+  alertsEnabled: boolean;
+  /** @nullable */
+  lastCheckedAt: string | null;
+  createdAt: string;
+}
+
 export interface QuestionInput {
   /**
      * @minLength 1
@@ -174,4 +310,30 @@ export const GetMarketHistoryDays = {
   NUMBER_365: '365',
   max: 'max',
 } as const;
+
+export type DeleteWalletWatchParams = {
+/**
+ * @minimum 1
+ */
+watchId: number;
+};
+
+export type GetWalletWatchActivityParams = {
+/**
+ * @minimum 1
+ */
+watchId: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+};
+
+export type DeleteAdminWalletWatchParams = {
+/**
+ * @minimum 1
+ */
+watchId: number;
+};
 

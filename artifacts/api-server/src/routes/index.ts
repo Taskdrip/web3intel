@@ -4,6 +4,8 @@ import healthRouter from "./health";
 import marketRouter from "./market";
 import walletRouter from "./wallet";
 import intelligenceRouter from "./intelligence";
+import walletWatchRouter from "./wallet-watch";
+import adminRouter from "./admin";
 
 const router: IRouter = Router();
 
@@ -12,5 +14,7 @@ router.use(healthRouter);
 router.use(marketRouter);
 router.use(walletRouter);
 router.use(intelligenceRouter);
+router.use(walletWatchRouter);
+router.use(adminRouter);
 
 export default router;
