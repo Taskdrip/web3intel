@@ -19,3 +19,4 @@
 
 export * from "./users";
 export * from "./wallet-watch";
+export * from "./shop";

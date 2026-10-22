@@ -50,7 +50,7 @@ const clerkAuthMiddleware = clerkMiddleware((req) => ({
 
 // Public market, intelligence, and address-lookup routes do not require an
 // account. Keep Clerk scoped to account, watchlist, and admin endpoints.
-app.use(["/api/auth", "/api/watch", "/api/admin"], (req, res, next) => {
+app.use(["/api/auth", "/api/watch", "/api/admin", "/api/shop/orders"], (req, res, next) => {
   const walletSession = getWalletSessionFromRequest(req);
   if (walletSession) {
     res.locals.walletUserId = walletSession.userId;

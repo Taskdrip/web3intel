@@ -5,6 +5,250 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type ShopProductSaleType = typeof ShopProductSaleType[keyof typeof ShopProductSaleType];
+
+
+export const ShopProductSaleType = {
+  direct: 'direct',
+  affiliate: 'affiliate',
+} as const;
+
+export type ShopProductFulfillment = typeof ShopProductFulfillment[keyof typeof ShopProductFulfillment];
+
+
+export const ShopProductFulfillment = {
+  physical: 'physical',
+  digital: 'digital',
+} as const;
+
+export type ShopProductStatus = typeof ShopProductStatus[keyof typeof ShopProductStatus];
+
+
+export const ShopProductStatus = {
+  draft: 'draft',
+  active: 'active',
+  archived: 'archived',
+} as const;
+
+export interface ShopProduct {
+  id: number;
+  slug: string;
+  title: string;
+  category: string;
+  saleType: ShopProductSaleType;
+  fulfillment: ShopProductFulfillment;
+  summary: string;
+  description: string;
+  specs: string;
+  /** @nullable */
+  priceCents: number | null;
+  priceCurrency: string;
+  /** @nullable */
+  affiliateUrl: string | null;
+  status: ShopProductStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ShopProductInputSaleType = typeof ShopProductInputSaleType[keyof typeof ShopProductInputSaleType];
+
+
+export const ShopProductInputSaleType = {
+  direct: 'direct',
+  affiliate: 'affiliate',
+} as const;
+
+export type ShopProductInputFulfillment = typeof ShopProductInputFulfillment[keyof typeof ShopProductInputFulfillment];
+
+
+export const ShopProductInputFulfillment = {
+  physical: 'physical',
+  digital: 'digital',
+} as const;
+
+export type ShopProductInputStatus = typeof ShopProductInputStatus[keyof typeof ShopProductInputStatus];
+
+
+export const ShopProductInputStatus = {
+  draft: 'draft',
+  active: 'active',
+  archived: 'archived',
+} as const;
+
+export interface ShopProductInput {
+  /**
+     * @minLength 2
+     * @maxLength 140
+     */
+  title: string;
+  /**
+     * @minLength 2
+     * @maxLength 60
+     */
+  category: string;
+  saleType: ShopProductInputSaleType;
+  fulfillment: ShopProductInputFulfillment;
+  /**
+     * @minLength 10
+     * @maxLength 300
+     */
+  summary: string;
+  /**
+     * @minLength 20
+     * @maxLength 10000
+     */
+  description: string;
+  /** @maxLength 4000 */
+  specs?: string;
+  /**
+     * @minimum 0
+     * @nullable
+     */
+  priceCents?: number | null;
+  /**
+     * @minLength 3
+     * @maxLength 3
+     */
+  priceCurrency: string;
+  /** @nullable */
+  affiliateUrl?: string | null;
+  status: ShopProductInputStatus;
+}
+
+export type ShopProductUpdate = ShopProductInput;
+
+export interface ShopOrderInput {
+  /** @minimum 1 */
+  productId: number;
+  /**
+     * @minimum 1
+     * @maximum 10
+     */
+  quantity: number;
+  /**
+     * @minLength 2
+     * @maxLength 140
+     */
+  customerName: string;
+  /** @maxLength 254 */
+  customerEmail: string;
+  /**
+     * @minLength 5
+     * @maxLength 300
+     */
+  shippingAddress?: string;
+  /**
+     * @minLength 2
+     * @maxLength 100
+     */
+  shippingCity?: string;
+  /** @maxLength 100 */
+  shippingRegion?: string;
+  /** @maxLength 40 */
+  shippingPostalCode?: string;
+  /**
+     * @minLength 2
+     * @maxLength 100
+     */
+  shippingCountry?: string;
+}
+
+export type ShopOrderStatus = typeof ShopOrderStatus[keyof typeof ShopOrderStatus];
+
+
+export const ShopOrderStatus = {
+  awaiting_payment: 'awaiting_payment',
+  payment_submitted: 'payment_submitted',
+  paid: 'paid',
+  processing: 'processing',
+  fulfilled: 'fulfilled',
+  cancelled: 'cancelled',
+} as const;
+
+export interface ShopOrder {
+  id: number;
+  orderNumber: string;
+  clerkUserId: string;
+  productId: number;
+  productTitle: string;
+  quantity: number;
+  unitPriceCents: number;
+  currency: string;
+  customerName: string;
+  customerEmail: string;
+  shippingAddress: string;
+  shippingCity: string;
+  shippingRegion: string;
+  shippingPostalCode: string;
+  shippingCountry: string;
+  /** @nullable */
+  paymentReference: string | null;
+  status: ShopOrderStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ShopPaymentInstructions {
+  configured: boolean;
+  asset: string;
+  network: string;
+  receivingAddress: string;
+  instructions: string;
+}
+
+export interface ShopPaymentSettings {
+  id: number;
+  asset: string;
+  network: string;
+  receivingAddress: string;
+  instructions: string;
+  updatedAt: string;
+}
+
+export interface ShopPaymentSettingsInput {
+  /**
+     * @minLength 2
+     * @maxLength 20
+     */
+  asset: string;
+  /**
+     * @minLength 2
+     * @maxLength 60
+     */
+  network: string;
+  /**
+     * @minLength 8
+     * @maxLength 200
+     */
+  receivingAddress: string;
+  /** @maxLength 1000 */
+  instructions?: string;
+}
+
+export interface ShopPaymentReferenceInput {
+  /**
+     * @minLength 8
+     * @maxLength 300
+     */
+  paymentReference: string;
+}
+
+export type ShopOrderUpdateStatus = typeof ShopOrderUpdateStatus[keyof typeof ShopOrderUpdateStatus];
+
+
+export const ShopOrderUpdateStatus = {
+  awaiting_payment: 'awaiting_payment',
+  payment_submitted: 'payment_submitted',
+  paid: 'paid',
+  processing: 'processing',
+  fulfilled: 'fulfilled',
+  cancelled: 'cancelled',
+} as const;
+
+export interface ShopOrderUpdate {
+  status: ShopOrderUpdateStatus;
+}
+
 export interface WalletAuthChallengeInput {
   /** @pattern ^0x[a-fA-F0-9]{40}$ */
   address: string;

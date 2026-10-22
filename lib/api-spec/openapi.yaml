@@ -686,8 +686,378 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+  /shop/products:
+    get:
+      operationId: listShopProducts
+      tags: [shop]
+      summary: List active shop products
+      responses:
+        "200":
+          description: Active products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ShopProduct"
+  /shop/products/{slug}:
+    get:
+      operationId: getShopProduct
+      tags: [shop]
+      summary: Get an active product by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopProduct"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /shop/payment-instructions:
+    get:
+      operationId: getShopPaymentInstructions
+      tags: [shop]
+      summary: Get public manual crypto payment instructions
+      responses:
+        "200":
+          description: Receiving address and payment details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopPaymentInstructions"
+  /shop/orders:
+    get:
+      operationId: listMyShopOrders
+      tags: [shop]
+      summary: List the signed-in user's orders
+      responses:
+        "200":
+          description: Current user's orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ShopOrder"
+    post:
+      operationId: createShopOrder
+      tags: [shop]
+      summary: Place a direct-sale order for manual crypto payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopOrderInput"
+      responses:
+        "201":
+          description: Order awaiting manual crypto payment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopOrder"
+        "400":
+          description: Invalid order details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Sign in to place an order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /shop/orders/{id}/payment:
+    patch:
+      operationId: submitShopPaymentReference
+      tags: [shop]
+      summary: Submit a transaction reference for manual review
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopPaymentReferenceInput"
+      responses:
+        "200":
+          description: Payment reference submitted for review
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopOrder"
+        "404":
+          description: Order not found or not owned by this account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /admin/shop/products:
+    get:
+      operationId: listAdminShopProducts
+      tags: [shop]
+      summary: List all shop products for administrators
+      responses:
+        "200":
+          description: Product catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ShopProduct"
+    post:
+      operationId: createAdminShopProduct
+      tags: [shop]
+      summary: Add a shop product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopProductInput"
+      responses:
+        "201":
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopProduct"
+        "400":
+          description: Product details are invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /admin/shop/products/{id}:
+    patch:
+      operationId: updateAdminShopProduct
+      tags: [shop]
+      summary: Update or archive a shop product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopProductUpdate"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopProduct"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /admin/shop/orders:
+    get:
+      operationId: listAdminShopOrders
+      tags: [shop]
+      summary: List orders for administrators
+      responses:
+        "200":
+          description: All orders, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ShopOrder"
+  /admin/shop/orders/{id}:
+    patch:
+      operationId: updateAdminShopOrder
+      tags: [shop]
+      summary: Update an order after manual payment and fulfillment review
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopOrderUpdate"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopOrder"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /admin/shop/payment-settings:
+    get:
+      operationId: getAdminShopPaymentSettings
+      tags: [shop]
+      summary: Get manual crypto receiving settings
+      responses:
+        "200":
+          description: Configured receiving wallet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopPaymentSettings"
+    put:
+      operationId: updateAdminShopPaymentSettings
+      tags: [shop]
+      summary: Set the public receiving address and checkout instructions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopPaymentSettingsInput"
+      responses:
+        "200":
+          description: Updated payment settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopPaymentSettings"
 components:
   schemas:
+    ShopProduct:
+      type: object
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        title: { type: string }
+        category: { type: string }
+        saleType: { type: string, enum: [direct, affiliate] }
+        fulfillment: { type: string, enum: [physical, digital] }
+        summary: { type: string }
+        description: { type: string }
+        specs: { type: string }
+        priceCents: { type: ["integer", "null"] }
+        priceCurrency: { type: string }
+        affiliateUrl: { type: ["string", "null"] }
+        status: { type: string, enum: [draft, active, archived] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [id, slug, title, category, saleType, fulfillment, summary, description, specs, priceCents, priceCurrency, affiliateUrl, status, createdAt, updatedAt]
+    ShopProductInput:
+      type: object
+      properties:
+        title: { type: string, minLength: 2, maxLength: 140 }
+        category: { type: string, minLength: 2, maxLength: 60 }
+        saleType: { type: string, enum: [direct, affiliate] }
+        fulfillment: { type: string, enum: [physical, digital] }
+        summary: { type: string, minLength: 10, maxLength: 300 }
+        description: { type: string, minLength: 20, maxLength: 10000 }
+        specs: { type: string, maxLength: 4000 }
+        priceCents: { type: ["integer", "null"], minimum: 0 }
+        priceCurrency: { type: string, minLength: 3, maxLength: 3 }
+        affiliateUrl: { type: ["string", "null"], format: uri }
+        status: { type: string, enum: [draft, active, archived] }
+      required: [title, category, saleType, fulfillment, summary, description, priceCurrency, status]
+    ShopProductUpdate:
+      allOf:
+        - $ref: "#/components/schemas/ShopProductInput"
+      minProperties: 1
+    ShopOrderInput:
+      type: object
+      properties:
+        productId: { type: integer, minimum: 1 }
+        quantity: { type: integer, minimum: 1, maximum: 10 }
+        customerName: { type: string, minLength: 2, maxLength: 140 }
+        customerEmail: { type: string, format: email, maxLength: 254 }
+        shippingAddress: { type: string, minLength: 5, maxLength: 300 }
+        shippingCity: { type: string, minLength: 2, maxLength: 100 }
+        shippingRegion: { type: string, maxLength: 100 }
+        shippingPostalCode: { type: string, maxLength: 40 }
+        shippingCountry: { type: string, minLength: 2, maxLength: 100 }
+      required: [productId, quantity, customerName, customerEmail]
+    ShopOrder:
+      type: object
+      properties:
+        id: { type: integer }
+        orderNumber: { type: string }
+        clerkUserId: { type: string }
+        productId: { type: integer }
+        productTitle: { type: string }
+        quantity: { type: integer }
+        unitPriceCents: { type: integer }
+        currency: { type: string }
+        customerName: { type: string }
+        customerEmail: { type: string }
+        shippingAddress: { type: string }
+        shippingCity: { type: string }
+        shippingRegion: { type: string }
+        shippingPostalCode: { type: string }
+        shippingCountry: { type: string }
+        paymentReference: { type: ["string", "null"] }
+        status: { type: string, enum: [awaiting_payment, payment_submitted, paid, processing, fulfilled, cancelled] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [id, orderNumber, clerkUserId, productId, productTitle, quantity, unitPriceCents, currency, customerName, customerEmail, shippingAddress, shippingCity, shippingRegion, shippingPostalCode, shippingCountry, paymentReference, status, createdAt, updatedAt]
+    ShopPaymentInstructions:
+      type: object
+      properties:
+        configured: { type: boolean }
+        asset: { type: string }
+        network: { type: string }
+        receivingAddress: { type: string }
+        instructions: { type: string }
+      required: [configured, asset, network, receivingAddress, instructions]
+    ShopPaymentSettings:
+      type: object
+      properties:
+        id: { type: integer }
+        asset: { type: string }
+        network: { type: string }
+        receivingAddress: { type: string }
+        instructions: { type: string }
+        updatedAt: { type: string, format: date-time }
+      required: [id, asset, network, receivingAddress, instructions, updatedAt]
+    ShopPaymentSettingsInput:
+      type: object
+      properties:
+        asset: { type: string, minLength: 2, maxLength: 20 }
+        network: { type: string, minLength: 2, maxLength: 60 }
+        receivingAddress: { type: string, minLength: 8, maxLength: 200 }
+        instructions: { type: string, maxLength: 1000 }
+      required: [asset, network, receivingAddress]
+    ShopPaymentReferenceInput:
+      type: object
+      properties:
+        paymentReference: { type: string, minLength: 8, maxLength: 300 }
+      required: [paymentReference]
+    ShopOrderUpdate:
+      type: object
+      properties:
+        status: { type: string, enum: [awaiting_payment, payment_submitted, paid, processing, fulfilled, cancelled] }
+      required: [status]
     WalletAuthChallengeInput:
       type: object
       properties:

@@ -557,3 +557,448 @@ export const AskIntelligenceResponse = zod.object({
 })
 
 
+/**
+ * @summary List active shop products
+ */
+export const ListShopProductsResponseItem = zod.object({
+  "id": zod.number().int(),
+  "slug": zod.string(),
+  "title": zod.string(),
+  "category": zod.string(),
+  "saleType": zod.enum(['direct', 'affiliate']),
+  "fulfillment": zod.enum(['physical', 'digital']),
+  "summary": zod.string(),
+  "description": zod.string(),
+  "specs": zod.string(),
+  "priceCents": zod.number().int().nullable(),
+  "priceCurrency": zod.string(),
+  "affiliateUrl": zod.string().nullable(),
+  "status": zod.enum(['draft', 'active', 'archived']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListShopProductsResponse = zod.array(ListShopProductsResponseItem)
+
+
+/**
+ * @summary Get an active product by slug
+ */
+export const GetShopProductParams = zod.object({
+  "slug": zod.coerce.string()
+})
+
+export const GetShopProductResponse = zod.object({
+  "id": zod.number().int(),
+  "slug": zod.string(),
+  "title": zod.string(),
+  "category": zod.string(),
+  "saleType": zod.enum(['direct', 'affiliate']),
+  "fulfillment": zod.enum(['physical', 'digital']),
+  "summary": zod.string(),
+  "description": zod.string(),
+  "specs": zod.string(),
+  "priceCents": zod.number().int().nullable(),
+  "priceCurrency": zod.string(),
+  "affiliateUrl": zod.string().nullable(),
+  "status": zod.enum(['draft', 'active', 'archived']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get public manual crypto payment instructions
+ */
+export const GetShopPaymentInstructionsResponse = zod.object({
+  "configured": zod.boolean(),
+  "asset": zod.string(),
+  "network": zod.string(),
+  "receivingAddress": zod.string(),
+  "instructions": zod.string()
+})
+
+
+/**
+ * @summary List the signed-in user's orders
+ */
+export const ListMyShopOrdersResponseItem = zod.object({
+  "id": zod.number().int(),
+  "orderNumber": zod.string(),
+  "clerkUserId": zod.string(),
+  "productId": zod.number().int(),
+  "productTitle": zod.string(),
+  "quantity": zod.number().int(),
+  "unitPriceCents": zod.number().int(),
+  "currency": zod.string(),
+  "customerName": zod.string(),
+  "customerEmail": zod.string(),
+  "shippingAddress": zod.string(),
+  "shippingCity": zod.string(),
+  "shippingRegion": zod.string(),
+  "shippingPostalCode": zod.string(),
+  "shippingCountry": zod.string(),
+  "paymentReference": zod.string().nullable(),
+  "status": zod.enum(['awaiting_payment', 'payment_submitted', 'paid', 'processing', 'fulfilled', 'cancelled']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListMyShopOrdersResponse = zod.array(ListMyShopOrdersResponseItem)
+
+
+/**
+ * @summary Place a direct-sale order for manual crypto payment
+ */
+
+export const createShopOrderBodyQuantityMax = 10;
+
+export const createShopOrderBodyCustomerNameMin = 2;
+export const createShopOrderBodyCustomerNameMax = 140;
+
+export const createShopOrderBodyCustomerEmailMax = 254;
+
+export const createShopOrderBodyShippingAddressMin = 5;
+export const createShopOrderBodyShippingAddressMax = 300;
+
+export const createShopOrderBodyShippingCityMin = 2;
+export const createShopOrderBodyShippingCityMax = 100;
+
+export const createShopOrderBodyShippingRegionMax = 100;
+
+export const createShopOrderBodyShippingPostalCodeMax = 40;
+
+export const createShopOrderBodyShippingCountryMin = 2;
+export const createShopOrderBodyShippingCountryMax = 100;
+
+
+
+export const CreateShopOrderBody = zod.object({
+  "productId": zod.number().int().min(1),
+  "quantity": zod.number().int().min(1).max(createShopOrderBodyQuantityMax),
+  "customerName": zod.string().min(createShopOrderBodyCustomerNameMin).max(createShopOrderBodyCustomerNameMax),
+  "customerEmail": zod.string().email().max(createShopOrderBodyCustomerEmailMax),
+  "shippingAddress": zod.string().min(createShopOrderBodyShippingAddressMin).max(createShopOrderBodyShippingAddressMax).optional(),
+  "shippingCity": zod.string().min(createShopOrderBodyShippingCityMin).max(createShopOrderBodyShippingCityMax).optional(),
+  "shippingRegion": zod.string().max(createShopOrderBodyShippingRegionMax).optional(),
+  "shippingPostalCode": zod.string().max(createShopOrderBodyShippingPostalCodeMax).optional(),
+  "shippingCountry": zod.string().min(createShopOrderBodyShippingCountryMin).max(createShopOrderBodyShippingCountryMax).optional()
+})
+
+export const CreateShopOrderResponse = zod.object({
+  "id": zod.number().int(),
+  "orderNumber": zod.string(),
+  "clerkUserId": zod.string(),
+  "productId": zod.number().int(),
+  "productTitle": zod.string(),
+  "quantity": zod.number().int(),
+  "unitPriceCents": zod.number().int(),
+  "currency": zod.string(),
+  "customerName": zod.string(),
+  "customerEmail": zod.string(),
+  "shippingAddress": zod.string(),
+  "shippingCity": zod.string(),
+  "shippingRegion": zod.string(),
+  "shippingPostalCode": zod.string(),
+  "shippingCountry": zod.string(),
+  "paymentReference": zod.string().nullable(),
+  "status": zod.enum(['awaiting_payment', 'payment_submitted', 'paid', 'processing', 'fulfilled', 'cancelled']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Submit a transaction reference for manual review
+ */
+
+
+
+export const SubmitShopPaymentReferenceParams = zod.object({
+  "id": zod.coerce.number().int().min(1)
+})
+
+export const submitShopPaymentReferenceBodyPaymentReferenceMin = 8;
+export const submitShopPaymentReferenceBodyPaymentReferenceMax = 300;
+
+
+
+export const SubmitShopPaymentReferenceBody = zod.object({
+  "paymentReference": zod.string().min(submitShopPaymentReferenceBodyPaymentReferenceMin).max(submitShopPaymentReferenceBodyPaymentReferenceMax)
+})
+
+export const SubmitShopPaymentReferenceResponse = zod.object({
+  "id": zod.number().int(),
+  "orderNumber": zod.string(),
+  "clerkUserId": zod.string(),
+  "productId": zod.number().int(),
+  "productTitle": zod.string(),
+  "quantity": zod.number().int(),
+  "unitPriceCents": zod.number().int(),
+  "currency": zod.string(),
+  "customerName": zod.string(),
+  "customerEmail": zod.string(),
+  "shippingAddress": zod.string(),
+  "shippingCity": zod.string(),
+  "shippingRegion": zod.string(),
+  "shippingPostalCode": zod.string(),
+  "shippingCountry": zod.string(),
+  "paymentReference": zod.string().nullable(),
+  "status": zod.enum(['awaiting_payment', 'payment_submitted', 'paid', 'processing', 'fulfilled', 'cancelled']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List all shop products for administrators
+ */
+export const ListAdminShopProductsResponseItem = zod.object({
+  "id": zod.number().int(),
+  "slug": zod.string(),
+  "title": zod.string(),
+  "category": zod.string(),
+  "saleType": zod.enum(['direct', 'affiliate']),
+  "fulfillment": zod.enum(['physical', 'digital']),
+  "summary": zod.string(),
+  "description": zod.string(),
+  "specs": zod.string(),
+  "priceCents": zod.number().int().nullable(),
+  "priceCurrency": zod.string(),
+  "affiliateUrl": zod.string().nullable(),
+  "status": zod.enum(['draft', 'active', 'archived']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListAdminShopProductsResponse = zod.array(ListAdminShopProductsResponseItem)
+
+
+/**
+ * @summary Add a shop product
+ */
+export const createAdminShopProductBodyTitleMin = 2;
+export const createAdminShopProductBodyTitleMax = 140;
+
+export const createAdminShopProductBodyCategoryMin = 2;
+export const createAdminShopProductBodyCategoryMax = 60;
+
+export const createAdminShopProductBodySummaryMin = 10;
+export const createAdminShopProductBodySummaryMax = 300;
+
+export const createAdminShopProductBodyDescriptionMin = 20;
+export const createAdminShopProductBodyDescriptionMax = 10000;
+
+export const createAdminShopProductBodySpecsMax = 4000;
+
+export const createAdminShopProductBodyPriceCentsMin = 0;
+
+export const createAdminShopProductBodyPriceCurrencyMin = 3;
+export const createAdminShopProductBodyPriceCurrencyMax = 3;
+
+
+
+export const CreateAdminShopProductBody = zod.object({
+  "title": zod.string().min(createAdminShopProductBodyTitleMin).max(createAdminShopProductBodyTitleMax),
+  "category": zod.string().min(createAdminShopProductBodyCategoryMin).max(createAdminShopProductBodyCategoryMax),
+  "saleType": zod.enum(['direct', 'affiliate']),
+  "fulfillment": zod.enum(['physical', 'digital']),
+  "summary": zod.string().min(createAdminShopProductBodySummaryMin).max(createAdminShopProductBodySummaryMax),
+  "description": zod.string().min(createAdminShopProductBodyDescriptionMin).max(createAdminShopProductBodyDescriptionMax),
+  "specs": zod.string().max(createAdminShopProductBodySpecsMax).optional(),
+  "priceCents": zod.number().int().min(createAdminShopProductBodyPriceCentsMin).nullish(),
+  "priceCurrency": zod.string().min(createAdminShopProductBodyPriceCurrencyMin).max(createAdminShopProductBodyPriceCurrencyMax),
+  "affiliateUrl": zod.string().url().nullish(),
+  "status": zod.enum(['draft', 'active', 'archived'])
+})
+
+export const CreateAdminShopProductResponse = zod.object({
+  "id": zod.number().int(),
+  "slug": zod.string(),
+  "title": zod.string(),
+  "category": zod.string(),
+  "saleType": zod.enum(['direct', 'affiliate']),
+  "fulfillment": zod.enum(['physical', 'digital']),
+  "summary": zod.string(),
+  "description": zod.string(),
+  "specs": zod.string(),
+  "priceCents": zod.number().int().nullable(),
+  "priceCurrency": zod.string(),
+  "affiliateUrl": zod.string().nullable(),
+  "status": zod.enum(['draft', 'active', 'archived']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update or archive a shop product
+ */
+
+
+
+export const UpdateAdminShopProductParams = zod.object({
+  "id": zod.coerce.number().int().min(1)
+})
+
+export const updateAdminShopProductBodyOneTitleMin = 2;
+export const updateAdminShopProductBodyOneTitleMax = 140;
+
+export const updateAdminShopProductBodyOneCategoryMin = 2;
+export const updateAdminShopProductBodyOneCategoryMax = 60;
+
+export const updateAdminShopProductBodyOneSummaryMin = 10;
+export const updateAdminShopProductBodyOneSummaryMax = 300;
+
+export const updateAdminShopProductBodyOneDescriptionMin = 20;
+export const updateAdminShopProductBodyOneDescriptionMax = 10000;
+
+export const updateAdminShopProductBodyOneSpecsMax = 4000;
+
+export const updateAdminShopProductBodyOnePriceCentsMin = 0;
+
+export const updateAdminShopProductBodyOnePriceCurrencyMin = 3;
+export const updateAdminShopProductBodyOnePriceCurrencyMax = 3;
+
+
+
+export const UpdateAdminShopProductBody = zod.object({
+  "title": zod.string().min(updateAdminShopProductBodyOneTitleMin).max(updateAdminShopProductBodyOneTitleMax),
+  "category": zod.string().min(updateAdminShopProductBodyOneCategoryMin).max(updateAdminShopProductBodyOneCategoryMax),
+  "saleType": zod.enum(['direct', 'affiliate']),
+  "fulfillment": zod.enum(['physical', 'digital']),
+  "summary": zod.string().min(updateAdminShopProductBodyOneSummaryMin).max(updateAdminShopProductBodyOneSummaryMax),
+  "description": zod.string().min(updateAdminShopProductBodyOneDescriptionMin).max(updateAdminShopProductBodyOneDescriptionMax),
+  "specs": zod.string().max(updateAdminShopProductBodyOneSpecsMax).optional(),
+  "priceCents": zod.number().int().min(updateAdminShopProductBodyOnePriceCentsMin).nullish(),
+  "priceCurrency": zod.string().min(updateAdminShopProductBodyOnePriceCurrencyMin).max(updateAdminShopProductBodyOnePriceCurrencyMax),
+  "affiliateUrl": zod.string().url().nullish(),
+  "status": zod.enum(['draft', 'active', 'archived'])
+})
+
+export const UpdateAdminShopProductResponse = zod.object({
+  "id": zod.number().int(),
+  "slug": zod.string(),
+  "title": zod.string(),
+  "category": zod.string(),
+  "saleType": zod.enum(['direct', 'affiliate']),
+  "fulfillment": zod.enum(['physical', 'digital']),
+  "summary": zod.string(),
+  "description": zod.string(),
+  "specs": zod.string(),
+  "priceCents": zod.number().int().nullable(),
+  "priceCurrency": zod.string(),
+  "affiliateUrl": zod.string().nullable(),
+  "status": zod.enum(['draft', 'active', 'archived']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List orders for administrators
+ */
+export const ListAdminShopOrdersResponseItem = zod.object({
+  "id": zod.number().int(),
+  "orderNumber": zod.string(),
+  "clerkUserId": zod.string(),
+  "productId": zod.number().int(),
+  "productTitle": zod.string(),
+  "quantity": zod.number().int(),
+  "unitPriceCents": zod.number().int(),
+  "currency": zod.string(),
+  "customerName": zod.string(),
+  "customerEmail": zod.string(),
+  "shippingAddress": zod.string(),
+  "shippingCity": zod.string(),
+  "shippingRegion": zod.string(),
+  "shippingPostalCode": zod.string(),
+  "shippingCountry": zod.string(),
+  "paymentReference": zod.string().nullable(),
+  "status": zod.enum(['awaiting_payment', 'payment_submitted', 'paid', 'processing', 'fulfilled', 'cancelled']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListAdminShopOrdersResponse = zod.array(ListAdminShopOrdersResponseItem)
+
+
+/**
+ * @summary Update an order after manual payment and fulfillment review
+ */
+
+
+
+export const UpdateAdminShopOrderParams = zod.object({
+  "id": zod.coerce.number().int().min(1)
+})
+
+export const UpdateAdminShopOrderBody = zod.object({
+  "status": zod.enum(['awaiting_payment', 'payment_submitted', 'paid', 'processing', 'fulfilled', 'cancelled'])
+})
+
+export const UpdateAdminShopOrderResponse = zod.object({
+  "id": zod.number().int(),
+  "orderNumber": zod.string(),
+  "clerkUserId": zod.string(),
+  "productId": zod.number().int(),
+  "productTitle": zod.string(),
+  "quantity": zod.number().int(),
+  "unitPriceCents": zod.number().int(),
+  "currency": zod.string(),
+  "customerName": zod.string(),
+  "customerEmail": zod.string(),
+  "shippingAddress": zod.string(),
+  "shippingCity": zod.string(),
+  "shippingRegion": zod.string(),
+  "shippingPostalCode": zod.string(),
+  "shippingCountry": zod.string(),
+  "paymentReference": zod.string().nullable(),
+  "status": zod.enum(['awaiting_payment', 'payment_submitted', 'paid', 'processing', 'fulfilled', 'cancelled']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get manual crypto receiving settings
+ */
+export const GetAdminShopPaymentSettingsResponse = zod.object({
+  "id": zod.number().int(),
+  "asset": zod.string(),
+  "network": zod.string(),
+  "receivingAddress": zod.string(),
+  "instructions": zod.string(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Set the public receiving address and checkout instructions
+ */
+export const updateAdminShopPaymentSettingsBodyAssetMin = 2;
+export const updateAdminShopPaymentSettingsBodyAssetMax = 20;
+
+export const updateAdminShopPaymentSettingsBodyNetworkMin = 2;
+export const updateAdminShopPaymentSettingsBodyNetworkMax = 60;
+
+export const updateAdminShopPaymentSettingsBodyReceivingAddressMin = 8;
+export const updateAdminShopPaymentSettingsBodyReceivingAddressMax = 200;
+
+export const updateAdminShopPaymentSettingsBodyInstructionsMax = 1000;
+
+
+
+export const UpdateAdminShopPaymentSettingsBody = zod.object({
+  "asset": zod.string().min(updateAdminShopPaymentSettingsBodyAssetMin).max(updateAdminShopPaymentSettingsBodyAssetMax),
+  "network": zod.string().min(updateAdminShopPaymentSettingsBodyNetworkMin).max(updateAdminShopPaymentSettingsBodyNetworkMax),
+  "receivingAddress": zod.string().min(updateAdminShopPaymentSettingsBodyReceivingAddressMin).max(updateAdminShopPaymentSettingsBodyReceivingAddressMax),
+  "instructions": zod.string().max(updateAdminShopPaymentSettingsBodyInstructionsMax).optional()
+})
+
+export const UpdateAdminShopPaymentSettingsResponse = zod.object({
+  "id": zod.number().int(),
+  "asset": zod.string(),
+  "network": zod.string(),
+  "receivingAddress": zod.string(),
+  "instructions": zod.string(),
+  "updatedAt": zod.coerce.date()
+})
+
+
