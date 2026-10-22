@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './adminMiningDevice';
+export * from './adminMiningOverview';
 export * from './adminProviderStatus';
 export * from './adminUser';
 export * from './adminUserRole';
@@ -42,6 +44,32 @@ export * from './marketCoinsResponse';
 export * from './marketHistoryPoint';
 export * from './marketHistoryResponse';
 export * from './marketOverview';
+export * from './miningActionResponse';
+export * from './miningConfiguration';
+export * from './miningConfigurationAlgorithm';
+export * from './miningConfigurationCoin';
+export * from './miningConfigurationInput';
+export * from './miningConnectionMethod';
+export * from './miningDashboard';
+export * from './miningDashboardVerificationStatus';
+export * from './miningDevice';
+export * from './miningDevicePairInput';
+export * from './miningDevicePairResponse';
+export * from './miningDeviceStatus';
+export * from './miningDeviceVerificationStatus';
+export * from './miningEngineStatus';
+export * from './miningEngineStatusAlgorithm';
+export * from './miningEngineStatusCoin';
+export * from './miningEngineUpdate';
+export * from './miningHeartbeatResponse';
+export * from './miningOperatingSystem';
+export * from './miningPairingCodeInput';
+export * from './miningPairingCodeResponse';
+export * from './miningProfile';
+export * from './miningStatistic';
+export * from './miningStatisticSource';
+export * from './miningStatisticVerificationStatus';
+export * from './miningTelemetryInput';
 export * from './newsArticle';
 export * from './newsFeedResponse';
 export * from './newsProviderStatus';

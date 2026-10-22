@@ -24,6 +24,8 @@ tags:
     description: Authenticated account and role information
   - name: wallet-auth
     description: EVM wallet authentication using EIP-4361 signed messages
+  - name: mining
+    description: User-consented local Monero miner configuration and device monitoring
 paths:
   /wallet-auth/challenge:
     post:
@@ -945,6 +947,352 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ShopPaymentSettings"
+  /mining/engine:
+    get:
+      operationId: getMiningEngineStatus
+      tags: [mining]
+      summary: Get public mining engine availability
+      responses:
+        "200":
+          description: Current engine availability and supported coin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningEngineStatus"
+  /mining/dashboard:
+    get:
+      operationId: getMiningDashboard
+      tags: [mining]
+      summary: Get the signed-in user's mining summary
+      responses:
+        "200":
+          description: User-owned mining devices, configurations, and verification status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningDashboard"
+        "401":
+          description: Sign-in is required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /mining/configurations:
+    get:
+      operationId: listMiningConfigurations
+      tags: [mining]
+      summary: List the signed-in user's mining configurations
+      responses:
+        "200":
+          description: User-owned configurations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MiningConfiguration"
+        "401":
+          description: Sign-in is required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      operationId: createMiningConfiguration
+      tags: [mining]
+      summary: Save an explicitly consented local Monero mining configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MiningConfigurationInput"
+      responses:
+        "201":
+          description: Configuration saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningConfiguration"
+        "400":
+          description: Invalid configuration or missing consent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Mining engine or database is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /mining/pairing-codes:
+    post:
+      operationId: createMiningPairingCode
+      tags: [mining]
+      summary: Create a short-lived one-time pairing code for a user's device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MiningPairingCodeInput"
+      responses:
+        "201":
+          description: Code is shown once and expires shortly
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningPairingCodeResponse"
+        "400":
+          description: Invalid request or configuration ownership mismatch
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /mining/pair:
+    post:
+      operationId: pairMiningDevice
+      tags: [mining]
+      summary: Pair an external device with a one-time code
+      description: Does not require a browser session; the high-entropy one-time code is the sole pairing credential.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MiningDevicePairInput"
+      responses:
+        "201":
+          description: Device paired; credential is returned once and stored only as a hash
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningDevicePairResponse"
+        "400":
+          description: Pairing code is invalid, expired, or already used
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Pairing attempts are rate limited
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /mining/devices/{deviceId}/heartbeat:
+    post:
+      operationId: heartbeatMiningDevice
+      tags: [mining]
+      summary: Record a device heartbeat using its revocable device credential
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Heartbeat accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningHeartbeatResponse"
+        "401":
+          description: Invalid or revoked device credential
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /mining/devices/{deviceId}/telemetry:
+    post:
+      operationId: reportMiningTelemetry
+      tags: [mining]
+      summary: Save device-reported telemetry; it is not proof of pool activity
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MiningTelemetryInput"
+      responses:
+        "201":
+          description: Telemetry recorded as device-reported
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningStatistic"
+        "401":
+          description: Invalid or revoked device credential
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /mining/devices/{deviceId}/statistics:
+    get:
+      operationId: getMiningDeviceStatistics
+      tags: [mining]
+      summary: Get recent device-reported statistics for a device owned by the signed-in user
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Recent telemetry history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MiningStatistic"
+        "404":
+          description: Device not found for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /mining/devices/{deviceId}/disconnect:
+    post:
+      operationId: disconnectMiningDevice
+      tags: [mining]
+      summary: Disconnect and invalidate a device credential
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Device disconnected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningActionResponse"
+        "404":
+          description: Device not found for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /mining/devices/{deviceId}/revoke:
+    post:
+      operationId: revokeMiningDevice
+      tags: [mining]
+      summary: Permanently revoke a device credential
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Device access revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningActionResponse"
+        "404":
+          description: Device not found for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /mining/consent/revoke:
+    post:
+      operationId: revokeMiningConsent
+      tags: [mining]
+      summary: Revoke the signed-in user's current mining consent and invalidate connected device credentials
+      responses:
+        "200":
+          description: Consent revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningActionResponse"
+  /admin/mining/overview:
+    get:
+      operationId: getAdminMiningOverview
+      tags: [mining]
+      summary: Get aggregate mining device health for administrators
+      responses:
+        "200":
+          description: Admin overview with device status and aggregate counts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminMiningOverview"
+        "403":
+          description: Administrator access is required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /admin/mining/engine:
+    patch:
+      operationId: updateAdminMiningEngine
+      tags: [mining]
+      summary: Enable or disable the engine and supported Monero coin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MiningEngineUpdate"
+      responses:
+        "200":
+          description: Engine settings updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningEngineStatus"
+        "403":
+          description: Administrator access is required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /admin/mining/devices/{deviceId}/suspend:
+    post:
+      operationId: suspendAdminMiningDevice
+      tags: [mining]
+      summary: Suspend an external device and invalidate its credential
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Device suspended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiningActionResponse"
+        "403":
+          description: Administrator access is required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
 components:
   schemas:
     ShopProduct:
@@ -1634,4 +1982,168 @@ components:
         disclaimer:
           type: string
       required: [answer, model, dataUpdatedAt, dataSource, scope, disclaimer]
+    MiningOperatingSystem:
+      type: string
+      enum: [windows_10_11, linux_ubuntu_debian, linux_other]
+    MiningProfile:
+      type: string
+      enum: [eco, balanced, performance, custom]
+    MiningConnectionMethod:
+      type: string
+      enum: [pool, solo, p2pool]
+    MiningEngineStatus:
+      type: object
+      properties:
+        engineEnabled: { type: boolean }
+        moneroEnabled: { type: boolean }
+        coin: { type: string, enum: [monero] }
+        algorithm: { type: string, enum: [RandomX] }
+      required: [engineEnabled, moneroEnabled, coin, algorithm]
+    MiningConfiguration:
+      type: object
+      properties:
+        id: { type: integer }
+        deviceId: { type: ["integer", "null"] }
+        coin: { type: string, enum: [monero] }
+        algorithm: { type: string, enum: [RandomX] }
+        connectionMethod: { $ref: "#/components/schemas/MiningConnectionMethod" }
+        poolHost: { type: string }
+        poolPort: { type: integer }
+        tlsEnabled: { type: boolean }
+        walletAddress: { type: string }
+        cpuThreadLimit: { type: integer }
+        profile: { $ref: "#/components/schemas/MiningProfile" }
+        createdAt: { type: string, format: date-time }
+      required: [id, deviceId, coin, algorithm, connectionMethod, poolHost, poolPort, tlsEnabled, walletAddress, cpuThreadLimit, profile, createdAt]
+    MiningConfigurationInput:
+      type: object
+      properties:
+        connectionMethod: { $ref: "#/components/schemas/MiningConnectionMethod" }
+        poolHost: { type: string, minLength: 1, maxLength: 253 }
+        poolPort: { type: integer, minimum: 1, maximum: 65535 }
+        tlsEnabled: { type: boolean }
+        walletAddress: { type: string, minLength: 95, maxLength: 106 }
+        cpuThreadLimit: { type: integer, minimum: 1, maximum: 100 }
+        profile: { $ref: "#/components/schemas/MiningProfile" }
+        operatingSystem: { $ref: "#/components/schemas/MiningOperatingSystem" }
+        consentAccepted: { type: boolean, enum: [true] }
+      required: [connectionMethod, poolHost, poolPort, tlsEnabled, walletAddress, cpuThreadLimit, profile, operatingSystem, consentAccepted]
+    MiningPairingCodeInput:
+      type: object
+      properties:
+        configurationId: { type: integer, minimum: 1 }
+        deviceName: { type: string, minLength: 1, maxLength: 80 }
+        operatingSystem: { $ref: "#/components/schemas/MiningOperatingSystem" }
+      required: [configurationId, deviceName, operatingSystem]
+    MiningPairingCodeResponse:
+      type: object
+      properties:
+        pairingCode: { type: string }
+        expiresAt: { type: string, format: date-time }
+      required: [pairingCode, expiresAt]
+    MiningDevicePairInput:
+      type: object
+      properties:
+        pairingCode: { type: string, minLength: 16, maxLength: 64 }
+        cpuModel: { type: ["string", "null"], maxLength: 160 }
+      required: [pairingCode]
+    MiningDevice:
+      type: object
+      properties:
+        id: { type: integer }
+        deviceName: { type: string }
+        operatingSystem: { $ref: "#/components/schemas/MiningOperatingSystem" }
+        cpuModel: { type: ["string", "null"] }
+        workerId: { type: string }
+        status: { type: string, enum: [offline, connected, disconnected, revoked, suspended] }
+        algorithm: { type: string }
+        pairedAt: { type: string, format: date-time }
+        lastHeartbeat: { type: ["string", "null"], format: date-time }
+        createdAt: { type: string, format: date-time }
+        hashrate: { type: ["number", "null"] }
+        acceptedShares: { type: integer }
+        rejectedShares: { type: integer }
+        uptime: { type: integer }
+        verificationStatus: { type: string, enum: [awaiting_pool_verification] }
+      required: [id, deviceName, operatingSystem, cpuModel, workerId, status, algorithm, pairedAt, lastHeartbeat, createdAt, hashrate, acceptedShares, rejectedShares, uptime, verificationStatus]
+    MiningDevicePairResponse:
+      type: object
+      properties:
+        device: { $ref: "#/components/schemas/MiningDevice" }
+        credentialToken: { type: string }
+        message: { type: string }
+      required: [device, credentialToken, message]
+    MiningDashboard:
+      type: object
+      properties:
+        devices:
+          type: array
+          items: { $ref: "#/components/schemas/MiningDevice" }
+        configurations:
+          type: array
+          items: { $ref: "#/components/schemas/MiningConfiguration" }
+        currentReportedHashrate: { type: ["number", "null"] }
+        acceptedShares: { type: integer }
+        rejectedShares: { type: integer }
+        onlineDevices: { type: integer }
+        verifiedHashrate: { type: ["number", "null"] }
+        verificationStatus: { type: string, enum: [awaiting_pool_verification] }
+        updatedAt: { type: ["string", "null"], format: date-time }
+      required: [devices, configurations, currentReportedHashrate, acceptedShares, rejectedShares, onlineDevices, verifiedHashrate, verificationStatus, updatedAt]
+    MiningHeartbeatResponse:
+      type: object
+      properties:
+        receivedAt: { type: string, format: date-time }
+      required: [receivedAt]
+    MiningTelemetryInput:
+      type: object
+      properties:
+        hashrate: { type: number, minimum: 0, maximum: 1000000000000 }
+        acceptedShares: { type: integer, minimum: 0, maximum: 2147483647 }
+        rejectedShares: { type: integer, minimum: 0, maximum: 2147483647 }
+        uptime: { type: integer, minimum: 0, maximum: 2147483647 }
+      required: [hashrate, acceptedShares, rejectedShares, uptime]
+    MiningStatistic:
+      type: object
+      properties:
+        id: { type: integer }
+        deviceId: { type: integer }
+        hashrate: { type: number }
+        acceptedShares: { type: integer }
+        rejectedShares: { type: integer }
+        uptime: { type: integer }
+        source: { type: string, enum: [device_reported] }
+        recordedAt: { type: string, format: date-time }
+        verificationStatus: { type: string, enum: [awaiting_pool_verification] }
+      required: [id, deviceId, hashrate, acceptedShares, rejectedShares, uptime, source, recordedAt, verificationStatus]
+    MiningActionResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        status: { type: string }
+      required: [success, status]
+    MiningEngineUpdate:
+      type: object
+      properties:
+        engineEnabled: { type: boolean }
+        moneroEnabled: { type: boolean }
+      minProperties: 1
+    AdminMiningDevice:
+      allOf:
+        - $ref: "#/components/schemas/MiningDevice"
+        - type: object
+          properties:
+            userId: { type: string }
+          required: [userId]
+    AdminMiningOverview:
+      type: object
+      properties:
+        totalDevices: { type: integer }
+        connectedDevices: { type: integer }
+        awaitingPoolVerification: { type: integer }
+        devices:
+          type: array
+          items: { $ref: "#/components/schemas/AdminMiningDevice" }
+        engine: { $ref: "#/components/schemas/MiningEngineStatus" }
+      required: [totalDevices, connectedDevices, awaitingPoolVerification, devices, engine]
 

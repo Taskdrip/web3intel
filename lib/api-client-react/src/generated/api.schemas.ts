@@ -766,6 +766,284 @@ export interface QuestionResponse {
   disclaimer: string;
 }
 
+export type MiningOperatingSystem = typeof MiningOperatingSystem[keyof typeof MiningOperatingSystem];
+
+
+export const MiningOperatingSystem = {
+  windows_10_11: 'windows_10_11',
+  linux_ubuntu_debian: 'linux_ubuntu_debian',
+  linux_other: 'linux_other',
+} as const;
+
+export type MiningProfile = typeof MiningProfile[keyof typeof MiningProfile];
+
+
+export const MiningProfile = {
+  eco: 'eco',
+  balanced: 'balanced',
+  performance: 'performance',
+  custom: 'custom',
+} as const;
+
+export type MiningConnectionMethod = typeof MiningConnectionMethod[keyof typeof MiningConnectionMethod];
+
+
+export const MiningConnectionMethod = {
+  pool: 'pool',
+  solo: 'solo',
+  p2pool: 'p2pool',
+} as const;
+
+export type MiningEngineStatusCoin = typeof MiningEngineStatusCoin[keyof typeof MiningEngineStatusCoin];
+
+
+export const MiningEngineStatusCoin = {
+  monero: 'monero',
+} as const;
+
+export type MiningEngineStatusAlgorithm = typeof MiningEngineStatusAlgorithm[keyof typeof MiningEngineStatusAlgorithm];
+
+
+export const MiningEngineStatusAlgorithm = {
+  RandomX: 'RandomX',
+} as const;
+
+export interface MiningEngineStatus {
+  engineEnabled: boolean;
+  moneroEnabled: boolean;
+  coin: MiningEngineStatusCoin;
+  algorithm: MiningEngineStatusAlgorithm;
+}
+
+export type MiningConfigurationCoin = typeof MiningConfigurationCoin[keyof typeof MiningConfigurationCoin];
+
+
+export const MiningConfigurationCoin = {
+  monero: 'monero',
+} as const;
+
+export type MiningConfigurationAlgorithm = typeof MiningConfigurationAlgorithm[keyof typeof MiningConfigurationAlgorithm];
+
+
+export const MiningConfigurationAlgorithm = {
+  RandomX: 'RandomX',
+} as const;
+
+export interface MiningConfiguration {
+  id: number;
+  /** @nullable */
+  deviceId: number | null;
+  coin: MiningConfigurationCoin;
+  algorithm: MiningConfigurationAlgorithm;
+  connectionMethod: MiningConnectionMethod;
+  poolHost: string;
+  poolPort: number;
+  tlsEnabled: boolean;
+  walletAddress: string;
+  cpuThreadLimit: number;
+  profile: MiningProfile;
+  createdAt: string;
+}
+
+export interface MiningConfigurationInput {
+  connectionMethod: MiningConnectionMethod;
+  /**
+     * @minLength 1
+     * @maxLength 253
+     */
+  poolHost: string;
+  /**
+     * @minimum 1
+     * @maximum 65535
+     */
+  poolPort: number;
+  tlsEnabled: boolean;
+  /**
+     * @minLength 95
+     * @maxLength 106
+     */
+  walletAddress: string;
+  /**
+     * @minimum 1
+     * @maximum 100
+     */
+  cpuThreadLimit: number;
+  profile: MiningProfile;
+  operatingSystem: MiningOperatingSystem;
+  consentAccepted: true;
+}
+
+export interface MiningPairingCodeInput {
+  /** @minimum 1 */
+  configurationId: number;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  deviceName: string;
+  operatingSystem: MiningOperatingSystem;
+}
+
+export interface MiningPairingCodeResponse {
+  pairingCode: string;
+  expiresAt: string;
+}
+
+export interface MiningDevicePairInput {
+  /**
+     * @minLength 16
+     * @maxLength 64
+     */
+  pairingCode: string;
+  /**
+     * @maxLength 160
+     * @nullable
+     */
+  cpuModel?: string | null;
+}
+
+export type MiningDeviceStatus = typeof MiningDeviceStatus[keyof typeof MiningDeviceStatus];
+
+
+export const MiningDeviceStatus = {
+  offline: 'offline',
+  connected: 'connected',
+  disconnected: 'disconnected',
+  revoked: 'revoked',
+  suspended: 'suspended',
+} as const;
+
+export type MiningDeviceVerificationStatus = typeof MiningDeviceVerificationStatus[keyof typeof MiningDeviceVerificationStatus];
+
+
+export const MiningDeviceVerificationStatus = {
+  awaiting_pool_verification: 'awaiting_pool_verification',
+} as const;
+
+export interface MiningDevice {
+  id: number;
+  deviceName: string;
+  operatingSystem: MiningOperatingSystem;
+  /** @nullable */
+  cpuModel: string | null;
+  workerId: string;
+  status: MiningDeviceStatus;
+  algorithm: string;
+  pairedAt: string;
+  /** @nullable */
+  lastHeartbeat: string | null;
+  createdAt: string;
+  /** @nullable */
+  hashrate: number | null;
+  acceptedShares: number;
+  rejectedShares: number;
+  uptime: number;
+  verificationStatus: MiningDeviceVerificationStatus;
+}
+
+export interface MiningDevicePairResponse {
+  device: MiningDevice;
+  credentialToken: string;
+  message: string;
+}
+
+export type MiningDashboardVerificationStatus = typeof MiningDashboardVerificationStatus[keyof typeof MiningDashboardVerificationStatus];
+
+
+export const MiningDashboardVerificationStatus = {
+  awaiting_pool_verification: 'awaiting_pool_verification',
+} as const;
+
+export interface MiningDashboard {
+  devices: MiningDevice[];
+  configurations: MiningConfiguration[];
+  /** @nullable */
+  currentReportedHashrate: number | null;
+  acceptedShares: number;
+  rejectedShares: number;
+  onlineDevices: number;
+  /** @nullable */
+  verifiedHashrate: number | null;
+  verificationStatus: MiningDashboardVerificationStatus;
+  /** @nullable */
+  updatedAt: string | null;
+}
+
+export interface MiningHeartbeatResponse {
+  receivedAt: string;
+}
+
+export interface MiningTelemetryInput {
+  /**
+     * @minimum 0
+     * @maximum 1000000000000
+     */
+  hashrate: number;
+  /**
+     * @minimum 0
+     * @maximum 2147483647
+     */
+  acceptedShares: number;
+  /**
+     * @minimum 0
+     * @maximum 2147483647
+     */
+  rejectedShares: number;
+  /**
+     * @minimum 0
+     * @maximum 2147483647
+     */
+  uptime: number;
+}
+
+export type MiningStatisticSource = typeof MiningStatisticSource[keyof typeof MiningStatisticSource];
+
+
+export const MiningStatisticSource = {
+  device_reported: 'device_reported',
+} as const;
+
+export type MiningStatisticVerificationStatus = typeof MiningStatisticVerificationStatus[keyof typeof MiningStatisticVerificationStatus];
+
+
+export const MiningStatisticVerificationStatus = {
+  awaiting_pool_verification: 'awaiting_pool_verification',
+} as const;
+
+export interface MiningStatistic {
+  id: number;
+  deviceId: number;
+  hashrate: number;
+  acceptedShares: number;
+  rejectedShares: number;
+  uptime: number;
+  source: MiningStatisticSource;
+  recordedAt: string;
+  verificationStatus: MiningStatisticVerificationStatus;
+}
+
+export interface MiningActionResponse {
+  success: boolean;
+  status: string;
+}
+
+export interface MiningEngineUpdate {
+  engineEnabled?: boolean;
+  moneroEnabled?: boolean;
+}
+
+export type AdminMiningDevice = MiningDevice & {
+  userId: string;
+};
+
+export interface AdminMiningOverview {
+  totalDevices: number;
+  connectedDevices: number;
+  awaitingPoolVerification: number;
+  devices: AdminMiningDevice[];
+  engine: MiningEngineStatus;
+}
+
 export type GetMarketCoinsParams = {
 /**
  * @minimum 1

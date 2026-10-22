@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AdminMiningOverview,
   AdminProviderStatus,
   AdminUser,
   AdminUserUpdate,
@@ -41,6 +42,19 @@ import type {
   MarketCoinsResponse,
   MarketHistoryResponse,
   MarketOverview,
+  MiningActionResponse,
+  MiningConfiguration,
+  MiningConfigurationInput,
+  MiningDashboard,
+  MiningDevicePairInput,
+  MiningDevicePairResponse,
+  MiningEngineStatus,
+  MiningEngineUpdate,
+  MiningHeartbeatResponse,
+  MiningPairingCodeInput,
+  MiningPairingCodeResponse,
+  MiningStatistic,
+  MiningTelemetryInput,
   NewsFeedResponse,
   QuestionInput,
   QuestionResponse,
@@ -3397,5 +3411,1202 @@ export const useUpdateAdminShopPaymentSettings = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getUpdateAdminShopPaymentSettingsMutationOptions(options));
+    }
+
+export const getGetMiningEngineStatusUrl = () => {
+
+
+
+
+  return `/api/mining/engine`
+}
+
+/**
+ * @summary Get public mining engine availability
+ */
+export const getMiningEngineStatus = async ( options?: Parameters<typeof customFetch>[1]): Promise<MiningEngineStatus> => {
+
+  return customFetch<MiningEngineStatus>(getGetMiningEngineStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMiningEngineStatusQueryKey = () => {
+    return [
+    `/api/mining/engine`
+    ] as const;
+    }
+
+
+export const getGetMiningEngineStatusQueryOptions = <TData = Awaited<ReturnType<typeof getMiningEngineStatus>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMiningEngineStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMiningEngineStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMiningEngineStatus>>> = ({ signal }) => getMiningEngineStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMiningEngineStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMiningEngineStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getMiningEngineStatus>>>
+export type GetMiningEngineStatusQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get public mining engine availability
+ */
+
+export function useGetMiningEngineStatus<TData = Awaited<ReturnType<typeof getMiningEngineStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMiningEngineStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMiningEngineStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetMiningDashboardUrl = () => {
+
+
+
+
+  return `/api/mining/dashboard`
+}
+
+/**
+ * @summary Get the signed-in user's mining summary
+ */
+export const getMiningDashboard = async ( options?: Parameters<typeof customFetch>[1]): Promise<MiningDashboard> => {
+
+  return customFetch<MiningDashboard>(getGetMiningDashboardUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMiningDashboardQueryKey = () => {
+    return [
+    `/api/mining/dashboard`
+    ] as const;
+    }
+
+
+export const getGetMiningDashboardQueryOptions = <TData = Awaited<ReturnType<typeof getMiningDashboard>>, TError = ErrorType<ApiError>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMiningDashboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMiningDashboardQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMiningDashboard>>> = ({ signal }) => getMiningDashboard({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMiningDashboard>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMiningDashboardQueryResult = NonNullable<Awaited<ReturnType<typeof getMiningDashboard>>>
+export type GetMiningDashboardQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Get the signed-in user's mining summary
+ */
+
+export function useGetMiningDashboard<TData = Awaited<ReturnType<typeof getMiningDashboard>>, TError = ErrorType<ApiError>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMiningDashboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMiningDashboardQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListMiningConfigurationsUrl = () => {
+
+
+
+
+  return `/api/mining/configurations`
+}
+
+/**
+ * @summary List the signed-in user's mining configurations
+ */
+export const listMiningConfigurations = async ( options?: Parameters<typeof customFetch>[1]): Promise<MiningConfiguration[]> => {
+
+  return customFetch<MiningConfiguration[]>(getListMiningConfigurationsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMiningConfigurationsQueryKey = () => {
+    return [
+    `/api/mining/configurations`
+    ] as const;
+    }
+
+
+export const getListMiningConfigurationsQueryOptions = <TData = Awaited<ReturnType<typeof listMiningConfigurations>>, TError = ErrorType<ApiError>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMiningConfigurations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMiningConfigurationsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMiningConfigurations>>> = ({ signal }) => listMiningConfigurations({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMiningConfigurations>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListMiningConfigurationsQueryResult = NonNullable<Awaited<ReturnType<typeof listMiningConfigurations>>>
+export type ListMiningConfigurationsQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary List the signed-in user's mining configurations
+ */
+
+export function useListMiningConfigurations<TData = Awaited<ReturnType<typeof listMiningConfigurations>>, TError = ErrorType<ApiError>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMiningConfigurations>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListMiningConfigurationsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateMiningConfigurationUrl = () => {
+
+
+
+
+  return `/api/mining/configurations`
+}
+
+/**
+ * @summary Save an explicitly consented local Monero mining configuration
+ */
+export const createMiningConfiguration = async (miningConfigurationInput: MiningConfigurationInput, options?: Parameters<typeof customFetch>[1]): Promise<MiningConfiguration> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MiningConfiguration>(getCreateMiningConfigurationUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(miningConfigurationInput)
+  }
+);}
+
+
+
+
+
+export const getCreateMiningConfigurationMutationKey = () => ['createMiningConfiguration'] as const;
+
+export const getCreateMiningConfigurationMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMiningConfiguration>>, TError,CreateMiningConfigurationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMiningConfiguration>>, TError,CreateMiningConfigurationMutationVariables, TContext> => {
+
+const mutationKey = getCreateMiningConfigurationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMiningConfiguration>>, CreateMiningConfigurationMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createMiningConfiguration(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMiningConfigurationMutationResult = NonNullable<Awaited<ReturnType<typeof createMiningConfiguration>>>
+    export type CreateMiningConfigurationMutationBody = BodyType<MiningConfigurationInput>
+    export type CreateMiningConfigurationMutationError = ErrorType<ApiError>
+    export type CreateMiningConfigurationMutationVariables = {data: BodyType<MiningConfigurationInput>}
+
+    /**
+ * @summary Save an explicitly consented local Monero mining configuration
+ */
+export const useCreateMiningConfiguration = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMiningConfiguration>>, TError,CreateMiningConfigurationMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createMiningConfiguration>>,
+        TError,
+        CreateMiningConfigurationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateMiningConfigurationMutationOptions(options));
+    }
+
+export const getCreateMiningPairingCodeUrl = () => {
+
+
+
+
+  return `/api/mining/pairing-codes`
+}
+
+/**
+ * @summary Create a short-lived one-time pairing code for a user's device
+ */
+export const createMiningPairingCode = async (miningPairingCodeInput: MiningPairingCodeInput, options?: Parameters<typeof customFetch>[1]): Promise<MiningPairingCodeResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MiningPairingCodeResponse>(getCreateMiningPairingCodeUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(miningPairingCodeInput)
+  }
+);}
+
+
+
+
+
+export const getCreateMiningPairingCodeMutationKey = () => ['createMiningPairingCode'] as const;
+
+export const getCreateMiningPairingCodeMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMiningPairingCode>>, TError,CreateMiningPairingCodeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMiningPairingCode>>, TError,CreateMiningPairingCodeMutationVariables, TContext> => {
+
+const mutationKey = getCreateMiningPairingCodeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMiningPairingCode>>, CreateMiningPairingCodeMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createMiningPairingCode(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMiningPairingCodeMutationResult = NonNullable<Awaited<ReturnType<typeof createMiningPairingCode>>>
+    export type CreateMiningPairingCodeMutationBody = BodyType<MiningPairingCodeInput>
+    export type CreateMiningPairingCodeMutationError = ErrorType<ApiError>
+    export type CreateMiningPairingCodeMutationVariables = {data: BodyType<MiningPairingCodeInput>}
+
+    /**
+ * @summary Create a short-lived one-time pairing code for a user's device
+ */
+export const useCreateMiningPairingCode = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMiningPairingCode>>, TError,CreateMiningPairingCodeMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createMiningPairingCode>>,
+        TError,
+        CreateMiningPairingCodeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateMiningPairingCodeMutationOptions(options));
+    }
+
+export const getPairMiningDeviceUrl = () => {
+
+
+
+
+  return `/api/mining/pair`
+}
+
+/**
+ * Does not require a browser session; the high-entropy one-time code is the sole pairing credential.
+ * @summary Pair an external device with a one-time code
+ */
+export const pairMiningDevice = async (miningDevicePairInput: MiningDevicePairInput, options?: Parameters<typeof customFetch>[1]): Promise<MiningDevicePairResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MiningDevicePairResponse>(getPairMiningDeviceUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(miningDevicePairInput)
+  }
+);}
+
+
+
+
+
+export const getPairMiningDeviceMutationKey = () => ['pairMiningDevice'] as const;
+
+export const getPairMiningDeviceMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof pairMiningDevice>>, TError,PairMiningDeviceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof pairMiningDevice>>, TError,PairMiningDeviceMutationVariables, TContext> => {
+
+const mutationKey = getPairMiningDeviceMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof pairMiningDevice>>, PairMiningDeviceMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  pairMiningDevice(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PairMiningDeviceMutationResult = NonNullable<Awaited<ReturnType<typeof pairMiningDevice>>>
+    export type PairMiningDeviceMutationBody = BodyType<MiningDevicePairInput>
+    export type PairMiningDeviceMutationError = ErrorType<ApiError>
+    export type PairMiningDeviceMutationVariables = {data: BodyType<MiningDevicePairInput>}
+
+    /**
+ * @summary Pair an external device with a one-time code
+ */
+export const usePairMiningDevice = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof pairMiningDevice>>, TError,PairMiningDeviceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof pairMiningDevice>>,
+        TError,
+        PairMiningDeviceMutationVariables,
+        TContext
+      > => {
+      return useMutation(getPairMiningDeviceMutationOptions(options));
+    }
+
+export const getHeartbeatMiningDeviceUrl = (deviceId: number,) => {
+
+
+
+
+  return `/api/mining/devices/${deviceId}/heartbeat`
+}
+
+/**
+ * @summary Record a device heartbeat using its revocable device credential
+ */
+export const heartbeatMiningDevice = async (deviceId: number, options?: Parameters<typeof customFetch>[1]): Promise<MiningHeartbeatResponse> => {
+
+  return customFetch<MiningHeartbeatResponse>(getHeartbeatMiningDeviceUrl(deviceId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getHeartbeatMiningDeviceMutationKey = () => ['heartbeatMiningDevice'] as const;
+
+export const getHeartbeatMiningDeviceMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof heartbeatMiningDevice>>, TError,HeartbeatMiningDeviceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof heartbeatMiningDevice>>, TError,HeartbeatMiningDeviceMutationVariables, TContext> => {
+
+const mutationKey = getHeartbeatMiningDeviceMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof heartbeatMiningDevice>>, HeartbeatMiningDeviceMutationVariables> = (props) => {
+          const {deviceId} = props ?? {};
+
+          return  heartbeatMiningDevice(deviceId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type HeartbeatMiningDeviceMutationResult = NonNullable<Awaited<ReturnType<typeof heartbeatMiningDevice>>>
+
+    export type HeartbeatMiningDeviceMutationError = ErrorType<ApiError>
+    export type HeartbeatMiningDeviceMutationVariables = {deviceId: number}
+
+    /**
+ * @summary Record a device heartbeat using its revocable device credential
+ */
+export const useHeartbeatMiningDevice = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof heartbeatMiningDevice>>, TError,HeartbeatMiningDeviceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof heartbeatMiningDevice>>,
+        TError,
+        HeartbeatMiningDeviceMutationVariables,
+        TContext
+      > => {
+      return useMutation(getHeartbeatMiningDeviceMutationOptions(options));
+    }
+
+export const getReportMiningTelemetryUrl = (deviceId: number,) => {
+
+
+
+
+  return `/api/mining/devices/${deviceId}/telemetry`
+}
+
+/**
+ * @summary Save device-reported telemetry; it is not proof of pool activity
+ */
+export const reportMiningTelemetry = async (deviceId: number,
+    miningTelemetryInput: MiningTelemetryInput, options?: Parameters<typeof customFetch>[1]): Promise<MiningStatistic> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MiningStatistic>(getReportMiningTelemetryUrl(deviceId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(miningTelemetryInput)
+  }
+);}
+
+
+
+
+
+export const getReportMiningTelemetryMutationKey = () => ['reportMiningTelemetry'] as const;
+
+export const getReportMiningTelemetryMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reportMiningTelemetry>>, TError,ReportMiningTelemetryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof reportMiningTelemetry>>, TError,ReportMiningTelemetryMutationVariables, TContext> => {
+
+const mutationKey = getReportMiningTelemetryMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof reportMiningTelemetry>>, ReportMiningTelemetryMutationVariables> = (props) => {
+          const {deviceId,data} = props ?? {};
+
+          return  reportMiningTelemetry(deviceId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReportMiningTelemetryMutationResult = NonNullable<Awaited<ReturnType<typeof reportMiningTelemetry>>>
+    export type ReportMiningTelemetryMutationBody = BodyType<MiningTelemetryInput>
+    export type ReportMiningTelemetryMutationError = ErrorType<ApiError>
+    export type ReportMiningTelemetryMutationVariables = {deviceId: number;data: BodyType<MiningTelemetryInput>}
+
+    /**
+ * @summary Save device-reported telemetry; it is not proof of pool activity
+ */
+export const useReportMiningTelemetry = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reportMiningTelemetry>>, TError,ReportMiningTelemetryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof reportMiningTelemetry>>,
+        TError,
+        ReportMiningTelemetryMutationVariables,
+        TContext
+      > => {
+      return useMutation(getReportMiningTelemetryMutationOptions(options));
+    }
+
+export const getGetMiningDeviceStatisticsUrl = (deviceId: number,) => {
+
+
+
+
+  return `/api/mining/devices/${deviceId}/statistics`
+}
+
+/**
+ * @summary Get recent device-reported statistics for a device owned by the signed-in user
+ */
+export const getMiningDeviceStatistics = async (deviceId: number, options?: Parameters<typeof customFetch>[1]): Promise<MiningStatistic[]> => {
+
+  return customFetch<MiningStatistic[]>(getGetMiningDeviceStatisticsUrl(deviceId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMiningDeviceStatisticsQueryKey = (deviceId: number,) => {
+    return [
+    `/api/mining/devices/${deviceId}/statistics`
+    ] as const;
+    }
+
+
+export const getGetMiningDeviceStatisticsQueryOptions = <TData = Awaited<ReturnType<typeof getMiningDeviceStatistics>>, TError = ErrorType<ApiError>>(deviceId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMiningDeviceStatistics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMiningDeviceStatisticsQueryKey(deviceId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMiningDeviceStatistics>>> = ({ signal }) => getMiningDeviceStatistics(deviceId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: deviceId !== null && deviceId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMiningDeviceStatistics>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMiningDeviceStatisticsQueryResult = NonNullable<Awaited<ReturnType<typeof getMiningDeviceStatistics>>>
+export type GetMiningDeviceStatisticsQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Get recent device-reported statistics for a device owned by the signed-in user
+ */
+
+export function useGetMiningDeviceStatistics<TData = Awaited<ReturnType<typeof getMiningDeviceStatistics>>, TError = ErrorType<ApiError>>(
+ deviceId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMiningDeviceStatistics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMiningDeviceStatisticsQueryOptions(deviceId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDisconnectMiningDeviceUrl = (deviceId: number,) => {
+
+
+
+
+  return `/api/mining/devices/${deviceId}/disconnect`
+}
+
+/**
+ * @summary Disconnect and invalidate a device credential
+ */
+export const disconnectMiningDevice = async (deviceId: number, options?: Parameters<typeof customFetch>[1]): Promise<MiningActionResponse> => {
+
+  return customFetch<MiningActionResponse>(getDisconnectMiningDeviceUrl(deviceId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getDisconnectMiningDeviceMutationKey = () => ['disconnectMiningDevice'] as const;
+
+export const getDisconnectMiningDeviceMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof disconnectMiningDevice>>, TError,DisconnectMiningDeviceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof disconnectMiningDevice>>, TError,DisconnectMiningDeviceMutationVariables, TContext> => {
+
+const mutationKey = getDisconnectMiningDeviceMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof disconnectMiningDevice>>, DisconnectMiningDeviceMutationVariables> = (props) => {
+          const {deviceId} = props ?? {};
+
+          return  disconnectMiningDevice(deviceId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DisconnectMiningDeviceMutationResult = NonNullable<Awaited<ReturnType<typeof disconnectMiningDevice>>>
+
+    export type DisconnectMiningDeviceMutationError = ErrorType<ApiError>
+    export type DisconnectMiningDeviceMutationVariables = {deviceId: number}
+
+    /**
+ * @summary Disconnect and invalidate a device credential
+ */
+export const useDisconnectMiningDevice = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof disconnectMiningDevice>>, TError,DisconnectMiningDeviceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof disconnectMiningDevice>>,
+        TError,
+        DisconnectMiningDeviceMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDisconnectMiningDeviceMutationOptions(options));
+    }
+
+export const getRevokeMiningDeviceUrl = (deviceId: number,) => {
+
+
+
+
+  return `/api/mining/devices/${deviceId}/revoke`
+}
+
+/**
+ * @summary Permanently revoke a device credential
+ */
+export const revokeMiningDevice = async (deviceId: number, options?: Parameters<typeof customFetch>[1]): Promise<MiningActionResponse> => {
+
+  return customFetch<MiningActionResponse>(getRevokeMiningDeviceUrl(deviceId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getRevokeMiningDeviceMutationKey = () => ['revokeMiningDevice'] as const;
+
+export const getRevokeMiningDeviceMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeMiningDevice>>, TError,RevokeMiningDeviceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof revokeMiningDevice>>, TError,RevokeMiningDeviceMutationVariables, TContext> => {
+
+const mutationKey = getRevokeMiningDeviceMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof revokeMiningDevice>>, RevokeMiningDeviceMutationVariables> = (props) => {
+          const {deviceId} = props ?? {};
+
+          return  revokeMiningDevice(deviceId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RevokeMiningDeviceMutationResult = NonNullable<Awaited<ReturnType<typeof revokeMiningDevice>>>
+
+    export type RevokeMiningDeviceMutationError = ErrorType<ApiError>
+    export type RevokeMiningDeviceMutationVariables = {deviceId: number}
+
+    /**
+ * @summary Permanently revoke a device credential
+ */
+export const useRevokeMiningDevice = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeMiningDevice>>, TError,RevokeMiningDeviceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof revokeMiningDevice>>,
+        TError,
+        RevokeMiningDeviceMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRevokeMiningDeviceMutationOptions(options));
+    }
+
+export const getRevokeMiningConsentUrl = () => {
+
+
+
+
+  return `/api/mining/consent/revoke`
+}
+
+/**
+ * @summary Revoke the signed-in user's current mining consent and invalidate connected device credentials
+ */
+export const revokeMiningConsent = async ( options?: Parameters<typeof customFetch>[1]): Promise<MiningActionResponse> => {
+
+  return customFetch<MiningActionResponse>(getRevokeMiningConsentUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getRevokeMiningConsentMutationKey = () => ['revokeMiningConsent'] as const;
+
+export const getRevokeMiningConsentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeMiningConsent>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof revokeMiningConsent>>, TError,void, TContext> => {
+
+const mutationKey = getRevokeMiningConsentMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof revokeMiningConsent>>, void> = () => {
+
+
+          return  revokeMiningConsent(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RevokeMiningConsentMutationResult = NonNullable<Awaited<ReturnType<typeof revokeMiningConsent>>>
+
+    export type RevokeMiningConsentMutationError = ErrorType<unknown>
+
+
+    /**
+ * @summary Revoke the signed-in user's current mining consent and invalidate connected device credentials
+ */
+export const useRevokeMiningConsent = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeMiningConsent>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof revokeMiningConsent>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getRevokeMiningConsentMutationOptions(options));
+    }
+
+export const getGetAdminMiningOverviewUrl = () => {
+
+
+
+
+  return `/api/admin/mining/overview`
+}
+
+/**
+ * @summary Get aggregate mining device health for administrators
+ */
+export const getAdminMiningOverview = async ( options?: Parameters<typeof customFetch>[1]): Promise<AdminMiningOverview> => {
+
+  return customFetch<AdminMiningOverview>(getGetAdminMiningOverviewUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminMiningOverviewQueryKey = () => {
+    return [
+    `/api/admin/mining/overview`
+    ] as const;
+    }
+
+
+export const getGetAdminMiningOverviewQueryOptions = <TData = Awaited<ReturnType<typeof getAdminMiningOverview>>, TError = ErrorType<ApiError>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminMiningOverview>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminMiningOverviewQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminMiningOverview>>> = ({ signal }) => getAdminMiningOverview({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminMiningOverview>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminMiningOverviewQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminMiningOverview>>>
+export type GetAdminMiningOverviewQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Get aggregate mining device health for administrators
+ */
+
+export function useGetAdminMiningOverview<TData = Awaited<ReturnType<typeof getAdminMiningOverview>>, TError = ErrorType<ApiError>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminMiningOverview>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminMiningOverviewQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateAdminMiningEngineUrl = () => {
+
+
+
+
+  return `/api/admin/mining/engine`
+}
+
+/**
+ * @summary Enable or disable the engine and supported Monero coin
+ */
+export const updateAdminMiningEngine = async (miningEngineUpdate: MiningEngineUpdate, options?: Parameters<typeof customFetch>[1]): Promise<MiningEngineStatus> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<MiningEngineStatus>(getUpdateAdminMiningEngineUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(miningEngineUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateAdminMiningEngineMutationKey = () => ['updateAdminMiningEngine'] as const;
+
+export const getUpdateAdminMiningEngineMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminMiningEngine>>, TError,UpdateAdminMiningEngineMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAdminMiningEngine>>, TError,UpdateAdminMiningEngineMutationVariables, TContext> => {
+
+const mutationKey = getUpdateAdminMiningEngineMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAdminMiningEngine>>, UpdateAdminMiningEngineMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateAdminMiningEngine(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAdminMiningEngineMutationResult = NonNullable<Awaited<ReturnType<typeof updateAdminMiningEngine>>>
+    export type UpdateAdminMiningEngineMutationBody = BodyType<MiningEngineUpdate>
+    export type UpdateAdminMiningEngineMutationError = ErrorType<ApiError>
+    export type UpdateAdminMiningEngineMutationVariables = {data: BodyType<MiningEngineUpdate>}
+
+    /**
+ * @summary Enable or disable the engine and supported Monero coin
+ */
+export const useUpdateAdminMiningEngine = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminMiningEngine>>, TError,UpdateAdminMiningEngineMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateAdminMiningEngine>>,
+        TError,
+        UpdateAdminMiningEngineMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateAdminMiningEngineMutationOptions(options));
+    }
+
+export const getSuspendAdminMiningDeviceUrl = (deviceId: number,) => {
+
+
+
+
+  return `/api/admin/mining/devices/${deviceId}/suspend`
+}
+
+/**
+ * @summary Suspend an external device and invalidate its credential
+ */
+export const suspendAdminMiningDevice = async (deviceId: number, options?: Parameters<typeof customFetch>[1]): Promise<MiningActionResponse> => {
+
+  return customFetch<MiningActionResponse>(getSuspendAdminMiningDeviceUrl(deviceId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getSuspendAdminMiningDeviceMutationKey = () => ['suspendAdminMiningDevice'] as const;
+
+export const getSuspendAdminMiningDeviceMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof suspendAdminMiningDevice>>, TError,SuspendAdminMiningDeviceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof suspendAdminMiningDevice>>, TError,SuspendAdminMiningDeviceMutationVariables, TContext> => {
+
+const mutationKey = getSuspendAdminMiningDeviceMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof suspendAdminMiningDevice>>, SuspendAdminMiningDeviceMutationVariables> = (props) => {
+          const {deviceId} = props ?? {};
+
+          return  suspendAdminMiningDevice(deviceId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SuspendAdminMiningDeviceMutationResult = NonNullable<Awaited<ReturnType<typeof suspendAdminMiningDevice>>>
+
+    export type SuspendAdminMiningDeviceMutationError = ErrorType<ApiError>
+    export type SuspendAdminMiningDeviceMutationVariables = {deviceId: number}
+
+    /**
+ * @summary Suspend an external device and invalidate its credential
+ */
+export const useSuspendAdminMiningDevice = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof suspendAdminMiningDevice>>, TError,SuspendAdminMiningDeviceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof suspendAdminMiningDevice>>,
+        TError,
+        SuspendAdminMiningDeviceMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSuspendAdminMiningDeviceMutationOptions(options));
     }
 

@@ -10,6 +10,7 @@ import walletWatchRouter from "./wallet-watch";
 import adminRouter from "./admin";
 import walletAuthRouter from "./wallet-auth";
 import shopRouter from "./shop";
+import miningRouter from "./mining";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(intelligenceRouter);
 router.use(walletWatchRouter);
 router.use(adminRouter);
 router.use(shopRouter);
+router.use(miningRouter);
 
 export default router;

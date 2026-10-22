@@ -1013,3 +1013,371 @@ export const UpdateAdminShopPaymentSettingsResponse = zod.object({
 })
 
 
+/**
+ * @summary Get public mining engine availability
+ */
+export const GetMiningEngineStatusResponse = zod.object({
+  "engineEnabled": zod.boolean(),
+  "moneroEnabled": zod.boolean(),
+  "coin": zod.enum(['monero']),
+  "algorithm": zod.enum(['RandomX'])
+})
+
+
+/**
+ * @summary Get the signed-in user's mining summary
+ */
+export const GetMiningDashboardResponse = zod.object({
+  "devices": zod.array(zod.object({
+  "id": zod.number().int(),
+  "deviceName": zod.string(),
+  "operatingSystem": zod.enum(['windows_10_11', 'linux_ubuntu_debian', 'linux_other']),
+  "cpuModel": zod.string().nullable(),
+  "workerId": zod.string(),
+  "status": zod.enum(['offline', 'connected', 'disconnected', 'revoked', 'suspended']),
+  "algorithm": zod.string(),
+  "pairedAt": zod.coerce.date(),
+  "lastHeartbeat": zod.coerce.date().nullable(),
+  "createdAt": zod.coerce.date(),
+  "hashrate": zod.number().nullable(),
+  "acceptedShares": zod.number().int(),
+  "rejectedShares": zod.number().int(),
+  "uptime": zod.number().int(),
+  "verificationStatus": zod.enum(['awaiting_pool_verification'])
+})),
+  "configurations": zod.array(zod.object({
+  "id": zod.number().int(),
+  "deviceId": zod.number().int().nullable(),
+  "coin": zod.enum(['monero']),
+  "algorithm": zod.enum(['RandomX']),
+  "connectionMethod": zod.enum(['pool', 'solo', 'p2pool']),
+  "poolHost": zod.string(),
+  "poolPort": zod.number().int(),
+  "tlsEnabled": zod.boolean(),
+  "walletAddress": zod.string(),
+  "cpuThreadLimit": zod.number().int(),
+  "profile": zod.enum(['eco', 'balanced', 'performance', 'custom']),
+  "createdAt": zod.coerce.date()
+})),
+  "currentReportedHashrate": zod.number().nullable(),
+  "acceptedShares": zod.number().int(),
+  "rejectedShares": zod.number().int(),
+  "onlineDevices": zod.number().int(),
+  "verifiedHashrate": zod.number().nullable(),
+  "verificationStatus": zod.enum(['awaiting_pool_verification']),
+  "updatedAt": zod.coerce.date().nullable()
+})
+
+
+/**
+ * @summary List the signed-in user's mining configurations
+ */
+export const ListMiningConfigurationsResponseItem = zod.object({
+  "id": zod.number().int(),
+  "deviceId": zod.number().int().nullable(),
+  "coin": zod.enum(['monero']),
+  "algorithm": zod.enum(['RandomX']),
+  "connectionMethod": zod.enum(['pool', 'solo', 'p2pool']),
+  "poolHost": zod.string(),
+  "poolPort": zod.number().int(),
+  "tlsEnabled": zod.boolean(),
+  "walletAddress": zod.string(),
+  "cpuThreadLimit": zod.number().int(),
+  "profile": zod.enum(['eco', 'balanced', 'performance', 'custom']),
+  "createdAt": zod.coerce.date()
+})
+export const ListMiningConfigurationsResponse = zod.array(ListMiningConfigurationsResponseItem)
+
+
+/**
+ * @summary Save an explicitly consented local Monero mining configuration
+ */
+export const createMiningConfigurationBodyPoolHostMax = 253;
+
+export const createMiningConfigurationBodyPoolPortMax = 65535;
+
+export const createMiningConfigurationBodyWalletAddressMin = 95;
+export const createMiningConfigurationBodyWalletAddressMax = 106;
+
+export const createMiningConfigurationBodyCpuThreadLimitMax = 100;
+
+
+
+export const CreateMiningConfigurationBody = zod.object({
+  "connectionMethod": zod.enum(['pool', 'solo', 'p2pool']),
+  "poolHost": zod.string().min(1).max(createMiningConfigurationBodyPoolHostMax),
+  "poolPort": zod.number().int().min(1).max(createMiningConfigurationBodyPoolPortMax),
+  "tlsEnabled": zod.boolean(),
+  "walletAddress": zod.string().min(createMiningConfigurationBodyWalletAddressMin).max(createMiningConfigurationBodyWalletAddressMax),
+  "cpuThreadLimit": zod.number().int().min(1).max(createMiningConfigurationBodyCpuThreadLimitMax),
+  "profile": zod.enum(['eco', 'balanced', 'performance', 'custom']),
+  "operatingSystem": zod.enum(['windows_10_11', 'linux_ubuntu_debian', 'linux_other']),
+  "consentAccepted": zod.literal(true)
+})
+
+export const CreateMiningConfigurationResponse = zod.object({
+  "id": zod.number().int(),
+  "deviceId": zod.number().int().nullable(),
+  "coin": zod.enum(['monero']),
+  "algorithm": zod.enum(['RandomX']),
+  "connectionMethod": zod.enum(['pool', 'solo', 'p2pool']),
+  "poolHost": zod.string(),
+  "poolPort": zod.number().int(),
+  "tlsEnabled": zod.boolean(),
+  "walletAddress": zod.string(),
+  "cpuThreadLimit": zod.number().int(),
+  "profile": zod.enum(['eco', 'balanced', 'performance', 'custom']),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Create a short-lived one-time pairing code for a user's device
+ */
+
+export const createMiningPairingCodeBodyDeviceNameMax = 80;
+
+
+
+export const CreateMiningPairingCodeBody = zod.object({
+  "configurationId": zod.number().int().min(1),
+  "deviceName": zod.string().min(1).max(createMiningPairingCodeBodyDeviceNameMax),
+  "operatingSystem": zod.enum(['windows_10_11', 'linux_ubuntu_debian', 'linux_other'])
+})
+
+export const CreateMiningPairingCodeResponse = zod.object({
+  "pairingCode": zod.string(),
+  "expiresAt": zod.coerce.date()
+})
+
+
+/**
+ * Does not require a browser session; the high-entropy one-time code is the sole pairing credential.
+ * @summary Pair an external device with a one-time code
+ */
+export const pairMiningDeviceBodyPairingCodeMin = 16;
+export const pairMiningDeviceBodyPairingCodeMax = 64;
+
+export const pairMiningDeviceBodyCpuModelMax = 160;
+
+
+
+export const PairMiningDeviceBody = zod.object({
+  "pairingCode": zod.string().min(pairMiningDeviceBodyPairingCodeMin).max(pairMiningDeviceBodyPairingCodeMax),
+  "cpuModel": zod.string().max(pairMiningDeviceBodyCpuModelMax).nullish()
+})
+
+export const PairMiningDeviceResponse = zod.object({
+  "device": zod.object({
+  "id": zod.number().int(),
+  "deviceName": zod.string(),
+  "operatingSystem": zod.enum(['windows_10_11', 'linux_ubuntu_debian', 'linux_other']),
+  "cpuModel": zod.string().nullable(),
+  "workerId": zod.string(),
+  "status": zod.enum(['offline', 'connected', 'disconnected', 'revoked', 'suspended']),
+  "algorithm": zod.string(),
+  "pairedAt": zod.coerce.date(),
+  "lastHeartbeat": zod.coerce.date().nullable(),
+  "createdAt": zod.coerce.date(),
+  "hashrate": zod.number().nullable(),
+  "acceptedShares": zod.number().int(),
+  "rejectedShares": zod.number().int(),
+  "uptime": zod.number().int(),
+  "verificationStatus": zod.enum(['awaiting_pool_verification'])
+}),
+  "credentialToken": zod.string(),
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Record a device heartbeat using its revocable device credential
+ */
+
+
+
+export const HeartbeatMiningDeviceParams = zod.object({
+  "deviceId": zod.coerce.number().int().min(1)
+})
+
+export const HeartbeatMiningDeviceResponse = zod.object({
+  "receivedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Save device-reported telemetry; it is not proof of pool activity
+ */
+
+
+
+export const ReportMiningTelemetryParams = zod.object({
+  "deviceId": zod.coerce.number().int().min(1)
+})
+
+export const reportMiningTelemetryBodyHashrateMin = 0;
+export const reportMiningTelemetryBodyHashrateMax = 1000000000000;
+
+export const reportMiningTelemetryBodyAcceptedSharesMin = 0;
+export const reportMiningTelemetryBodyAcceptedSharesMax = 2147483647;
+
+export const reportMiningTelemetryBodyRejectedSharesMin = 0;
+export const reportMiningTelemetryBodyRejectedSharesMax = 2147483647;
+
+export const reportMiningTelemetryBodyUptimeMin = 0;
+export const reportMiningTelemetryBodyUptimeMax = 2147483647;
+
+
+
+export const ReportMiningTelemetryBody = zod.object({
+  "hashrate": zod.number().min(reportMiningTelemetryBodyHashrateMin).max(reportMiningTelemetryBodyHashrateMax),
+  "acceptedShares": zod.number().int().min(reportMiningTelemetryBodyAcceptedSharesMin).max(reportMiningTelemetryBodyAcceptedSharesMax),
+  "rejectedShares": zod.number().int().min(reportMiningTelemetryBodyRejectedSharesMin).max(reportMiningTelemetryBodyRejectedSharesMax),
+  "uptime": zod.number().int().min(reportMiningTelemetryBodyUptimeMin).max(reportMiningTelemetryBodyUptimeMax)
+})
+
+export const ReportMiningTelemetryResponse = zod.object({
+  "id": zod.number().int(),
+  "deviceId": zod.number().int(),
+  "hashrate": zod.number(),
+  "acceptedShares": zod.number().int(),
+  "rejectedShares": zod.number().int(),
+  "uptime": zod.number().int(),
+  "source": zod.enum(['device_reported']),
+  "recordedAt": zod.coerce.date(),
+  "verificationStatus": zod.enum(['awaiting_pool_verification'])
+})
+
+
+/**
+ * @summary Get recent device-reported statistics for a device owned by the signed-in user
+ */
+
+
+
+export const GetMiningDeviceStatisticsParams = zod.object({
+  "deviceId": zod.coerce.number().int().min(1)
+})
+
+export const GetMiningDeviceStatisticsResponseItem = zod.object({
+  "id": zod.number().int(),
+  "deviceId": zod.number().int(),
+  "hashrate": zod.number(),
+  "acceptedShares": zod.number().int(),
+  "rejectedShares": zod.number().int(),
+  "uptime": zod.number().int(),
+  "source": zod.enum(['device_reported']),
+  "recordedAt": zod.coerce.date(),
+  "verificationStatus": zod.enum(['awaiting_pool_verification'])
+})
+export const GetMiningDeviceStatisticsResponse = zod.array(GetMiningDeviceStatisticsResponseItem)
+
+
+/**
+ * @summary Disconnect and invalidate a device credential
+ */
+
+
+
+export const DisconnectMiningDeviceParams = zod.object({
+  "deviceId": zod.coerce.number().int().min(1)
+})
+
+export const DisconnectMiningDeviceResponse = zod.object({
+  "success": zod.boolean(),
+  "status": zod.string()
+})
+
+
+/**
+ * @summary Permanently revoke a device credential
+ */
+
+
+
+export const RevokeMiningDeviceParams = zod.object({
+  "deviceId": zod.coerce.number().int().min(1)
+})
+
+export const RevokeMiningDeviceResponse = zod.object({
+  "success": zod.boolean(),
+  "status": zod.string()
+})
+
+
+/**
+ * @summary Revoke the signed-in user's current mining consent and invalidate connected device credentials
+ */
+export const RevokeMiningConsentResponse = zod.object({
+  "success": zod.boolean(),
+  "status": zod.string()
+})
+
+
+/**
+ * @summary Get aggregate mining device health for administrators
+ */
+export const GetAdminMiningOverviewResponse = zod.object({
+  "totalDevices": zod.number().int(),
+  "connectedDevices": zod.number().int(),
+  "awaitingPoolVerification": zod.number().int(),
+  "devices": zod.array(zod.object({
+  "id": zod.number().int(),
+  "deviceName": zod.string(),
+  "operatingSystem": zod.enum(['windows_10_11', 'linux_ubuntu_debian', 'linux_other']),
+  "cpuModel": zod.string().nullable(),
+  "workerId": zod.string(),
+  "status": zod.enum(['offline', 'connected', 'disconnected', 'revoked', 'suspended']),
+  "algorithm": zod.string(),
+  "pairedAt": zod.coerce.date(),
+  "lastHeartbeat": zod.coerce.date().nullable(),
+  "createdAt": zod.coerce.date(),
+  "hashrate": zod.number().nullable(),
+  "acceptedShares": zod.number().int(),
+  "rejectedShares": zod.number().int(),
+  "uptime": zod.number().int(),
+  "verificationStatus": zod.enum(['awaiting_pool_verification'])
+}).and(zod.object({
+  "userId": zod.string()
+}))),
+  "engine": zod.object({
+  "engineEnabled": zod.boolean(),
+  "moneroEnabled": zod.boolean(),
+  "coin": zod.enum(['monero']),
+  "algorithm": zod.enum(['RandomX'])
+})
+})
+
+
+/**
+ * @summary Enable or disable the engine and supported Monero coin
+ */
+export const UpdateAdminMiningEngineBody = zod.object({
+  "engineEnabled": zod.boolean().optional(),
+  "moneroEnabled": zod.boolean().optional()
+})
+
+export const UpdateAdminMiningEngineResponse = zod.object({
+  "engineEnabled": zod.boolean(),
+  "moneroEnabled": zod.boolean(),
+  "coin": zod.enum(['monero']),
+  "algorithm": zod.enum(['RandomX'])
+})
+
+
+/**
+ * @summary Suspend an external device and invalidate its credential
+ */
+
+
+
+export const SuspendAdminMiningDeviceParams = zod.object({
+  "deviceId": zod.coerce.number().int().min(1)
+})
+
+export const SuspendAdminMiningDeviceResponse = zod.object({
+  "success": zod.boolean(),
+  "status": zod.string()
+})
+
+
