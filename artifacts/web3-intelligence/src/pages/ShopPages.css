@@ -101,6 +101,12 @@
 .direct-dot { background:#53cee5; }.referral-dot { background:#a293ed; }
 .shop-intro-watermark { position:absolute; right:29%; top:-31px; color:rgba(135,166,210,.035); font-size:196px; line-height:1; font-weight:800; letter-spacing:-.13em; pointer-events:none; }
 
+.shop-category-list { display:flex; flex-wrap:wrap; gap:7px; margin:17px 0 5px; }
+.shop-category-button { display:inline-flex; align-items:center; gap:9px; min-height:32px; padding:0 10px; border:1px solid #28364c; border-radius:6px; background:rgba(14,22,35,.72); color:#8b9cb2; font-size:9px; transition:color .16s,border-color .16s,background .16s,transform .16s; }
+.shop-category-button:hover { border-color:#3c718e; color:#d6eaf7; background:#14243a; transform:translateY(-1px); }
+.shop-category-button.active { border-color:rgba(77,190,220,.48); color:#c8f3fc; background:rgba(33,78,100,.42); box-shadow:inset 0 0 0 1px rgba(77,190,220,.08); }
+.shop-category-count { min-width:17px; padding:2px 4px; border-radius:4px; background:rgba(130,153,180,.1); color:#879bb2; font:8px var(--app-font-mono,monospace); text-align:center; }
+.shop-category-button.active .shop-category-count { background:rgba(83,191,220,.14); color:#7dd9ed; }
 .shop-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin:20px 0 10px; }
 .shop-search,.shop-filter { display:flex; align-items:center; gap:9px; min-height:38px; padding:0 12px; border:1px solid #28364c; border-radius:7px; background:rgba(14,22,35,.85); color:#7587a0; transition:border-color .18s,background .18s; }
 .shop-search { min-width:230px; flex:1; max-width:400px; }
@@ -111,6 +117,7 @@
 .shop-filter select { appearance:none; flex:1; width:100%; border:0; outline:0; background:transparent; color:#aebdd0; font-size:10px; cursor:pointer; }
 .shop-filter option,.shop-page select option { color:#dce7f5; background:#111a29; }
 .shop-filter>svg:last-child { pointer-events:none; color:#70829a; }
+.shop-filter-label { color:#64768e; font:8px var(--app-font-mono,monospace); letter-spacing:.08em; }
 .shop-sale-filters { display:flex; gap:3px; padding:3px; border:1px solid #28364a; border-radius:8px; background:#0d1522; }
 .shop-sale-filters button { padding:6px 10px; border:0; border-radius:5px; background:transparent; color:#7789a1; font-size:9px; transition:color .16s,background .16s; }
 .shop-sale-filters button:hover { color:#c6d9ed; }

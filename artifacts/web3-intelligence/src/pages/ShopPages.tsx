@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
   AlertCircle, ArrowLeft, ArrowRight, ArrowUpRight, BadgeCheck, Box, Check,
   ChevronDown, CircleDollarSign, Clipboard, Clock3, Cpu, ExternalLink, FileText,
-  Filter, LockKeyhole, PackageCheck, Plus, Search, ShieldCheck, ShoppingBag,
+  LockKeyhole, PackageCheck, Plus, Search, ShieldCheck, ShoppingBag,
   SlidersHorizontal, Truck, WalletCards, X,
 } from 'lucide-react';
 import {
@@ -146,6 +146,12 @@ export function ShopPage() {
   const [saleType, setSaleType] = useState<'all' | 'direct' | 'affiliate'>('all');
   const [search, setSearch] = useState('');
   const products = productsQuery.data ?? [];
+  const categoryOptions = [
+    { label: categories[0], value: categories[0] },
+    ...Array.from(new Set(products.map((product) => product.category)))
+      .sort((left, right) => left.localeCompare(right))
+      .map((item) => ({ label: item, value: item })),
+  ];
   const filtered = useMemo(() => products.filter((product) => {
     const matchesCategory = category === categories[0] || product.category === category;
     const matchesSale = saleType === 'all' || product.saleType === saleType;
@@ -162,9 +168,24 @@ export function ShopPage() {
       <div className="shop-intro-aside"><div className="shop-trust-mark"><ShieldCheck size={18} /><span>Clear route to checkout</span></div><div className="shop-route-legend"><span><i className="route-dot direct-dot" /> Direct order</span><span><i className="route-dot referral-dot" /> Merchant referral</span></div></div>
       <span className="shop-intro-watermark" aria-hidden="true">W3</span>
     </section>
+    <nav className="shop-category-list" aria-label="Shop product categories" data-testid="nav-shop-categories">
+      {categoryOptions.map(({ label, value }) => {
+        const count = value === categories[0] ? products.length : products.filter((product) => product.category === value).length;
+        return <button
+          key={value}
+          type="button"
+          className={`shop-category-button${category === value ? ' active' : ''}`}
+          aria-pressed={category === value}
+          onClick={() => setCategory(value)}
+          data-testid={`button-shop-category-${value === categories[0] ? 'all' : value.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+        >
+          <span>{label}</span><span className="shop-category-count">{count}</span>
+        </button>;
+      })}
+    </nav>
     <div className="shop-toolbar">
       <label className="shop-search"><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search equipment and tools" aria-label="Search marketplace products" data-testid="input-shop-search" /></label>
-      <label className="shop-filter"><Filter size={14} /><select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filter by product category" data-testid="select-shop-category">
+      <label className="shop-filter"><span className="shop-filter-label">CATEGORY</span><select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filter by product category" data-testid="select-shop-category">
         {categories.map((item) => <option key={item} value={item}>{item}</option>)}
       </select><ChevronDown size={13} /></label>
       <div className="shop-sale-filters" role="group" aria-label="Checkout type">

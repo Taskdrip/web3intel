@@ -66,4 +66,13 @@ app.use(["/api/auth", "/api/watch", "/api/admin", "/api/shop/orders"], (req, res
 
 app.use("/api", router);
 
+app.use((error: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  req.log.error({ err: error }, "Unhandled API request error");
+  if (res.headersSent) {
+    next(error);
+    return;
+  }
+  res.status(500).json({ error: "Internal server error." });
+});
+
 export default app;

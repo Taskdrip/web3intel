@@ -28,7 +28,7 @@ import { requireActiveUser, requireAdmin } from "../middlewares/authorization";
 import { isValidWatchAddress } from "./wallet-watch";
 
 const router: IRouter = Router();
-router.use(requireActiveUser, requireAdmin);
+router.use("/admin", requireActiveUser, requireAdmin);
 
 router.get("/admin/users", async (_req, res): Promise<void> => {
   const [users, watches] = await Promise.all([

@@ -69,10 +69,17 @@ function addHardwareBuyingGuidance(category: string, description: string): strin
   return description;
 }
 
+function summarizeProduct(description: string): string {
+  const firstSentence = description.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim() ?? description.trim();
+  if (firstSentence.length <= 180) return firstSentence;
+  return `${firstSentence.slice(0, 177).trimEnd()}…`;
+}
+
 export async function ensureStarterShopCatalog(): Promise<void> {
   const existing = await db.select({
     slug: shopProductsTable.slug,
     imageUrl: shopProductsTable.imageUrl,
+    summary: shopProductsTable.summary,
   }).from(shopProductsTable);
   const existingSlugs = new Set(existing.map((product) => product.slug));
   const missingProducts = starterProducts.filter(([slug]) => !existingSlugs.has(slug));
@@ -86,9 +93,7 @@ export async function ensureStarterShopCatalog(): Promise<void> {
       fulfillment: ["Software", "Scripts", "Applications", "Web3 & blockchain templates"].includes(category)
         ? "digital"
         : "physical",
-      summary: category === "ASIC miners" || category === "Mini miners"
-        ? `${title} listing. Contact the seller to verify availability and the exact hardware variant.`
-        : `${title}. Review the seller’s supported features, license, and delivery terms before purchase.`,
+      summary: summarizeProduct(description),
       description: addHardwareBuyingGuidance(category, description),
       specs,
       imageUrl: imageForProduct(category, slug),
@@ -103,11 +108,25 @@ export async function ensureStarterShopCatalog(): Promise<void> {
   const rowsNeedingImages = new Set(existing
     .filter((product) => product.imageUrl === null)
     .map((product) => product.slug));
+  const existingBySlug = new Map(existing.map((product) => [product.slug, product]));
   for (const [slug, , category] of starterProducts) {
     const imageUrl = imageForProduct(category, slug);
-    if (!rowsNeedingImages.has(slug) || !imageUrl) continue;
-    await db.update(shopProductsTable)
-      .set({ imageUrl })
-      .where(and(eq(shopProductsTable.slug, slug), isNull(shopProductsTable.imageUrl)));
+    const existingProduct = existingBySlug.get(slug);
+    if (rowsNeedingImages.has(slug) && imageUrl) {
+      await db.update(shopProductsTable)
+        .set({ imageUrl })
+        .where(and(eq(shopProductsTable.slug, slug), isNull(shopProductsTable.imageUrl)));
+    }
+    if (!existingProduct) continue;
+    const [, title, , description] = starterProducts.find(([productSlug]) => productSlug === slug) ?? [];
+    if (!title || !description) continue;
+    const legacySummary = category === "ASIC miners" || category === "Mini miners"
+      ? `${title} listing. Contact the seller to verify availability and the exact hardware variant.`
+      : `${title}. Review the seller’s supported features, license, and delivery terms before purchase.`;
+    if (existingProduct.summary === legacySummary) {
+      await db.update(shopProductsTable)
+        .set({ summary: summarizeProduct(description) })
+        .where(and(eq(shopProductsTable.slug, slug), eq(shopProductsTable.summary, legacySummary)));
+    }
   }
 }
