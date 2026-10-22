@@ -41,6 +41,8 @@ export interface ShopProduct {
   description: string;
   specs: string;
   /** @nullable */
+  imageUrl: string | null;
+  /** @nullable */
   priceCents: number | null;
   priceCurrency: string;
   /** @nullable */
@@ -100,6 +102,11 @@ export interface ShopProductInput {
   description: string;
   /** @maxLength 4000 */
   specs?: string;
+  /**
+     * @maxLength 1000
+     * @nullable
+     */
+  imageUrl?: string | null;
   /**
      * @minimum 0
      * @nullable

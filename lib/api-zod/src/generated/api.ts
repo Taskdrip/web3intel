@@ -570,6 +570,7 @@ export const ListShopProductsResponseItem = zod.object({
   "summary": zod.string(),
   "description": zod.string(),
   "specs": zod.string(),
+  "imageUrl": zod.string().nullable(),
   "priceCents": zod.number().int().nullable(),
   "priceCurrency": zod.string(),
   "affiliateUrl": zod.string().nullable(),
@@ -597,6 +598,7 @@ export const GetShopProductResponse = zod.object({
   "summary": zod.string(),
   "description": zod.string(),
   "specs": zod.string(),
+  "imageUrl": zod.string().nullable(),
   "priceCents": zod.number().int().nullable(),
   "priceCurrency": zod.string(),
   "affiliateUrl": zod.string().nullable(),
@@ -761,6 +763,7 @@ export const ListAdminShopProductsResponseItem = zod.object({
   "summary": zod.string(),
   "description": zod.string(),
   "specs": zod.string(),
+  "imageUrl": zod.string().nullable(),
   "priceCents": zod.number().int().nullable(),
   "priceCurrency": zod.string(),
   "affiliateUrl": zod.string().nullable(),
@@ -788,6 +791,8 @@ export const createAdminShopProductBodyDescriptionMax = 10000;
 
 export const createAdminShopProductBodySpecsMax = 4000;
 
+export const createAdminShopProductBodyImageUrlMax = 1000;
+
 export const createAdminShopProductBodyPriceCentsMin = 0;
 
 export const createAdminShopProductBodyPriceCurrencyMin = 3;
@@ -803,6 +808,7 @@ export const CreateAdminShopProductBody = zod.object({
   "summary": zod.string().min(createAdminShopProductBodySummaryMin).max(createAdminShopProductBodySummaryMax),
   "description": zod.string().min(createAdminShopProductBodyDescriptionMin).max(createAdminShopProductBodyDescriptionMax),
   "specs": zod.string().max(createAdminShopProductBodySpecsMax).optional(),
+  "imageUrl": zod.string().max(createAdminShopProductBodyImageUrlMax).nullish(),
   "priceCents": zod.number().int().min(createAdminShopProductBodyPriceCentsMin).nullish(),
   "priceCurrency": zod.string().min(createAdminShopProductBodyPriceCurrencyMin).max(createAdminShopProductBodyPriceCurrencyMax),
   "affiliateUrl": zod.string().url().nullish(),
@@ -819,6 +825,7 @@ export const CreateAdminShopProductResponse = zod.object({
   "summary": zod.string(),
   "description": zod.string(),
   "specs": zod.string(),
+  "imageUrl": zod.string().nullable(),
   "priceCents": zod.number().int().nullable(),
   "priceCurrency": zod.string(),
   "affiliateUrl": zod.string().nullable(),
@@ -852,6 +859,8 @@ export const updateAdminShopProductBodyOneDescriptionMax = 10000;
 
 export const updateAdminShopProductBodyOneSpecsMax = 4000;
 
+export const updateAdminShopProductBodyOneImageUrlMax = 1000;
+
 export const updateAdminShopProductBodyOnePriceCentsMin = 0;
 
 export const updateAdminShopProductBodyOnePriceCurrencyMin = 3;
@@ -867,6 +876,7 @@ export const UpdateAdminShopProductBody = zod.object({
   "summary": zod.string().min(updateAdminShopProductBodyOneSummaryMin).max(updateAdminShopProductBodyOneSummaryMax),
   "description": zod.string().min(updateAdminShopProductBodyOneDescriptionMin).max(updateAdminShopProductBodyOneDescriptionMax),
   "specs": zod.string().max(updateAdminShopProductBodyOneSpecsMax).optional(),
+  "imageUrl": zod.string().max(updateAdminShopProductBodyOneImageUrlMax).nullish(),
   "priceCents": zod.number().int().min(updateAdminShopProductBodyOnePriceCentsMin).nullish(),
   "priceCurrency": zod.string().min(updateAdminShopProductBodyOnePriceCurrencyMin).max(updateAdminShopProductBodyOnePriceCurrencyMax),
   "affiliateUrl": zod.string().url().nullish(),
@@ -883,6 +893,7 @@ export const UpdateAdminShopProductResponse = zod.object({
   "summary": zod.string(),
   "description": zod.string(),
   "specs": zod.string(),
+  "imageUrl": zod.string().nullable(),
   "priceCents": zod.number().int().nullable(),
   "priceCurrency": zod.string(),
   "affiliateUrl": zod.string().nullable(),

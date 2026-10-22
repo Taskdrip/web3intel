@@ -35,6 +35,11 @@ export interface ShopProductInput {
   /** @maxLength 4000 */
   specs?: string;
   /**
+     * @maxLength 1000
+     * @nullable
+     */
+  imageUrl?: string | null;
+  /**
      * @minimum 0
      * @nullable
      */

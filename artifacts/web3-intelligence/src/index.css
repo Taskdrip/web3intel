@@ -262,6 +262,9 @@ tbody tr { transition:background .18s; cursor:pointer; } tbody tr:hover { backgr
 
 .terminal-signout { border:1px solid #26364a; border-radius:6px; background:#121c2a; color:#8ca0b8; padding:6px 9px; cursor:pointer; font:9px var(--app-font-mono); letter-spacing:.04em; transition:color .18s,border-color .18s,background .18s; }
 .terminal-signout:hover { color:#d6f6ff; border-color:#39738b; background:#172637; }
+.terminal-shop-link { color:#b6e7f4; border-color:#315166; background:#122232; }
+.terminal-shop-link:hover { color:#e7fbff; border-color:#4e91aa; background:#183145; }
+.terminal-shop-link[aria-current="page"] { border-color:#4e91aa; color:#e7fbff; }
 .mobile-meta { display:flex; align-items:center; gap:8px; }
 .landing-page { min-height:100dvh; overflow:hidden; background:radial-gradient(ellipse at 72% 9%,rgba(49,101,158,.15),transparent 36%),#0b111d; color:#e5edf8; }
 .landing-nav { max-width:1440px; min-height:82px; margin:auto; padding:0 6.1%; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(116,146,184,.13); }

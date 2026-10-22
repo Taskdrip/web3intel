@@ -60,12 +60,34 @@ function slugify(value: string): string {
 function validateProductLinks(input: {
   saleType?: string;
   affiliateUrl?: string | null;
+  imageUrl?: string | null;
 }): string | null {
   if (input.saleType === "affiliate" && !input.affiliateUrl) {
     return "Affiliate products need a valid affiliate URL.";
   }
   if (input.saleType === "direct" && input.affiliateUrl) {
     return "Direct-sale products cannot include an affiliate URL.";
+  }
+  if (input.affiliateUrl) {
+    try {
+      if (new URL(input.affiliateUrl).protocol !== "https:") {
+        return "Affiliate destinations must use a secure HTTPS URL.";
+      }
+    } catch {
+      return "Affiliate products need a valid HTTPS destination URL.";
+    }
+  }
+  if (input.imageUrl) {
+    const isLocalShopAsset = /^\/shop\/[a-z0-9._-]+$/i.test(input.imageUrl);
+    try {
+      if (!isLocalShopAsset && new URL(input.imageUrl).protocol !== "https:") {
+        return "Product images must use a secure HTTPS URL or a local /shop/ image path.";
+      }
+    } catch {
+      if (!isLocalShopAsset) {
+        return "Product images must use a secure HTTPS URL or a local /shop/ image path.";
+      }
+    }
   }
   return null;
 }
@@ -215,6 +237,7 @@ router.post("/admin/shop/products", requireActiveUser, requireAdmin, async (req,
       ...product,
       slug,
       specs: product.specs ?? "",
+      imageUrl: product.imageUrl ?? null,
       priceCents: product.priceCents ?? null,
       affiliateUrl: product.affiliateUrl ?? null,
     }).returning();
@@ -244,6 +267,7 @@ router.patch("/admin/shop/products/:id", requireActiveUser, requireAdmin, async 
   const [updated] = await db.update(shopProductsTable).set({
     ...body.data,
     specs: body.data.specs ?? "",
+    imageUrl: body.data.imageUrl ?? null,
     priceCents: body.data.priceCents ?? null,
     affiliateUrl: body.data.affiliateUrl ?? null,
     updatedAt: new Date(),

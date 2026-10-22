@@ -959,13 +959,14 @@ components:
         summary: { type: string }
         description: { type: string }
         specs: { type: string }
+        imageUrl: { type: ["string", "null"] }
         priceCents: { type: ["integer", "null"] }
         priceCurrency: { type: string }
         affiliateUrl: { type: ["string", "null"] }
         status: { type: string, enum: [draft, active, archived] }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
-      required: [id, slug, title, category, saleType, fulfillment, summary, description, specs, priceCents, priceCurrency, affiliateUrl, status, createdAt, updatedAt]
+      required: [id, slug, title, category, saleType, fulfillment, summary, description, specs, imageUrl, priceCents, priceCurrency, affiliateUrl, status, createdAt, updatedAt]
     ShopProductInput:
       type: object
       properties:
@@ -976,6 +977,7 @@ components:
         summary: { type: string, minLength: 10, maxLength: 300 }
         description: { type: string, minLength: 20, maxLength: 10000 }
         specs: { type: string, maxLength: 4000 }
+        imageUrl: { type: ["string", "null"], maxLength: 1000 }
         priceCents: { type: ["integer", "null"], minimum: 0 }
         priceCurrency: { type: string, minLength: 3, maxLength: 3 }
         affiliateUrl: { type: ["string", "null"], format: uri }

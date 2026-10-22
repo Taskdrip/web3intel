@@ -24,6 +24,7 @@ export const shopProductsTable = pgTable(
     summary: text("summary").notNull(),
     description: text("description").notNull(),
     specs: text("specs").notNull().default(""),
+    imageUrl: text("image_url"),
     priceCents: integer("price_cents"),
     priceCurrency: text("price_currency").notNull().default("USD"),
     affiliateUrl: text("affiliate_url"),

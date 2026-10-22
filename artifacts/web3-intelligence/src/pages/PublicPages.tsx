@@ -237,10 +237,11 @@ function PublicHeader() {
     <Brand />
     <nav className={`public-nav ${open ? 'is-open' : ''}`} aria-label="Public navigation">
       {publicLinks.slice(0, 5).map(([href, label]) => <Link key={href} href={href} onClick={() => setOpen(false)} data-testid={`link-public-nav-${href.slice(1)}`}>{label}</Link>)}
+      <Link href="/shop" onClick={() => setOpen(false)} data-testid="link-public-nav-shop">Shop</Link>
       <div className="public-more">
         <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} data-testid="button-public-more">More <ChevronDown size={15} /></button>
         {open && <div className="public-menu">
-          {[...publicLinks.slice(5), ...legalLinks].map(([href, label]) => <Link key={href} href={href} onClick={() => setOpen(false)} data-testid={`link-public-menu-${href.slice(1)}`}>{label}</Link>)}
+          {[...publicLinks.slice(5).filter(([href]) => href !== '/shop'), ...legalLinks].map(([href, label]) => <Link key={href} href={href} onClick={() => setOpen(false)} data-testid={`link-public-menu-${href.slice(1)}`}>{label}</Link>)}
           <Link href="/sign-in" onClick={() => setOpen(false)} data-testid="link-public-menu-sign-in">Sign in</Link>
           <Link href="/sign-up" onClick={() => setOpen(false)} data-testid="link-public-menu-sign-up">Create account</Link>
           <Link href="/sign-in" onClick={() => setOpen(false)} data-testid="link-public-menu-wallet-sign-in">Wallet sign-in</Link>

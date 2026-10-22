@@ -394,3 +394,15 @@
   .shop-admin-form-actions>.shop-button { width:100%; }
   .shop-empty { padding:25px 20px; }
 }
+
+.shop-product-visual { isolation:isolate; }
+.shop-product-image { position:absolute; inset:0; z-index:0; width:100%; height:100%; object-fit:cover; opacity:.88; }
+.shop-product-visual::after { position:absolute; inset:0; z-index:0; content:""; pointer-events:none; background:linear-gradient(180deg,rgba(7,13,22,.2),transparent 42%,rgba(7,13,22,.75)); }
+.shop-visual-index,.shop-visual-category,.shop-visual-image-note,.shop-visual-emblem { z-index:1; }
+.shop-visual-image-note { position:absolute; left:15px; bottom:13px; color:#d4e4ef; font:7px var(--app-font-mono,monospace); letter-spacing:.08em; text-shadow:0 1px 4px rgba(0,0,0,.75); }
+.shop-visual-category { text-shadow:0 1px 4px rgba(0,0,0,.8); }
+.shop-sign-in-cta { margin-top:12px; }
+.shop-admin-form .shop-field small { color:#72859c; font-size:8px; font-weight:400; line-height:1.5; }
+@media (max-width:620px) {
+  .shop-visual-image-note { font-size:6px; }
+}

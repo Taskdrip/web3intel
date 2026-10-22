@@ -22,6 +22,7 @@ import heroAi from '../attached_assets/generated_images/hero-ai.png';
 import evidenceBackground from '../attached_assets/generated_images/section-evidence.png';
 import { BlockchainPage, NewsPage, PublicInfoPage } from './pages/PublicPages';
 import { AdminPage, WatchlistDetailPage, WatchlistPage } from './pages/WatchlistPages';
+import { ShopManagePage, ShopOrdersPage, ShopPage, ShopProductPage } from './pages/ShopPages';
 import { WalletAuthProvider, WalletLoginPanel, WalletSignInLink, useWalletAuth } from './components/wallet-auth';
 import './index.css';
 
@@ -201,7 +202,7 @@ function Header({ activePath }: { activePath: string }) {
     if (walletAuth.session.authenticated) await walletAuth.signOut();
     if (isSignedIn) await signOut({ redirectUrl: basePath || '/' });
   };
-  const current = routes.find((item) => item.path === activePath);
+  const current = routes.find((item) => item.path === activePath || (item.path === '/shop' && activePath.startsWith('/shop/')));
   return <>
     <aside className="sidebar">
       <Link href="/" className="brand" data-testid="link-brand-home">
@@ -222,13 +223,13 @@ function Header({ activePath }: { activePath: string }) {
     <main className="main-area">
       <header className="topbar">
         <div className="crumb"><span>INTELLIGENCE</span><ChevronRight size={12} /><strong>{current?.label.toUpperCase() ?? 'OVERVIEW'}</strong></div>
-        <div className="top-meta"><span className="live-pill">PUBLIC DATA</span><span>READ-ONLY TERMINAL</span>{authenticated ? <button className="terminal-signout" type="button" onClick={() => void handleSignOut()} data-testid="button-sign-out">Sign out</button> : <><Link href="/sign-in" className="terminal-signout" data-testid="link-shell-sign-in">Sign in</Link><WalletSignInLink className="terminal-signout wallet-header-link" /></>}</div>
+        <div className="top-meta"><Link href="/shop" className="terminal-signout terminal-shop-link" aria-current={activePath.startsWith('/shop') ? 'page' : undefined} data-testid="link-shell-shop">Shop</Link><span className="live-pill">PUBLIC DATA</span><span>READ-ONLY TERMINAL</span>{authenticated ? <button className="terminal-signout" type="button" onClick={() => void handleSignOut()} data-testid="button-sign-out">Sign out</button> : <><Link href="/sign-in" className="terminal-signout" data-testid="link-shell-sign-in">Sign in</Link><WalletSignInLink className="terminal-signout wallet-header-link" /></>}</div>
       </header>
       <div className="mobile-head">
         <Link href="/" className="brand" data-testid="link-mobile-brand-home">
           <span className="brand-mark"><Waves size={15} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span>
         </Link>
-        <div className="mobile-meta"><span className="live-pill">PUBLIC DATA</span>{authenticated ? <button className="terminal-signout" type="button" onClick={() => void handleSignOut()} data-testid="button-mobile-sign-out">Sign out</button> : <><Link href="/sign-in" className="terminal-signout" data-testid="link-mobile-sign-in">Sign in</Link><WalletSignInLink className="terminal-signout wallet-header-link" /></>}</div>
+        <div className="mobile-meta"><Link href="/shop" className="terminal-signout terminal-shop-link" data-testid="link-mobile-shop">Shop</Link><span className="live-pill">PUBLIC DATA</span>{authenticated ? <button className="terminal-signout" type="button" onClick={() => void handleSignOut()} data-testid="button-mobile-sign-out">Sign out</button> : <><Link href="/sign-in" className="terminal-signout" data-testid="link-mobile-sign-in">Sign in</Link><WalletSignInLink className="terminal-signout wallet-header-link" /></>}</div>
       </div>
       <Switch>
         <Route path="/dashboard" component={OverviewPage} />
@@ -239,12 +240,17 @@ function Header({ activePath }: { activePath: string }) {
         <Route path="/watchlist/:watchId" component={WatchlistDetailPage} />
         <Route path="/whales" component={WatchlistPage} />
         <Route path="/admin" component={AdminPage} />
+        <Route path="/shop/manage" component={ShopManagePage} />
+        <Route path="/shop/orders" component={ShopOrdersPage} />
+        <Route path="/shop/:slug" component={ShopProductPage} />
+        <Route path="/shop" component={ShopPage} />
         <Route component={NotFound} />
       </Switch>
       <footer className="app-footer">
         <span>WEB3 INTELLIGENCE <small>Provider attribution stays with available data.</small></span>
         <nav aria-label="Terminal references">
           <Link href="/about" data-testid="link-terminal-footer-about">About</Link>
+          <Link href="/shop" data-testid="link-terminal-footer-shop">Shop</Link>
           <Link href="/blockchain" data-testid="link-terminal-footer-blockchain">Blockchain boundaries</Link>
           <Link href="/risk-disclosure" data-testid="link-terminal-footer-risk">Risk disclosure</Link>
           <Link href="/privacy-policy" data-testid="link-terminal-footer-privacy">Privacy</Link>
@@ -611,6 +617,10 @@ function RoutedApp() {
     <Route path="/watchlist" component={SignedInAppShell} />
     <Route path="/whales" component={SignedInAppShell} />
     <Route path="/admin" component={SignedInAppShell} />
+    <Route path="/shop/manage" component={SignedInAppShell} />
+    <Route path="/shop/orders" component={SignedInAppShell} />
+    <Route path="/shop/:slug" component={AppShell} />
+    <Route path="/shop" component={AppShell} />
     <Route path="/about" component={PublicInfoPage} />
     <Route path="/blockchain" component={BlockchainPage} />
     <Route path="/airdrops" component={PublicInfoPage} />
@@ -618,7 +628,6 @@ function RoutedApp() {
     <Route path="/forensics/request" component={PublicInfoPage} />
     <Route path="/forensics" component={PublicInfoPage} />
     <Route path="/recovery" component={PublicInfoPage} />
-    <Route path="/shop" component={PublicInfoPage} />
     <Route path="/pricing" component={PublicInfoPage} />
     <Route path="/contact" component={PublicInfoPage} />
     <Route path="/privacy-policy" component={PublicInfoPage} />
@@ -700,7 +709,7 @@ function LandingPage() {
   return <div className="landing-page">
     <header className="landing-nav">
       <Link href="/" className="brand landing-brand" data-testid="link-landing-brand"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link>
-      <nav className="landing-nav-links" aria-label="Public pages"><Link href="/about" data-testid="link-landing-about">About</Link><Link href="/blockchain" data-testid="link-landing-blockchain">Blockchain</Link><Link href="/markets" data-testid="link-landing-markets">Markets</Link><Link href="/wallet-scanner" data-testid="link-landing-wallet">Wallet scanner</Link><Link href="/ai-intelligence" data-testid="link-landing-ai">AI intelligence</Link></nav>
+      <nav className="landing-nav-links" aria-label="Public pages"><Link href="/about" data-testid="link-landing-about">About</Link><Link href="/blockchain" data-testid="link-landing-blockchain">Blockchain</Link><Link href="/markets" data-testid="link-landing-markets">Markets</Link><Link href="/wallet-scanner" data-testid="link-landing-wallet">Wallet scanner</Link><Link href="/ai-intelligence" data-testid="link-landing-ai">AI intelligence</Link><Link href="/shop" data-testid="link-landing-shop">Shop</Link></nav>
       <div className="landing-auth"><WalletSignInLink className="landing-login landing-wallet-login" /><Link href="/sign-in" className="landing-login" data-testid="link-landing-sign-in">Sign in</Link><Link href="/sign-up" className="landing-cta" data-testid="link-landing-sign-up">Create account <ArrowRight size={15} /></Link></div>
       <button className="landing-menu-button" type="button" aria-label={landingMenuOpen ? 'Close site navigation' : 'Open site navigation'} aria-expanded={landingMenuOpen} onClick={() => setLandingMenuOpen(!landingMenuOpen)} data-testid="button-landing-menu">{landingMenuOpen ? <X /> : <Menu />}</button>
       {landingMenuOpen && <nav className="landing-mobile-menu" aria-label="Mobile site navigation">{landingMenuItems.map(([href, label]) => <Link key={href} href={href} onClick={() => setLandingMenuOpen(false)} data-testid={`link-landing-menu-${href.slice(1)}`}>{label}</Link>)}<Link href="/sign-in" onClick={() => setLandingMenuOpen(false)} data-testid="link-landing-menu-wallet">Wallet sign-in</Link></nav>}

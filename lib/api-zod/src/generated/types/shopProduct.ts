@@ -20,6 +20,8 @@ export interface ShopProduct {
   description: string;
   specs: string;
   /** @nullable */
+  imageUrl: string | null;
+  /** @nullable */
   priceCents: number | null;
   priceCurrency: string;
   /** @nullable */

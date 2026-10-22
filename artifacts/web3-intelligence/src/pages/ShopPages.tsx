@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { useAuth } from '@clerk/react';
 import { Link, useParams } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -18,12 +19,14 @@ import {
 } from '@workspace/api-client-react';
 import type {
   ShopOrder, ShopOrderStatus, ShopPaymentSettingsInput, ShopProduct, ShopProductInput,
-} from '@workspace/api-client-react/src/generated/api.schemas';
+} from '@workspace/api-client-react';
+import { useWalletAuth } from '../components/wallet-auth';
 import './ShopPages.css';
 
 const categories = [
-  'All equipment & tools', 'ASIC miners', 'Mini miners', 'Software', 'Scripts',
-  'Applications', 'Web3 & blockchain templates', 'Accessories', 'Other',
+  'All equipment & tools', 'ASIC miners', 'Mini miners', 'Mining accessories',
+  'Software', 'Scripts', 'Applications', 'Web3 & blockchain templates',
+  'Accessories', 'Mining services & tools', 'Other',
 ] as const;
 
 const orderStatusLabels: Record<ShopOrderStatus, string> = {
@@ -43,6 +46,7 @@ const productInitial: ShopProductInput = {
   summary: '',
   description: '',
   specs: '',
+  imageUrl: null,
   priceCents: null,
   priceCurrency: 'USD',
   affiliateUrl: null,
@@ -101,9 +105,17 @@ function ShopLoading({ label = 'Loading marketplace' }: { label?: string }) {
 
 function ProductVisual({ product }: { product: ShopProduct }) {
   const mark = product.category === 'ASIC miners' ? '01' : product.category === 'Mini miners' ? '02' : product.fulfillment === 'digital' ? '03' : '04';
-  return <div className="shop-product-visual" aria-hidden="true">
+  return <div className="shop-product-visual" role="img" aria-label={`${product.title}; illustrative product image`}>
     <span className="shop-visual-index">FIELD NOTE / {mark}</span>
-    <div className="shop-visual-emblem"><Cpu size={36} strokeWidth={1.15} /></div>
+    {!product.imageUrl && <div className="shop-visual-emblem"><Cpu size={36} strokeWidth={1.15} /></div>}
+    {product.imageUrl && <img
+      className="shop-product-image"
+      src={product.imageUrl}
+      alt=""
+      loading="lazy"
+      onError={(event) => { event.currentTarget.style.display = 'none'; }}
+    />}
+    <span className="shop-visual-image-note">ILLUSTRATIVE IMAGE · VERIFY EXACT ITEM</span>
     <span className="shop-visual-category">{product.category}</span>
     <span className="shop-visual-grid" />
   </div>;
@@ -141,7 +153,7 @@ export function ShopPage() {
     return matchesCategory && matchesSale && matchesSearch;
   }), [category, products, saleType, search]);
 
-  return <main className="shop-page">
+  return <div className="shop-page">
     <ShopHeader section="Tools for the work." description="A considered shelf of mining equipment and Web3 tools, inside your research terminal." />
     <section className="shop-intro-band">
       <div className="shop-intro-copy"><span className="shop-section-index">01 / THE SHOP</span><h2>Buy directly.<br /><em>Or follow the source.</em></h2>
@@ -166,17 +178,20 @@ export function ShopPage() {
           <section className="shop-product-grid" aria-label="Marketplace product listings">{filtered.map((product) => <ProductCard key={product.id} product={product} />)}</section>
         </> : <div className="shop-empty panel-like" data-testid="empty-shop-products"><div className="shop-empty-icon"><Search size={21} /></div><span className="shop-section-index">{products.length ? 'NO MATCHES' : 'CATALOG QUIET'}</span><h2>{products.length ? 'Nothing in this part of the shelf.' : 'No active listings yet.'}</h2><p>{products.length ? 'Try a different category or clear your search.' : 'Published equipment and tools will appear here when the catalog is ready.'}</p>{(search || category !== categories[0] || saleType !== 'all') && <button className="shop-button secondary" type="button" onClick={() => { setSearch(''); setCategory(categories[0]); setSaleType('all'); }} data-testid="button-clear-shop-filters">Clear filters</button>}</div>}
     <footer className="shop-page-foot"><span>Web3 Intelligence / Marketplace</span><span>Referral links are disclosed. Product details are supplied by each listing.</span></footer>
-  </main>;
+  </div>;
 }
 
 function OrderForm({ product }: { product: ShopProduct }) {
   const client = useQueryClient();
+  const { isLoaded, isSignedIn } = useAuth();
+  const walletAuth = useWalletAuth();
   const createOrder = useCreateShopOrder();
   const [submittedOrder, setSubmittedOrder] = useState<ShopOrder | null>(null);
   const [formError, setFormError] = useState('');
   const [quantity, setQuantity] = useState(1);
   const instructionsQuery = useGetShopPaymentInstructions();
   const instructions = instructionsQuery.data;
+  const isSignedInToApp = Boolean(isSignedIn || walletAuth.session.authenticated);
   const isPhysical = product.fulfillment === 'physical';
   const priceUnavailable = product.priceCents === null;
 
@@ -215,11 +230,19 @@ function OrderForm({ product }: { product: ShopProduct }) {
     {instructionsQuery.isLoading ? <div className="shop-inline-loading">Loading payment instructions…</div> : instructionsQuery.isError ? <ShopNotice kind="error"><AlertCircle size={16} /> Payment instructions could not be loaded. <button type="button" onClick={() => instructionsQuery.refetch()}>Retry</button></ShopNotice> : instructions?.configured && <PaymentInstructions instructions={instructions} />}
   </section>;
 
+  if (!isLoaded || walletAuth.isLoading) return <section className="shop-checkout"><div className="shop-inline-loading" role="status">Checking your account…</div></section>;
+  if (!isSignedInToApp) return <section className="shop-checkout">
+    <div className="shop-checkout-head"><div><span className="shop-section-index">DIRECT ORDER</span><h2>Sign in to place an order</h2></div><span className="shop-checkout-total">{formatMoney(product.priceCents, product.priceCurrency)}</span></div>
+    <ShopNotice kind="info"><LockKeyhole size={15} /> Direct orders are tied to an account so you can follow payment review and fulfillment.</ShopNotice>
+    <Link className="shop-button primary shop-sign-in-cta" href="/sign-in" data-testid="link-shop-checkout-sign-in">Sign in to continue <ArrowRight size={14} /></Link>
+  </section>;
+
+  const checkoutUnavailable = priceUnavailable || instructionsQuery.isLoading || instructionsQuery.isError || !instructions?.configured;
   return <section className="shop-checkout">
     <div className="shop-checkout-head"><div><span className="shop-section-index">DIRECT ORDER</span><h2>Start your order</h2></div><span className="shop-checkout-total">{formatMoney(product.priceCents, product.priceCurrency)}</span></div>
     {priceUnavailable && <ShopNotice kind="warning"><CircleDollarSign size={16} /> This listing has no price set, so checkout is unavailable. Contact the marketplace team for details.</ShopNotice>}
     {instructionsQuery.isError && !instructionsQuery.isLoading && <ShopNotice kind="warning"><AlertCircle size={16} /> Checkout instructions are currently unavailable. <button type="button" onClick={() => instructionsQuery.refetch()} data-testid="button-retry-payment-instructions">Retry</button></ShopNotice>}
-    {instructions && !instructions.configured && <ShopNotice kind="warning"><WalletCards size={16} /> Manual payment details have not been configured yet. You can submit an order, but payment instructions will not be shown.</ShopNotice>}
+    {instructions && !instructions.configured && <ShopNotice kind="warning"><WalletCards size={16} /> Checkout is not available until an administrator configures the public receiving address and payment instructions.</ShopNotice>}
     <form className="shop-form" onSubmit={submitOrder}>
       <div className="shop-form-grid">
         <label className="shop-field"><span>Name</span><input name="customerName" required minLength={2} maxLength={140} placeholder="Your name" data-testid="input-order-name" /></label>
@@ -235,7 +258,7 @@ function OrderForm({ product }: { product: ShopProduct }) {
       </div>
       {formError && <ShopNotice kind="error"><AlertCircle size={16} />{formError}</ShopNotice>}
       {createOrder.isError && !formError && <ShopNotice kind="error"><AlertCircle size={16} />{asErrorMessage(createOrder.error)}</ShopNotice>}
-      <div className="shop-form-foot"><span><LockKeyhole size={13} /> Order details are sent securely for human review.</span><button className="shop-button primary" type="submit" disabled={createOrder.isPending || priceUnavailable} data-testid="button-create-shop-order">{createOrder.isPending ? 'Sending order…' : 'Place direct order'} <ArrowRight size={15} /></button></div>
+      <div className="shop-form-foot"><span><LockKeyhole size={13} /> You send crypto yourself; a person reviews the transaction reference.</span><button className="shop-button primary" type="submit" disabled={createOrder.isPending || checkoutUnavailable} data-testid="button-create-shop-order">{createOrder.isPending ? 'Sending order…' : checkoutUnavailable ? 'Checkout unavailable' : 'Place direct order'} <ArrowRight size={15} /></button></div>
     </form>
     {instructionsQuery.isLoading && <div className="shop-inline-loading">Loading manual payment details…</div>}
     {instructions?.configured && <PaymentInstructions instructions={instructions} />}
@@ -271,7 +294,7 @@ export function ShopProductPage() {
   const productQuery = useGetShopProduct(slug, { query: { enabled: Boolean(slug), queryKey: getGetShopProductQueryKey(slug) } });
   const product = productQuery.data;
 
-  return <main className="shop-page">
+  return <div className="shop-page">
     <div className="shop-back-row"><Link href="/shop" className="shop-back-link" data-testid="link-back-shop"><ArrowLeft size={15} /> Back to marketplace</Link><span>LISTING / {slug || '—'}</span></div>
     {productQuery.isLoading ? <div className="shop-product-detail-skeleton"><div /><div><span /><span /><span /></div></div> :
       productQuery.isError ? <ShopNotice kind="error"><AlertCircle size={17} /><span>We couldn’t load this listing. {asErrorMessage(productQuery.error)}</span><button type="button" onClick={() => productQuery.refetch()} data-testid="button-retry-shop-product">Retry</button></ShopNotice> :
@@ -307,7 +330,7 @@ export function ShopProductPage() {
               <div className="shop-aside-foot"><ShieldCheck size={15} /><span>Checkout route is identified before you leave this listing.</span></div>
             </aside>
           </div>}
-  </main>;
+  </div>;
 }
 
 function OrderPaymentReference({ order, onSaved }: { order: ShopOrder; onSaved: () => void }) {
@@ -343,7 +366,7 @@ export function ShopOrdersPage() {
   const orders = ordersQuery.data ?? [];
   const [instructionsOpen, setInstructionsOpen] = useState(false);
   const refreshOrders = () => { void client.invalidateQueries({ queryKey: getListMyShopOrdersQueryKey() }); };
-  return <main className="shop-page">
+  return <div className="shop-page">
     <ShopHeader section="Your orders." description="A clear record of direct purchases and their human-reviewed payment status." />
     <div className="shop-orders-tools"><Link href="/shop" className="shop-back-link"><ArrowLeft size={15} /> Browse the marketplace</Link>
       <button type="button" className="shop-button secondary compact" onClick={() => setInstructionsOpen((open) => !open)} data-testid="button-toggle-payment-instructions"><WalletCards size={14} /> {instructionsOpen ? 'Hide payment details' : 'Payment details'}</button>
@@ -357,14 +380,14 @@ export function ShopOrdersPage() {
             <div className="shop-order-state"><span className={`shop-status-pill ${order.status}`} data-testid={`status-my-order-${order.id}`}><i />{orderStatusLabels[order.status]}</span>{order.paymentReference && <span className="shop-reference-display">Reference: <code>{order.paymentReference}</code></span>}<OrderPaymentReference order={order} onSaved={refreshOrders} /></div>
             {order.status === 'payment_submitted' && <div className="shop-review-note"><Clock3 size={14} /> Reference received; a human review is still pending. This is not an automatic payment confirmation.</div>}
           </article>)}</section>}
-  </main>;
+  </div>;
 }
 
 function AdminProductForm({ product, onClose, onSaved }: { product: ShopProduct | null; onClose: () => void; onSaved: () => void }) {
   const [form, setForm] = useState<ShopProductInput>(product ? {
     title: product.title, category: product.category, saleType: product.saleType,
     fulfillment: product.fulfillment, summary: product.summary, description: product.description,
-    specs: product.specs, priceCents: product.priceCents, priceCurrency: product.priceCurrency,
+    specs: product.specs, imageUrl: product.imageUrl, priceCents: product.priceCents, priceCurrency: product.priceCurrency,
     affiliateUrl: product.affiliateUrl, status: product.status,
   } : productInitial);
   const [priceInput, setPriceInput] = useState(product?.priceCents === null || product?.priceCents === undefined ? '' : (product.priceCents / 100).toFixed(2));
@@ -379,7 +402,7 @@ function AdminProductForm({ product, onClose, onSaved }: { product: ShopProduct 
     event.preventDefault();
     setSaveError('');
     const cents = priceInput.trim() ? Math.round(Number(priceInput) * 100) : null;
-    if (priceInput.trim() && (!Number.isFinite(cents) || cents < 0)) {
+    if (priceInput.trim() && (cents === null || !Number.isFinite(cents) || cents < 0)) {
       setSaveError('Enter a valid non-negative price, or leave it blank.');
       return;
     }
@@ -388,6 +411,7 @@ function AdminProductForm({ product, onClose, onSaved }: { product: ShopProduct 
       priceCents: cents,
       priceCurrency: form.priceCurrency.trim().toUpperCase(),
       specs: form.specs?.trim() || '',
+      imageUrl: form.imageUrl?.trim() || null,
       affiliateUrl: form.saleType === 'affiliate' ? (form.affiliateUrl?.trim() || null) : null,
     };
     const onError = (error: unknown) => setSaveError(asErrorMessage(error));
@@ -407,6 +431,7 @@ function AdminProductForm({ product, onClose, onSaved }: { product: ShopProduct 
       <label className="shop-field shop-field-wide"><span>Short summary</span><input required minLength={10} maxLength={300} value={form.summary} onChange={(event) => patch('summary', event.target.value)} data-testid="input-admin-summary" /></label>
       <label className="shop-field shop-field-wide"><span>Description</span><textarea required minLength={20} maxLength={10000} rows={5} value={form.description} onChange={(event) => patch('description', event.target.value)} data-testid="input-admin-description" /></label>
       <label className="shop-field shop-field-wide"><span>Specifications as supplied</span><textarea maxLength={4000} rows={3} value={form.specs ?? ''} onChange={(event) => patch('specs', event.target.value)} placeholder="Only add details confirmed by the source." data-testid="input-admin-specs" /></label>
+      <label className="shop-field shop-field-wide"><span>Product image URL</span><input maxLength={1000} value={form.imageUrl ?? ''} onChange={(event) => patch('imageUrl', event.target.value || null)} placeholder="https://… or /shop/your-image.webp" data-testid="input-admin-image-url" /><small>Use an HTTPS image URL or a local image under /shop/.</small></label>
       {form.saleType === 'affiliate' && <label className="shop-field shop-field-wide"><span>Merchant destination URL</span><input type="url" value={form.affiliateUrl ?? ''} onChange={(event) => patch('affiliateUrl', event.target.value || null)} placeholder="https://" data-testid="input-admin-affiliate-url" /></label>}
     </div>
     {saveError && <ShopNotice kind="error"><AlertCircle size={15} />{saveError}</ShopNotice>}
@@ -470,7 +495,7 @@ export function ShopManagePage() {
   const products = productsQuery.data ?? [];
   const orders = ordersQuery.data ?? [];
 
-  return <main className="shop-page shop-manage-page">
+  return <div className="shop-page shop-manage-page">
     <ShopHeader section="Marketplace control." description="Maintain the catalog, configure manual payment details, and review direct orders." />
     <div className="shop-admin-banner"><div className="shop-admin-banner-mark"><SlidersHorizontal size={17} /></div><div><strong>Admin workspace</strong><span>Product links, checkout instructions, and human order review.</span></div><span className="shop-admin-boundary"><LockKeyhole size={13} /> Administrator access required</span></div>
     <div className="shop-admin-tabs" role="tablist" aria-label="Marketplace management sections">
@@ -525,5 +550,5 @@ export function ShopManagePage() {
             <div className="shop-admin-form-actions"><span className="shop-settings-updated">Changes are saved to the marketplace settings.</span><button className="shop-button primary" type="submit" disabled={updateSettings.isPending} data-testid="button-save-payment-settings">{updateSettings.isPending ? 'Saving…' : 'Save payment settings'} <Check size={14} /></button></div>
           </form>}
     </section>}
-  </main>;
+  </div>;
 }
