@@ -144,7 +144,7 @@ export function MiningLandingPage() {
         <div className="mine-hero-copy">
           <div className="mine-eyebrow">OPTIONAL · USER-CONTROLLED · LOCAL</div>
           <h1>Turn Your Computing Power Into Crypto Mining Power</h1>
-          <p>Web3Intel can save a Monero configuration and show telemetry from a monitor you choose to run locally. You install and launch XMRig yourself. Nothing mines in this browser or on Web3Intel infrastructure.</p>
+          <p>Configure Monero mining for a computer you control, then view device-reported activity in your Web3Intel account. You install and launch XMRig yourself. Nothing mines in this browser or on Web3Intel infrastructure.</p>
           <div className="mine-hero-actions">
             <Link className="mine-button primary" href="/dashboard/mining"><Cpu /> Start Mining <ArrowRight /></Link>
             <Link className="mine-button" href="/mining/guide">How it works <ArrowUpRight /></Link>
@@ -558,6 +558,10 @@ export function MiningDashboardPage() {
                     <label className="mine-field">Port
                       <input className="mine-input" type="number" required min={1} max={65535} step={1} value={form.poolPort || ''} onChange={(event) => setForm((current) => ({ ...current, poolPort: Number(event.target.value) }))} placeholder="Enter the port" inputMode="numeric" />
                     </label>
+                    <div className="mine-field wide">
+                      <a className="mine-link" href="https://miningpoolstats.stream/monero" target="_blank" rel="noreferrer">Browse the independent Monero pool directory <ExternalLink size={13} /></a>
+                      <small>Choose and verify your own endpoint. Fees, payout thresholds, availability, and payment terms vary by provider; Web3Intel does not endorse or validate pool listings.</small>
+                    </div>
                     <label className="mine-field wide">Public Monero wallet address
                       <input className="mine-input" required minLength={95} maxLength={106} value={form.walletAddress} onChange={(event) => setForm((current) => ({ ...current, walletAddress: event.target.value }))} placeholder="Public address only" autoComplete="off" spellCheck={false} />
                       <small>Use only a public receiving address. Never enter a seed phrase, private key, or wallet password.</small>
@@ -605,6 +609,8 @@ export function MiningDashboardPage() {
                     <div className="mine-official-links">
                       <a className="mine-link" href="https://xmrig.com/download" target="_blank" rel="noreferrer">Official XMRig downloads <ExternalLink size={13} /></a>
                       <a className="mine-link" href="https://xmrig.com/docs/miner/config" target="_blank" rel="noreferrer">Official config documentation <ExternalLink size={13} /></a>
+                      <a className="mine-link" href="https://web.getmonero.org/get-started/mining/" target="_blank" rel="noreferrer">Official Monero mining instructions <ExternalLink size={13} /></a>
+                      <a className="mine-link" href="https://miningpoolstats.stream/monero" target="_blank" rel="noreferrer">Independent pool directory <ExternalLink size={13} /></a>
                     </div>
                   </div>
                 </Panel>
@@ -715,6 +721,9 @@ export function MiningGuidePage() {
               <div className="mine-faq-list">
                 <article className="mine-faq"><h3>Configuration rejected</h3><p>Confirm the host, port, public wallet address length, OS selection, and CPU limit. The endpoint and address must be yours to use.</p></article>
                 <article className="mine-faq"><h3>No device telemetry</h3><p>Confirm XMRig is already running manually, its local API is enabled and restricted to loopback, the JSON file was not altered, and the monitor script is running on the same machine.</p></article>
+                <article className="mine-faq"><h3>No accepted shares</h3><p>Check the miner console for a successful connection, verify the endpoint details and wallet address with the pool or node operator, and allow for that service’s share difficulty and payout rules. Device-reported share counts are not pool verification.</p></article>
+                <article className="mine-faq"><h3>CPU not detected or memory warning</h3><p>Review the official XMRig requirements for your operating system and processor, confirm the system has adequate memory for RandomX, and check the XMRig console for the specific hardware error. Do not bypass system security protections.</p></article>
+                <article className="mine-faq"><h3>High temperature or system slowdown</h3><p>Reduce the configured CPU thread hint or stop XMRig manually from your terminal or operating system. Check temperatures and power draw with trusted local tools; Web3Intel cannot throttle or stop local software.</p></article>
                 <article className="mine-faq"><h3>Pairing code expired or failed</h3><p>Return to the dashboard and create a fresh code for the saved configuration and device. Each code is one-time and expires. Keep the code private.</p></article>
                 <article className="mine-faq"><h3>Device is disconnected or revoked</h3><p>Check the dashboard status. A disconnected or revoked credential may require a new pairing code. Consent revocation invalidates connected monitor credentials.</p></article>
                 <article className="mine-faq"><h3>Connection or TLS problem</h3><p>Verify the pool/node host, port, and TLS setting against that endpoint's own instructions. Web3Intel cannot validate third-party endpoint availability.</p></article>

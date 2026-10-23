@@ -319,17 +319,6 @@ router.post("/mining/pairing-codes", requireActiveUser, async (req, res): Promis
     res.status(400).json({ error: "Select one of your own mining configurations." });
     return;
   }
-  const [activeConsent] = await db.select({ id: miningConsentsTable.id })
-    .from(miningConsentsTable)
-    .where(and(
-      eq(miningConsentsTable.userId, user.clerkUserId),
-      isNull(miningConsentsTable.revokedAt),
-    ))
-    .limit(1);
-  if (!activeConsent) {
-    res.status(403).json({ error: "Accept the current mining consent before pairing a device." });
-    return;
-  }
   const settings = await getOrCreateSettings();
   if (!settings.engineEnabled || !settings.moneroEnabled) {
     res.status(503).json({ error: "The Mining Engine is currently disabled." });
@@ -338,14 +327,30 @@ router.post("/mining/pairing-codes", requireActiveUser, async (req, res): Promis
 
   const pairingCode = randomBytes(18).toString("base64url");
   const expiresAt = new Date(Date.now() + PAIRING_CODE_TTL_MS);
-  await db.insert(miningPairingCodesTable).values({
-    userId: user.clerkUserId,
-    configurationId: configuration.id,
-    deviceName: sanitizeDeviceName(parsed.data.deviceName),
-    operatingSystem: parsed.data.operatingSystem,
-    codeHash: hashSecret(pairingCode),
-    expiresAt,
+  const created = await db.transaction(async (tx) => {
+    const [activeConsent] = await tx.select({ id: miningConsentsTable.id })
+      .from(miningConsentsTable)
+      .where(and(
+        eq(miningConsentsTable.userId, user.clerkUserId),
+        isNull(miningConsentsTable.revokedAt),
+      ))
+      .for("update")
+      .limit(1);
+    if (!activeConsent) return false;
+    await tx.insert(miningPairingCodesTable).values({
+      userId: user.clerkUserId,
+      configurationId: configuration.id,
+      deviceName: sanitizeDeviceName(parsed.data.deviceName),
+      operatingSystem: parsed.data.operatingSystem,
+      codeHash: hashSecret(pairingCode),
+      expiresAt,
+    });
+    return true;
   });
+  if (!created) {
+    res.status(403).json({ error: "Accept the current mining consent before pairing a device." });
+    return;
+  }
   res.status(201).json(CreateMiningPairingCodeResponse.parse({
     pairingCode,
     expiresAt: expiresAt.toISOString(),
@@ -361,65 +366,79 @@ router.post("/mining/pair", async (req, res): Promise<void> => {
   }
   const pairingHash = hashSecret(parsed.data.pairingCode);
   const now = new Date();
-  const [candidate] = await db.select().from(miningPairingCodesTable)
-    .where(and(
-      eq(miningPairingCodesTable.codeHash, pairingHash),
-      isNull(miningPairingCodesTable.usedAt),
-      gt(miningPairingCodesTable.expiresAt, now),
-    ))
-    .limit(1);
-  if (!candidate) {
-    res.status(400).json({ error: "The pairing code is invalid, expired, or already used." });
-    return;
-  }
   const settings = await getOrCreateSettings();
   if (!settings.engineEnabled || !settings.moneroEnabled) {
     res.status(503).json({ error: "The Mining Engine is currently disabled." });
     return;
   }
 
-  const [claimed] = await db.update(miningPairingCodesTable)
-    .set({ usedAt: now })
-    .where(and(
-      eq(miningPairingCodesTable.id, candidate.id),
-      isNull(miningPairingCodesTable.usedAt),
-      gt(miningPairingCodesTable.expiresAt, now),
-    ))
-    .returning();
-  if (!claimed) {
+  const pairingResult = await db.transaction(async (tx) => {
+    const [candidate] = await tx.select().from(miningPairingCodesTable)
+      .where(and(
+        eq(miningPairingCodesTable.codeHash, pairingHash),
+        isNull(miningPairingCodesTable.usedAt),
+        gt(miningPairingCodesTable.expiresAt, now),
+      ))
+      .limit(1);
+    if (!candidate) return { kind: "invalid" as const };
+
+    const [activeConsent] = await tx.select({ id: miningConsentsTable.id })
+      .from(miningConsentsTable)
+      .where(and(
+        eq(miningConsentsTable.userId, candidate.userId),
+        isNull(miningConsentsTable.revokedAt),
+      ))
+      .for("update")
+      .limit(1);
+    if (!activeConsent) return { kind: "consent-required" as const };
+
+    const [claimed] = await tx.update(miningPairingCodesTable)
+      .set({ usedAt: now })
+      .where(and(
+        eq(miningPairingCodesTable.id, candidate.id),
+        isNull(miningPairingCodesTable.usedAt),
+        gt(miningPairingCodesTable.expiresAt, now),
+      ))
+      .returning();
+    if (!claimed) return { kind: "invalid" as const };
+
+    const credentialToken = `w3i_${randomBytes(32).toString("base64url")}`;
+    const [device] = await tx.insert(miningDevicesTable).values({
+      userId: claimed.userId,
+      deviceName: sanitizeDeviceName(claimed.deviceName),
+      operatingSystem: claimed.operatingSystem,
+      cpuModel: parsed.data.cpuModel?.trim().slice(0, 160) || null,
+      workerId: randomBytes(12).toString("hex"),
+      credentialHash: hashSecret(credentialToken),
+      status: "offline",
+      algorithm: "RandomX",
+    }).returning();
+    await Promise.all([
+      tx.update(miningConfigurationsTable)
+        .set({ deviceId: device.id })
+        .where(and(
+          eq(miningConfigurationsTable.id, claimed.configurationId),
+          eq(miningConfigurationsTable.userId, claimed.userId),
+        )),
+      tx.update(miningConsentsTable)
+        .set({ deviceId: device.id })
+        .where(eq(miningConsentsTable.id, activeConsent.id)),
+    ]);
+    return { kind: "paired" as const, device, credentialToken };
+  });
+
+  if (pairingResult.kind === "consent-required") {
+    res.status(403).json({ error: "Mining consent was revoked before this device paired." });
+    return;
+  }
+  if (pairingResult.kind === "invalid") {
     res.status(400).json({ error: "The pairing code is invalid, expired, or already used." });
     return;
   }
 
-  const credentialToken = `w3i_${randomBytes(32).toString("base64url")}`;
-  const [device] = await db.insert(miningDevicesTable).values({
-    userId: claimed.userId,
-    deviceName: sanitizeDeviceName(claimed.deviceName),
-    operatingSystem: claimed.operatingSystem,
-    cpuModel: parsed.data.cpuModel?.trim().slice(0, 160) || null,
-    workerId: randomBytes(12).toString("hex"),
-    credentialHash: hashSecret(credentialToken),
-    status: "offline",
-    algorithm: "RandomX",
-  }).returning();
-  await Promise.all([
-    db.update(miningConfigurationsTable)
-      .set({ deviceId: device.id })
-      .where(and(
-        eq(miningConfigurationsTable.id, claimed.configurationId),
-        eq(miningConfigurationsTable.userId, claimed.userId),
-      )),
-    db.update(miningConsentsTable)
-      .set({ deviceId: device.id })
-      .where(and(
-        eq(miningConsentsTable.userId, claimed.userId),
-        isNull(miningConsentsTable.revokedAt),
-      )),
-  ]);
-
   res.status(201).json(PairMiningDeviceResponse.parse({
-    device: mapDevice(device),
-    credentialToken,
+    device: mapDevice(pairingResult.device),
+    credentialToken: pairingResult.credentialToken,
     message: "Save this device credential securely. It is shown only once.",
   }));
 });
@@ -552,17 +571,23 @@ router.post("/mining/devices/:deviceId/revoke", requireActiveUser, async (req, r
 router.post("/mining/consent/revoke", requireActiveUser, async (_req, res): Promise<void> => {
   const user = res.locals.currentUser as { clerkUserId: string };
   const revokedAt = new Date();
-  await Promise.all([
-    db.update(miningConsentsTable)
+  await db.transaction(async (tx) => {
+    await tx.update(miningConsentsTable)
       .set({ revokedAt })
       .where(and(
         eq(miningConsentsTable.userId, user.clerkUserId),
         isNull(miningConsentsTable.revokedAt),
-      )),
-    db.update(miningDevicesTable)
+      ));
+    await tx.update(miningDevicesTable)
       .set({ status: "disconnected", credentialHash: null })
-      .where(eq(miningDevicesTable.userId, user.clerkUserId)),
-  ]);
+      .where(eq(miningDevicesTable.userId, user.clerkUserId));
+    await tx.update(miningPairingCodesTable)
+      .set({ usedAt: revokedAt })
+      .where(and(
+        eq(miningPairingCodesTable.userId, user.clerkUserId),
+        isNull(miningPairingCodesTable.usedAt),
+      ));
+  });
   res.json(RevokeMiningConsentResponse.parse({ success: true, status: "consent_revoked" }));
 });
 

@@ -5,7 +5,7 @@ import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import { Link, Route, Router as WouterRouter, Switch, useLocation } from 'wouter';
 import {
-  Activity, ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, Blocks, Bot,
+  Activity, ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, Blocks, Bot, Cpu,
   ChevronRight, CircleAlert, Clock3, Database, ExternalLink, Eye,
   FileText, Gauge, Layers3, LoaderCircle, LockKeyhole, Search, ListChecks, Shield,
   Send, ShieldCheck, Sparkles, Wallet, Waves, Radio, Newspaper,
@@ -23,6 +23,7 @@ import evidenceBackground from '../attached_assets/generated_images/section-evid
 import { BlockchainPage, NewsPage, PublicInfoPage } from './pages/PublicPages';
 import { AdminPage, WatchlistDetailPage, WatchlistPage } from './pages/WatchlistPages';
 import { ShopManagePage, ShopOrdersPage, ShopPage, ShopProductPage } from './pages/ShopPages';
+import { AdminMiningPage, MiningDashboardPage, MiningGuidePage, MiningLandingPage } from './pages/MiningPages';
 import { WalletAuthProvider, WalletLoginPanel, WalletSignInLink, useWalletAuth } from './components/wallet-auth';
 import './index.css';
 
@@ -87,6 +88,7 @@ const clerkAppearance = {
 };
 const routes = [
   { path: '/dashboard', label: 'Overview', icon: Gauge },
+  { path: '/dashboard/mining', label: 'Mining Engine', icon: Cpu },
   { path: '/about', label: 'About', icon: Eye },
   { path: '/blockchain', label: 'Blockchain', icon: Radio },
   { path: '/whales', label: 'Whale activity', icon: Activity },
@@ -202,7 +204,8 @@ function Header({ activePath }: { activePath: string }) {
     if (walletAuth.session.authenticated) await walletAuth.signOut();
     if (isSignedIn) await signOut({ redirectUrl: basePath || '/' });
   };
-  const current = routes.find((item) => item.path === activePath || (item.path === '/shop' && activePath.startsWith('/shop/')));
+  const current = routes.find((item) => item.path === activePath || (item.path === '/shop' && activePath.startsWith('/shop/'))) ??
+    (activePath === '/admin/mining' ? { label: 'Mining administration' } : undefined);
   return <>
     <aside className="sidebar">
       <Link href="/" className="brand" data-testid="link-brand-home">
@@ -211,12 +214,12 @@ function Header({ activePath }: { activePath: string }) {
       </Link>
       <div className="nav-label">Workspace</div>
     <nav className="nav-list" aria-label="Main navigation">
-        {routes.map(({ path, label, icon: Icon }) => <Link key={path} href={path} className={`nav-link ${activePath === path || (path === '/watchlist' && activePath.startsWith('/watchlist/')) ? 'active' : ''}`} aria-current={activePath === path ? 'page' : undefined} data-testid={`link-nav-${path === '/' ? 'overview' : path.slice(1)}`}>
+        {routes.map(({ path, label, icon: Icon }) => <Link key={path} href={path} className={`nav-link ${activePath === path || (path === '/watchlist' && activePath.startsWith('/watchlist/')) || (path === '/dashboard/mining' && activePath === '/admin/mining') ? 'active' : ''}`} aria-current={activePath === path || (path === '/dashboard/mining' && activePath === '/admin/mining') ? 'page' : undefined} data-testid={`link-nav-${path === '/' ? 'overview' : path.slice(1).replaceAll('/', '-')}`}>
           <Icon strokeWidth={1.8} /><span>{label}</span>{activePath === path && <ChevronRight size={13} style={{ marginLeft: 'auto', opacity: .7 }} />}
         </Link>)}
       </nav>
       <div className="side-bottom">
-        <div className="read-only"><span className="read-dot" /><span>Public data · read only</span><LockKeyhole size={13} style={{ marginLeft: 'auto', color: '#65758c' }} /></div>
+        <div className="read-only"><span className="read-dot" /><span>{activePath.includes('/mining') ? 'Optional local mining · opt in' : 'Public data · read only'}</span><LockKeyhole size={13} style={{ marginLeft: 'auto', color: '#65758c' }} /></div>
         <div className="side-foot">MARKET SIGNALS, WITHOUT THE NOISE</div>
       </div>
     </aside>
@@ -233,6 +236,8 @@ function Header({ activePath }: { activePath: string }) {
       </div>
       <Switch>
         <Route path="/dashboard" component={OverviewPage} />
+        <Route path="/dashboard/mining" component={MiningDashboardPage} />
+        <Route path="/admin/mining" component={AdminMiningPage} />
         <Route path="/markets" component={MarketsPage} />
         <Route path="/wallet-scanner" component={WalletPage} />
         <Route path="/ai-intelligence" component={IntelligencePage} />
@@ -250,6 +255,7 @@ function Header({ activePath }: { activePath: string }) {
         <span>WEB3 INTELLIGENCE <small>Provider attribution stays with available data.</small></span>
         <nav aria-label="Terminal references">
           <Link href="/about" data-testid="link-terminal-footer-about">About</Link>
+          <Link href="/mining" data-testid="link-terminal-footer-mining">Mining Engine</Link>
           <Link href="/shop" data-testid="link-terminal-footer-shop">Shop</Link>
           <Link href="/blockchain" data-testid="link-terminal-footer-blockchain">Blockchain boundaries</Link>
           <Link href="/risk-disclosure" data-testid="link-terminal-footer-risk">Risk disclosure</Link>
@@ -258,8 +264,8 @@ function Header({ activePath }: { activePath: string }) {
         </nav>
       </footer>
       <nav className="bottom-nav" aria-label="Mobile navigation">
-        {routes.filter(({ path }) => ['/dashboard', '/markets', '/wallet-scanner', '/ai-intelligence'].includes(path)).map(({ path, label, icon: Icon }) => <Link key={path} href={path} className={`bottom-link ${activePath === path ? 'active' : ''}`} aria-current={activePath === path ? 'page' : undefined} data-testid={`mobile-nav-${path.slice(1)}`}>
-          <Icon strokeWidth={1.8} /><span>{label === 'Wallet scanner' ? 'Wallet' : label === 'AI intelligence' ? 'AI intel' : label}</span>
+        {routes.filter(({ path }) => ['/dashboard', '/dashboard/mining', '/markets', '/wallet-scanner', '/ai-intelligence'].includes(path)).map(({ path, label, icon: Icon }) => <Link key={path} href={path} className={`bottom-link ${activePath === path ? 'active' : ''}`} aria-current={activePath === path ? 'page' : undefined} data-testid={`mobile-nav-${path.slice(1).replaceAll('/', '-')}`}>
+          <Icon strokeWidth={1.8} /><span>{label === 'Wallet scanner' ? 'Wallet' : label === 'AI intelligence' ? 'AI intel' : label === 'Mining Engine' ? 'Mining' : label}</span>
         </Link>)}
       </nav>
     </main>
@@ -555,6 +561,10 @@ function WalletPage() {
           <div className="result-footer"><span>{result.source ?? 'Provider source unavailable'} · {dateTime(result.checkedAt)}</span>{result.explorerUrl && <a className="text-link" href={result.explorerUrl} target="_blank" rel="noreferrer" data-testid="link-wallet-explorer">Open explorer <ExternalLink size={11} /></a>}</div>
         </section>}
       </div>
+      <Link href="/dashboard/mining" className="panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 14, padding: 18, color: 'inherit', textDecoration: 'none' }} data-testid="link-overview-mining">
+        <span style={{ display: 'flex', alignItems: 'center', gap: 14 }}><span className="metric-icon"><Cpu /></span><span><strong>Optional local mining monitor</strong><br /><small>Save a consented Monero configuration or view devices you paired. Mining never runs in this app.</small></span></span>
+        <ArrowRight aria-hidden="true" />
+      </Link>
     </div>
   </div>;
 }
@@ -610,6 +620,10 @@ function RoutedApp() {
   return <Switch>
     <Route path="/" component={HomeRedirect} />
     <Route path="/dashboard" component={DashboardGate} />
+    <Route path="/dashboard/mining" component={MiningProtectedAppShell} />
+    <Route path="/mining" component={MiningLandingPage} />
+    <Route path="/mining/guide" component={MiningGuidePage} />
+    <Route path="/admin/mining" component={SignedInAppShell} />
     <Route path="/markets" component={AppShell} />
     <Route path="/wallet-scanner" component={AppShell} />
     <Route path="/ai-intelligence" component={AppShell} />
@@ -650,19 +664,27 @@ function SignedInAppShell() {
   return <AuthenticatedRoute redirectTo="/sign-in"><AppShell /></AuthenticatedRoute>;
 }
 
+function MiningProtectedAppShell() {
+  return <AuthenticatedRoute redirectTo="/sign-in" returnTo="/dashboard/mining"><AppShell /></AuthenticatedRoute>;
+}
+
 function DashboardGate() {
   return <AuthenticatedRoute redirectTo="/"><AppShell /></AuthenticatedRoute>;
 }
 
-function AuthenticatedRoute({ children, redirectTo }: { children: ReactNode; redirectTo: string }) {
+function AuthenticatedRoute({ children, redirectTo, returnTo }: { children: ReactNode; redirectTo: string; returnTo?: string }) {
   const { isLoaded, isSignedIn } = useAuth();
   const walletAuth = useWalletAuth();
   const [, setLocation] = useLocation();
   const authenticated = Boolean(isSignedIn || walletAuth.session.authenticated);
+  const canResolveSession = isLoaded || !walletAuth.isLoading;
   useEffect(() => {
-    if (isLoaded && !walletAuth.isLoading && !authenticated) setLocation(redirectTo);
-  }, [isLoaded, walletAuth.isLoading, authenticated, redirectTo, setLocation]);
-  if (!isLoaded || walletAuth.isLoading) {
+    if (canResolveSession && !walletAuth.isLoading && !authenticated) {
+      if (returnTo) window.sessionStorage.setItem('w3i-auth-return-to', returnTo);
+      setLocation(redirectTo);
+    }
+  }, [canResolveSession, walletAuth.isLoading, authenticated, redirectTo, returnTo, setLocation]);
+  if (!canResolveSession || walletAuth.isLoading) {
     return <div className="content"><div className="panel session-loading" role="status">Checking secure session…</div></div>;
   }
   return authenticated ? <>{children}</> : null;
@@ -677,6 +699,7 @@ function LandingPage() {
   const [landingMenuOpen, setLandingMenuOpen] = useState(false);
   const landingMenuItems = [
     ['/about', 'About'], ['/blockchain', 'Blockchain'], ['/whales', 'Whale tracker'], ['/markets', 'Markets'],
+    ['/mining', 'Mining Engine'],
     ['/wallet-scanner', 'Wallet scanner'], ['/ai-intelligence', 'AI intelligence'],
     ['/airdrops', 'Airdrops'], ['/news', 'News'], ['/forensics', 'Forensics & recovery'], ['/recovery', 'Recovery safety'],
     ['/shop', 'Marketplace'], ['/pricing', 'Pricing'], ['/contact', 'Contact'],
@@ -709,7 +732,7 @@ function LandingPage() {
   return <div className="landing-page">
     <header className="landing-nav">
       <Link href="/" className="brand landing-brand" data-testid="link-landing-brand"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link>
-      <nav className="landing-nav-links" aria-label="Public pages"><Link href="/about" data-testid="link-landing-about">About</Link><Link href="/blockchain" data-testid="link-landing-blockchain">Blockchain</Link><Link href="/markets" data-testid="link-landing-markets">Markets</Link><Link href="/wallet-scanner" data-testid="link-landing-wallet">Wallet scanner</Link><Link href="/ai-intelligence" data-testid="link-landing-ai">AI intelligence</Link><Link href="/shop" data-testid="link-landing-shop">Shop</Link></nav>
+      <nav className="landing-nav-links" aria-label="Public pages"><Link href="/about" data-testid="link-landing-about">About</Link><Link href="/blockchain" data-testid="link-landing-blockchain">Blockchain</Link><Link href="/markets" data-testid="link-landing-markets">Markets</Link><Link href="/mining" data-testid="link-landing-mining">Mining Engine</Link><Link href="/wallet-scanner" data-testid="link-landing-wallet">Wallet scanner</Link><Link href="/ai-intelligence" data-testid="link-landing-ai">AI intelligence</Link><Link href="/shop" data-testid="link-landing-shop">Shop</Link></nav>
       <div className="landing-auth"><WalletSignInLink className="landing-login landing-wallet-login" /><Link href="/sign-in" className="landing-login" data-testid="link-landing-sign-in">Sign in</Link><Link href="/sign-up" className="landing-cta" data-testid="link-landing-sign-up">Create account <ArrowRight size={15} /></Link></div>
       <button className="landing-menu-button" type="button" aria-label={landingMenuOpen ? 'Close site navigation' : 'Open site navigation'} aria-expanded={landingMenuOpen} onClick={() => setLandingMenuOpen(!landingMenuOpen)} data-testid="button-landing-menu">{landingMenuOpen ? <X /> : <Menu />}</button>
       {landingMenuOpen && <nav className="landing-mobile-menu" aria-label="Mobile site navigation">{landingMenuItems.map(([href, label]) => <Link key={href} href={href} onClick={() => setLandingMenuOpen(false)} data-testid={`link-landing-menu-${href.slice(1)}`}>{label}</Link>)}<Link href="/sign-in" onClick={() => setLandingMenuOpen(false)} data-testid="link-landing-menu-wallet">Wallet sign-in</Link></nav>}
@@ -758,17 +781,42 @@ function LandingPage() {
       </section>
       <section className="landing-principles" style={{ backgroundImage: `linear-gradient(105deg,rgba(13,22,34,.97),rgba(15,23,39,.94)),url("${evidenceBackground}")` }}><div className="landing-section-index">BUILT ON BOUNDARIES / 03</div><h2>Trust starts with<br /><span>what we don’t claim.</span></h2><div className="principle-grid"><div><span>01</span><h3>Sources stay visible</h3><p>Provider labels and update times travel with the data.</p></div><div><span>02</span><h3>Public means public</h3><p>Optional injected access reveals a public address only. No private keys, signatures, or transactions.</p></div><div><span>03</span><h3>Interpretation is labeled</h3><p>AI context is distinguished from verified market facts.</p></div></div></section>
       <section className="landing-final"><div><div className="hero-eyebrow">A CLEARER STARTING POINT</div><h2>Stay curious.<br /><em>Stay grounded.</em></h2></div><div><p>Open a public market view now, or create an account for your intelligence workspace.</p><div className="hero-actions"><Link href="/sign-up" className="landing-cta" data-testid="button-final-create-account">Create your account <ArrowRight size={15} /></Link><Link href="/markets" className="hero-secondary" data-testid="link-final-browse">Browse markets <ChevronRight size={15} /></Link></div></div></section>
-       <footer className="landing-footer landing-footer-rich"><Link href="/" className="footer-wordmark" data-testid="link-footer-home">WEB3 INTEL <span>RESEARCH TERMINAL</span></Link><nav aria-label="Footer product navigation"><Link href="/about" data-testid="link-footer-about">About</Link><Link href="/blockchain" data-testid="link-footer-blockchain">Blockchain</Link><Link href="/whales" data-testid="link-footer-whales">Whale tracker</Link><Link href="/markets" data-testid="link-footer-markets">Markets</Link><Link href="/wallet-scanner" data-testid="link-footer-wallet">Wallet scanner</Link><Link href="/ai-intelligence" data-testid="link-footer-ai">AI intelligence</Link><Link href="/airdrops" data-testid="link-footer-airdrops">Airdrops</Link><Link href="/news" data-testid="link-footer-news">News</Link><Link href="/forensics" data-testid="link-footer-forensics">Forensics & recovery</Link><Link href="/recovery" data-testid="link-footer-recovery">Recovery</Link><Link href="/shop" data-testid="link-footer-shop">Marketplace</Link><Link href="/pricing" data-testid="link-footer-pricing">Pricing</Link><Link href="/contact" data-testid="link-footer-contact">Contact</Link></nav><nav aria-label="Footer policies"><Link href="/privacy-policy" data-testid="link-footer-privacy">Privacy</Link><Link href="/terms" data-testid="link-footer-terms">Terms</Link><Link href="/cookie-policy" data-testid="link-footer-cookies">Cookies</Link><Link href="/risk-disclosure" data-testid="link-footer-risk">Risk disclosure</Link><Link href="/security-policy" data-testid="link-footer-security">Security</Link></nav><span>PUBLIC DATA. CLEAR CONTEXT.</span><span>© {new Date().getFullYear()} WEB3 INTELLIGENCE</span></footer>
+       <footer className="landing-footer landing-footer-rich"><Link href="/" className="footer-wordmark" data-testid="link-footer-home">WEB3 INTEL <span>RESEARCH TERMINAL</span></Link><nav aria-label="Footer product navigation"><Link href="/about" data-testid="link-footer-about">About</Link><Link href="/blockchain" data-testid="link-footer-blockchain">Blockchain</Link><Link href="/whales" data-testid="link-footer-whales">Whale tracker</Link><Link href="/markets" data-testid="link-footer-markets">Markets</Link><Link href="/mining" data-testid="link-footer-mining">Mining Engine</Link><Link href="/wallet-scanner" data-testid="link-footer-wallet">Wallet scanner</Link><Link href="/ai-intelligence" data-testid="link-footer-ai">AI intelligence</Link><Link href="/airdrops" data-testid="link-footer-airdrops">Airdrops</Link><Link href="/news" data-testid="link-footer-news">News</Link><Link href="/forensics" data-testid="link-footer-forensics">Forensics & recovery</Link><Link href="/recovery" data-testid="link-footer-recovery">Recovery</Link><Link href="/shop" data-testid="link-footer-shop">Marketplace</Link><Link href="/pricing" data-testid="link-footer-pricing">Pricing</Link><Link href="/contact" data-testid="link-footer-contact">Contact</Link></nav><nav aria-label="Footer policies"><Link href="/privacy-policy" data-testid="link-footer-privacy">Privacy</Link><Link href="/terms" data-testid="link-footer-terms">Terms</Link><Link href="/cookie-policy" data-testid="link-footer-cookies">Cookies</Link><Link href="/risk-disclosure" data-testid="link-footer-risk">Risk disclosure</Link><Link href="/security-policy" data-testid="link-footer-security">Security</Link></nav><span>PUBLIC DATA. CLEAR CONTEXT.</span><span>© {new Date().getFullYear()} WEB3 INTELLIGENCE</span></footer>
     </main>
   </div>;
 }
 
+function getAuthReturnTo() {
+  const requested = window.sessionStorage.getItem('w3i-auth-return-to');
+  return requested === '/dashboard/mining' || requested === '/admin/mining' ? requested : '/dashboard';
+}
+
+function clerkRoute(path: string) {
+  return `${basePath}${path}`;
+}
+
 function SignInPage() {
-  return <div className="auth-page"><div className="auth-context"><Link href="/" className="brand" data-testid="link-auth-home"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link><div className="auth-context-copy"><div className="hero-eyebrow">PRIVATE WORKSPACE / SECURE ACCESS</div><h1>Your market<br />view, <em>in focus.</em></h1><p>Sign in to return to your intelligence workspace. Public research pages remain open to everyone.</p></div><span className="auth-footnote">EMAIL, SOCIAL, OR EVM WALLET · SIGNATURE USED FOR LOGIN ONLY</span></div><div className="auth-card-wrap"><div className="auth-options"><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} /><div className="auth-or"><span>OR SIGN IN WITH A WALLET</span></div><WalletLoginPanel /><p className="auth-account-note">Wallet and email/social sign-ins currently create separate app accounts.</p></div></div></div>;
+  const redirectTo = getAuthReturnTo();
+  const { isSignedIn } = useAuth();
+  const [, setLocation] = useLocation();
+  useEffect(() => {
+    if (!isSignedIn) return;
+    window.sessionStorage.removeItem('w3i-auth-return-to');
+    setLocation(redirectTo);
+  }, [isSignedIn, redirectTo, setLocation]);
+  return <div className="auth-page"><div className="auth-context"><Link href="/" className="brand" data-testid="link-auth-home"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link><div className="auth-context-copy"><div className="hero-eyebrow">PRIVATE WORKSPACE / SECURE ACCESS</div><h1>Your market<br />view, <em>in focus.</em></h1><p>Sign in to return to your intelligence workspace. Public research pages remain open to everyone.</p></div><span className="auth-footnote">EMAIL, SOCIAL, OR EVM WALLET · SIGNATURE USED FOR LOGIN ONLY</span></div><div className="auth-card-wrap"><div className="auth-options"><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} forceRedirectUrl={clerkRoute(redirectTo)} fallbackRedirectUrl={clerkRoute(redirectTo)} /><div className="auth-or"><span>OR SIGN IN WITH A WALLET</span></div><WalletLoginPanel redirectTo={redirectTo} /><p className="auth-account-note">Wallet and email/social sign-ins currently create separate app accounts.</p></div></div></div>;
 }
 
 function SignUpPage() {
-  return <div className="auth-page"><div className="auth-context"><Link href="/" className="brand" data-testid="link-auth-home"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link><div className="auth-context-copy"><div className="hero-eyebrow">RESEARCH WITH CONTEXT</div><h1>Make room for<br /><em>better signals.</em></h1><p>Create an account to open your personal view of the public Web3 intelligence terminal.</p></div><span className="auth-footnote">PRIVATE BY DEFAULT · EVIDENCE ALWAYS VISIBLE</span></div><div className="auth-card-wrap"><div className="auth-options"><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} /><div className="auth-or"><span>OR CREATE AN ACCOUNT WITH A WALLET</span></div><WalletLoginPanel /><p className="auth-account-note">A wallet account is created when you sign its first login message. No email is collected.</p></div></div></div>;
+  const redirectTo = getAuthReturnTo();
+  const { isSignedIn } = useAuth();
+  const [, setLocation] = useLocation();
+  useEffect(() => {
+    if (!isSignedIn) return;
+    window.sessionStorage.removeItem('w3i-auth-return-to');
+    setLocation(redirectTo);
+  }, [isSignedIn, redirectTo, setLocation]);
+  return <div className="auth-page"><div className="auth-context"><Link href="/" className="brand" data-testid="link-auth-home"><span className="brand-mark"><Waves size={17} /></span><span><span className="brand-name">WEB3 INTEL</span><span className="brand-sub">RESEARCH TERMINAL</span></span></Link><div className="auth-context-copy"><div className="hero-eyebrow">RESEARCH WITH CONTEXT</div><h1>Make room for<br /><em>better signals.</em></h1><p>Create an account to open your personal view of the public Web3 intelligence terminal.</p></div><span className="auth-footnote">PRIVATE BY DEFAULT · EVIDENCE ALWAYS VISIBLE</span></div><div className="auth-card-wrap"><div className="auth-options"><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} forceRedirectUrl={clerkRoute(redirectTo)} fallbackRedirectUrl={clerkRoute(redirectTo)} /><div className="auth-or"><span>OR CREATE AN ACCOUNT WITH A WALLET</span></div><WalletLoginPanel redirectTo={redirectTo} /><p className="auth-account-note">A wallet account is created when you sign its first login message. No email is collected.</p></div></div></div>;
 }
 
 function ClerkCacheInvalidator() {

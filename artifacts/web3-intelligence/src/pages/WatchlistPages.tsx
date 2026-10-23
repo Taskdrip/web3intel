@@ -407,6 +407,9 @@ export function AdminPage() {
   const allWatches = watches.data ?? [];
   return <div className="content watch-content">
     <SectionHeading overline="CONTROL ROOM / 04" title="Administration" copy="Manage accounts, wallet watches, saved activity, and provider configuration across the app. Access checks are enforced by the protected admin API." />
+    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
+      <Link href="/admin/mining" className="subtle-button" data-testid="link-admin-mining">Mining engine administration <ChevronRight size={14} /></Link>
+    </div>
     <div className="admin-banner"><Shield size={16} /><span><strong>Administrator session verified</strong><small>Role checks and management actions are enforced by the API.</small></span><span className="admin-role-tag">{currentUser.data.role}</span></div>
     <PublicDataBoundary compact />
     <div className="admin-metrics">

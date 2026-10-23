@@ -229,7 +229,7 @@ export function WalletSignInLink({ className = "" }: { className?: string }) {
   );
 }
 
-export function WalletLoginPanel() {
+export function WalletLoginPanel({ redirectTo = "/dashboard" }: { redirectTo?: string } = {}) {
   const { session, signingIn, error, clearError, signIn } = useWalletAuth();
   const [wallets, setWallets] = useState<AvailableWallet[] | null>(null);
   const [discovering, setDiscovering] = useState(false);
@@ -237,8 +237,11 @@ export function WalletLoginPanel() {
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (session.authenticated) setLocation("/dashboard");
-  }, [session.authenticated, setLocation]);
+    if (session.authenticated) {
+      window.sessionStorage.removeItem("w3i-auth-return-to");
+      setLocation(redirectTo);
+    }
+  }, [session.authenticated, redirectTo, setLocation]);
 
   const chooseWallet = async () => {
     clearError();
