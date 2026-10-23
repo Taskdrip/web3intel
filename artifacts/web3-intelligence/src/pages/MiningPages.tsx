@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import {
   Activity, AlertTriangle, ArrowRight, ArrowUpRight, Check, CheckCircle2,
@@ -83,8 +83,8 @@ function SectionHeading({ eyebrow, title, description, updatedAt }: { eyebrow: s
   </header>;
 }
 
-function Panel({ title, subtitle, index, children, className = '' }: { title: string; subtitle?: string; index?: string; children: ReactNode; className?: string }) {
-  return <section className={`mine-panel ${className}`}>
+function Panel({ title, subtitle, index, children, className = '', id }: { title: string; subtitle?: string; index?: string; children: ReactNode; className?: string; id?: string }) {
+  return <section className={`mine-panel ${className}`} id={id}>
     <div className="mine-panel-head">
       <div><div className="mine-panel-title">{title}</div>{subtitle && <div className="mine-panel-subtitle">{subtitle}</div>}</div>
       {index && <span className="mine-index">{index}</span>}
@@ -391,6 +391,141 @@ function CostEstimator() {
   </Panel>;
 }
 
+type MoneroNetworkSnapshot = {
+  difficulty: number;
+  height: number;
+  hashrate: number;
+  last_reward: string;
+  last_timestamp: number;
+};
+
+type MoneroPriceSnapshot = {
+  monero: { usd: number; usd_24h_change: number };
+};
+
+async function fetchMoneroNetwork(): Promise<MoneroNetworkSnapshot> {
+  const response = await fetch('https://moneroblocks.info/api/get_stats', {
+    headers: { accept: 'application/json' },
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!response.ok) throw new Error(`Network provider returned ${response.status}`);
+  const data = await response.json() as Partial<MoneroNetworkSnapshot>;
+  if (
+    typeof data.difficulty !== 'number' ||
+    typeof data.height !== 'number' ||
+    typeof data.hashrate !== 'number' ||
+    typeof data.last_reward !== 'string' ||
+    typeof data.last_timestamp !== 'number' ||
+    ![data.difficulty, data.height, data.hashrate, data.last_timestamp].every(Number.isFinite)
+  ) {
+    throw new Error('Network provider returned incomplete data');
+  }
+  return data as MoneroNetworkSnapshot;
+}
+
+async function fetchMoneroPrice(): Promise<MoneroPriceSnapshot> {
+  const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=monero&vs_currencies=usd&include_24hr_change=true', {
+    headers: { accept: 'application/json' },
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!response.ok) throw new Error(`Price provider returned ${response.status}`);
+  const data = await response.json() as Partial<MoneroPriceSnapshot>;
+  const price = data.monero?.usd;
+  const change = data.monero?.usd_24h_change;
+  if (typeof price !== 'number' || !Number.isFinite(price) || typeof change !== 'number' || !Number.isFinite(change)) {
+    throw new Error('Price provider returned incomplete data');
+  }
+  return data as MoneroPriceSnapshot;
+}
+
+function formatGlobalHashrate(value: number) {
+  if (value >= 1e12) return `${(value / 1e12).toFixed(2)} TH/s`;
+  if (value >= 1e9) return `${(value / 1e9).toFixed(2)} GH/s`;
+  if (value >= 1e6) return `${(value / 1e6).toFixed(2)} MH/s`;
+  return `${value.toLocaleString(undefined, { maximumFractionDigits: 0 })} H/s`;
+}
+
+function NetworkPulse() {
+  const network = useQuery({
+    queryKey: ['public-mining-network', 'monero'],
+    queryFn: fetchMoneroNetwork,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
+    retry: 1,
+  });
+  const price = useQuery({
+    queryKey: ['public-mining-price', 'monero'],
+    queryFn: fetchMoneroPrice,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
+    retry: 1,
+  });
+  const networkData = network.data;
+  const priceData = price.data?.monero;
+  const reward = networkData ? Number(networkData.last_reward) / 1e12 : null;
+  const networkUpdated = networkData ? new Date(networkData.last_timestamp * 1000) : null;
+  return <Panel
+    title="Monero global network"
+    subtitle="Live public-network readings. These are not device telemetry, pool earnings, or a profitability forecast."
+    index="PUBLIC DATA"
+    className="mine-network-panel"
+  >
+    <div className="mine-network-toolbar">
+      <span><span className="mine-live-dot" /> Refreshes every minute</span>
+      <button className="mine-button" type="button" onClick={() => { void network.refetch(); void price.refetch(); }} disabled={network.isFetching || price.isFetching}>
+        <RefreshCw /> {network.isFetching || price.isFetching ? 'Refreshing…' : 'Refresh now'}
+      </button>
+    </div>
+    <div className="mine-network-grid" aria-live="polite">
+      <article className="mine-network-stat">
+        <span>Monero price</span>
+        <strong>{priceData ? dollars(priceData.usd) : price.isLoading ? 'Loading…' : 'Unavailable'}</strong>
+        {priceData
+          ? <small className={priceData.usd_24h_change >= 0 ? 'positive' : 'negative'}>{priceData.usd_24h_change >= 0 ? '+' : ''}{priceData.usd_24h_change.toFixed(2)}% · 24 hours</small>
+          : <small>{price.isError ? 'CoinGecko price feed unavailable.' : 'Fetching current market price.'}</small>}
+      </article>
+      <article className="mine-network-stat">
+        <span>Estimated network hashrate</span>
+        <strong>{networkData ? formatGlobalHashrate(networkData.hashrate) : network.isLoading ? 'Loading…' : 'Unavailable'}</strong>
+        <small>Monero-wide estimate · not your device</small>
+      </article>
+      <article className="mine-network-stat">
+        <span>Network difficulty</span>
+        <strong>{networkData ? networkData.difficulty.toLocaleString() : network.isLoading ? 'Loading…' : 'Unavailable'}</strong>
+        <small>Reported by the public explorer</small>
+      </article>
+      <article className="mine-network-stat">
+        <span>Latest block</span>
+        <strong>{networkData ? networkData.height.toLocaleString() : network.isLoading ? 'Loading…' : 'Unavailable'}</strong>
+        <small>{reward !== null && Number.isFinite(reward) ? `Last reported reward · ${reward.toFixed(5)} XMR` : 'Reward unavailable'}</small>
+      </article>
+    </div>
+    {(network.isError || price.isError) && <div className="mine-network-error" role="status">
+      {network.isError && <span>Network data unavailable. <button type="button" onClick={() => void network.refetch()}>Retry network data</button></span>}
+      {price.isError && <span>Price unavailable. <button type="button" onClick={() => void price.refetch()}>Retry price feed</button></span>}
+    </div>}
+    <div className="mine-network-sources">
+      <span>Network: <a href="https://moneroblocks.info/" target="_blank" rel="noreferrer">MoneroBlocks</a>{networkUpdated ? ` · block data ${displayDate(networkUpdated.toISOString())}` : ''}</span>
+      <span>Price: <a href="https://www.coingecko.com/en/coins/monero" target="_blank" rel="noreferrer">CoinGecko</a>{price.dataUpdatedAt ? ` · refreshed ${displayDate(new Date(price.dataUpdatedAt).toISOString())}` : ''}</span>
+    </div>
+  </Panel>;
+}
+
+function QuickSetup() {
+  return <section className="mine-quickstart" aria-labelledby="mine-quickstart-title">
+    <div className="mine-quickstart-head">
+      <div><div className="mine-story-index">LOCAL SETUP / 3 STEPS</div><h2 id="mine-quickstart-title">A simple setup path</h2></div>
+      <span className="mine-quickstart-time"><Clock3 /> About 3 minutes*</span>
+    </div>
+    <div className="mine-quickstart-grid">
+      <article><span className="mine-quickstart-number">01 · 1 MIN</span><h3>Save your configuration</h3><p>Choose your own Monero pool or node, add a public receiving address, and confirm opt-in.</p><a href="#setup-config">Go to configuration <ArrowRight /></a></article>
+      <article><span className="mine-quickstart-number">02 · 1 MIN*</span><h3>Get XMRig from its publisher</h3><p>Download the official release for your computer. Review the release notes; never bypass security warnings.</p><a href="https://xmrig.com/download" target="_blank" rel="noreferrer">Official XMRig downloads <ExternalLink /></a></article>
+      <article><span className="mine-quickstart-number">03 · 1 MIN</span><h3>Launch it on your device</h3><p>Use the saved JSON and the command for your operating system. Start and stop XMRig yourself.</p><a href="#setup-local">View local launch steps <ArrowRight /></a></article>
+    </div>
+    <p className="mine-quickstart-footnote">*Three minutes is a setup target, not a guarantee. Download times and first-run checks vary. Web3Intel never installs, starts, or controls mining software.</p>
+  </section>;
+}
+
 export function MiningDashboardPage() {
   const dashboard = useGetMiningDashboard({ query: { queryKey: getGetMiningDashboardQueryKey(), refetchInterval: 30_000 } });
   const createConfiguration = useCreateMiningConfiguration();
@@ -514,11 +649,13 @@ export function MiningDashboardPage() {
     (revokeConsent.isError ? 'Consent could not be revoked. Retry the action.' : '');
 
   return <div className="mining-root">
-    <main className="mining-page">
+    <main className="mining-page mine-dashboard">
       <div className="mine-topline"><span>WEB3INTEL / PRIVATE WORKSPACE</span><nav aria-label="Mining references"><Link className="mine-link" href="/mining/guide">Security and setup guide <ArrowUpRight size={13} /></Link></nav></div>
       <SectionHeading eyebrow="OPTIONAL LOCAL MONITOR / 01" title="Mining dashboard" description="Manage configurations and monitor devices you have explicitly paired. Web3Intel does not install, start, stop, or control XMRig." updatedAt={dashboard.data?.updatedAt} />
       {mutationError && <div className="mine-alert" role="alert"><CircleAlert /><span>{mutationError}</span></div>}
       {success && <div className="mine-note success" role="status"><CheckCircle2 /><div>{success}</div></div>}
+      <NetworkPulse />
+      <QuickSetup />
       {dashboard.isLoading ? <LoadingCards count={3} /> :
         dashboard.isError || !dashboard.data ? <QueryError message="Your mining dashboard could not be loaded. Sign in again if your session has expired." retry={() => dashboard.refetch()} /> :
           <>
@@ -539,7 +676,7 @@ export function MiningDashboardPage() {
               <div className="mine-reward-boundary"><ShieldCheck size={15} /><span>Estimated and actual pool rewards are unavailable until a real pool integration exists. Device telemetry remains Awaiting pool verification.</span></div>
             </Panel>
             <div className="mine-two-col" style={{ marginTop: 14 }}>
-              <Panel title="Saved configuration" subtitle="Create a local XMRig configuration using values you supply." index="OPT-IN SETUP">
+              <Panel id="setup-config" title="Saved configuration" subtitle="Create a local XMRig configuration using values you supply." index="OPT-IN SETUP">
                 <form className="mine-form" onSubmit={submitConfiguration}>
                   <div className="mine-form-grid">
                     <label className="mine-field">Connection method
@@ -590,7 +727,7 @@ export function MiningDashboardPage() {
                 </form>
               </Panel>
               <div className="mine-surface-grid">
-                <Panel title="Local install / launch" subtitle="Manual steps only. You control every local action." index="ON YOUR DEVICE">
+                <Panel id="setup-local" title="Local install / launch" subtitle="Manual steps only. You control every local action." index="ON YOUR DEVICE">
                   <div className="mine-form">
                     <Note><strong>Web3Intel does not install, launch, or manage XMRig.</strong> Download XMRig from its official publisher source, review its instructions, and launch it manually with the JSON file you download below. The file sets background and autosave off and does not create an operating-system startup task.</Note>
                     <label className="mine-field">Choose a saved configuration

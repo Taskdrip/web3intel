@@ -244,3 +244,106 @@
   .mining-page,.mine-skeleton { animation:none; }
   .mine-button { transition:none; }
 }
+
+/* The signed-in dashboard is a working surface, so its labels and controls
+   deliberately use a larger type scale than the compact research pages. */
+.mine-dashboard .mine-topline { font-size:12px; }
+.mine-dashboard .mine-link { font-size:14px; }
+.mine-dashboard .mine-heading { margin-bottom:26px; }
+.mine-dashboard .mine-eyebrow { font-size:12px; }
+.mine-dashboard .mine-heading h1 { font-size:clamp(34px,4vw,48px); }
+.mine-dashboard .mine-heading p { max-width:760px; font-size:16px; line-height:1.65; }
+.mine-dashboard .mine-stamp { font-size:12px; }
+.mine-dashboard .mine-stat-grid { gap:14px; margin:20px 0; }
+.mine-dashboard .mine-stat { min-height:132px; padding:20px; }
+.mine-dashboard .mine-stat-label { font-size:12px; }
+.mine-dashboard .mine-stat-value { margin-top:18px; font-size:32px; }
+.mine-dashboard .mine-stat-note { font-size:13px; line-height:1.55; }
+.mine-dashboard .mine-panel-head { padding:20px 22px 16px; }
+.mine-dashboard .mine-panel-title { font-size:17px; }
+.mine-dashboard .mine-panel-subtitle { font-size:13px; line-height:1.6; }
+.mine-dashboard .mine-index { font-size:11px; }
+.mine-dashboard .mine-body { padding:22px; }
+.mine-dashboard .mine-note,
+.mine-dashboard .mine-alert { font-size:14px; line-height:1.65; }
+.mine-dashboard .mine-button { min-height:44px; padding:0 15px; font-size:14px; }
+.mine-dashboard .mine-button svg { width:17px; height:17px; }
+.mine-dashboard .mine-field { gap:8px; font-size:14px; }
+.mine-dashboard .mine-field small,
+.mine-dashboard .mine-checkbox { font-size:13px; line-height:1.6; }
+.mine-dashboard .mine-input,
+.mine-dashboard .mine-select { min-height:48px; padding:12px 13px; font-size:14px; }
+.mine-dashboard .mine-empty { font-size:14px; }
+.mine-dashboard .mine-empty strong { font-size:16px; }
+.mine-dashboard .mine-status { font-size:11px; }
+.mine-dashboard .mine-config-facts small { font-size:12px; }
+.mine-dashboard .mine-config-facts strong { font-size:14px; }
+.mine-dashboard .mine-reward-boundary { font-size:13px; }
+.mine-dashboard .mine-table th { font-size:11px; }
+.mine-dashboard .mine-table td { font-size:13px; }
+.mine-dashboard .mine-device-name { font-size:14px; }
+.mine-dashboard .mine-secondary,
+.mine-dashboard .mine-mono { font-size:12px; }
+.mine-dashboard .mine-history-toggle { min-height:38px; font-size:13px; }
+.mine-dashboard .mine-history-time,
+.mine-dashboard .mine-history-meta,
+.mine-dashboard .mine-history-metrics strong { font-size:12px; }
+.mine-dashboard .mine-history-metrics small,
+.mine-dashboard .mine-history-empty { font-size:13px; }
+.mine-dashboard .mine-code { font-size:15px; }
+.mine-dashboard .mine-estimate-result strong { font-size:30px; }
+.mine-dashboard .mine-estimate-result small { font-size:12px; line-height:1.65; }
+
+.mine-network-panel { margin-top:16px; }
+.mine-network-toolbar { display:flex; justify-content:space-between; align-items:center; gap:14px; margin-bottom:16px; color:#aab9c8; font-size:13px; }
+.mine-network-toolbar > span { display:inline-flex; align-items:center; gap:9px; }
+.mine-live-dot { width:9px; height:9px; border-radius:50%; background:#68d5ae; box-shadow:0 0 0 4px rgba(104,213,174,.12); }
+.mine-network-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:11px; }
+.mine-network-stat { min-width:0; min-height:122px; padding:15px; border:1px solid #2c4054; border-radius:9px; background:rgba(10,19,31,.52); }
+.mine-network-stat > span { display:block; color:#a8b7c7; font-size:13px; line-height:1.4; }
+.mine-network-stat strong { display:block; margin:14px 0 7px; color:#f0f6fb; font-size:clamp(20px,2.2vw,28px); line-height:1.1; letter-spacing:-.04em; overflow-wrap:anywhere; }
+.mine-network-stat small { display:block; color:#91a2b5; font-size:12px; line-height:1.5; }
+.mine-network-stat small.positive { color:#83d7b5; }
+.mine-network-stat small.negative { color:#efaaaf; }
+.mine-network-error { display:grid; gap:6px; margin-top:12px; color:#e9b7ba; font-size:13px; }
+.mine-network-error button { border:0; background:none; color:#9ce5f1; font:inherit; text-decoration:underline; cursor:pointer; }
+.mine-network-sources { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px 20px; margin-top:14px; color:#91a2b5; font-size:12px; line-height:1.5; }
+.mine-network-sources a { color:#9fe0ed; }
+
+.mine-quickstart { margin-top:16px; padding:22px; border:1px solid #304258; border-radius:12px; background:linear-gradient(135deg,rgba(19,34,52,.92),rgba(14,24,37,.96)); }
+.mine-quickstart-head { display:flex; justify-content:space-between; align-items:center; gap:15px; margin-bottom:17px; }
+.mine-quickstart-head .mine-story-index { margin-bottom:7px; font-size:11px; }
+.mine-quickstart-head h2 { margin:0; color:#eaf2f8; font-size:24px; letter-spacing:-.04em; }
+.mine-quickstart-time { display:flex; align-items:center; gap:8px; padding:9px 12px; border:1px solid rgba(104,213,174,.26); border-radius:7px; background:rgba(41,119,92,.12); color:#a6e5ce; font-size:14px; font-weight:700; white-space:nowrap; }
+.mine-quickstart-time svg { width:16px; height:16px; }
+.mine-quickstart-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.mine-quickstart-grid article { min-width:0; padding:16px; border:1px solid #2b4055; border-radius:8px; background:rgba(10,19,31,.55); }
+.mine-quickstart-number { color:#82d8e8; font:12px var(--app-font-mono); letter-spacing:.08em; }
+.mine-quickstart-grid h3 { margin:12px 0 7px; color:#e4edf5; font-size:16px; line-height:1.35; }
+.mine-quickstart-grid p { min-height:64px; margin:0 0 12px; color:#a7b6c5; font-size:13px; line-height:1.6; }
+.mine-quickstart-grid a { display:inline-flex; align-items:center; gap:6px; color:#9fe2ef; font-size:13px; font-weight:700; line-height:1.5; }
+.mine-quickstart-grid a svg { width:14px; height:14px; flex:0 0 auto; }
+.mine-quickstart a:focus-visible,
+.mine-network-sources a:focus-visible,
+.mine-network-error button:focus-visible { outline:2px solid #77d9ed; outline-offset:3px; border-radius:3px; }
+.mine-quickstart-footnote { margin:13px 0 0; color:#9aaabc; font-size:12px; line-height:1.6; }
+
+@media (max-width: 960px) {
+  .mine-network-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .mine-quickstart-grid { grid-template-columns:1fr; }
+  .mine-quickstart-grid p { min-height:0; }
+}
+@media (max-width: 760px) {
+  .mine-dashboard .mine-stat-grid { grid-template-columns:1fr; }
+  .mine-network-toolbar { align-items:flex-start; flex-direction:column; }
+  .mine-quickstart-head { align-items:flex-start; flex-direction:column; }
+}
+@media (max-width: 500px) {
+  .mine-dashboard .mine-stat-value { font-size:28px; }
+  .mine-network-grid { grid-template-columns:1fr; }
+  .mine-network-stat { min-height:0; }
+  .mine-dashboard .mine-body { padding:16px; }
+  .mine-dashboard .mine-panel-head { padding:16px; }
+  .mine-quickstart { padding:17px; }
+  .mine-quickstart-time { white-space:normal; }
+}
